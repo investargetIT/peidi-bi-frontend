@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database">
+  <ellipse cx="15" cy="8" rx="9" ry="3"></ellipse>
+  <path d="M6 8V22A9 3 0 0 0 24 22V8"></path>
+  <path d="M6 15A9 3 0 0 0 24 15"></path>
+</svg>
