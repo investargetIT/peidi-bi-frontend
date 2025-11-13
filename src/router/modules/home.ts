@@ -6,7 +6,7 @@ export default {
   path: "/",
   name: "RFMLayout",
   component: Layout,
-  redirect: VITE_BASE_URL + "/rfm",
+  redirect: "/rfm",
   meta: {
     icon: "vaadin/chart-3d",
     title: "RFM",
@@ -14,7 +14,7 @@ export default {
   },
   children: [
     {
-      path: VITE_BASE_URL + "/rfm",
+      path: "/rfm",
       name: "RFM",
       component: () => import("@/views/RFM/index.vue"),
       meta: {

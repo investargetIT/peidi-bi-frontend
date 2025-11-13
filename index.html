@@ -79,6 +79,16 @@
       </style>
       <div class="loader"></div>
     </div>
+    <script>
+      // 因为是二级域名和pms共用一个一级域名，样式配置会被pms影响，需要存入一个唯一标识来区分
+      // 尝试从localStorage中获取唯一标识 peidibi
+      const uniqueId = JSON.parse(localStorage.getItem("peidibi") || null);
+      if (uniqueId !== 1) {
+          localStorage.clear();
+          localStorage.setItem("peidibi", 1);
+          window.location.reload();
+        }
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
