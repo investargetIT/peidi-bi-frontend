@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, nextTick } from "vue";
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { Search } from "@element-plus/icons-vue";
+import SolarChartOutline from "~icons/solar/chart-outline";
 
 // props
 const props = defineProps({
@@ -94,45 +95,88 @@ onMounted(() => {
   //   startTime: dayjs(dateRange.value[0]).format("YYYY-MM-DD")
   // });
 });
+
+// 锚点
+const handleClickAnchor = (e: Event, link: any) => {
+  //阻止点击的默认事件修改路由
+  e.preventDefault();
+  // console.log("点击了锚点", e, link);
+  // alert("点击了锚点" + link);
+  nextTick(() => {
+    if (link) {
+      const element = document.getElementById(link);
+      // alert("节点" + element);
+      element &&
+        element.scrollIntoView({
+          block: "start",
+          behavior: "smooth"
+        });
+    }
+  });
+};
 </script>
 
 <template>
   <div>
-    <Flex>
-      <span class="text-[14px]">数据抓取日期: </span>
-      <el-date-picker
-        v-model="lastOrderTime"
-        type="date"
-        placeholder="请选择"
-        :clearable="false"
-        class="mr-[20px]"
-        :disabled-date="(date: Date) => date > dayjs().endOf('day').toDate()"
-      />
-    </Flex>
+    <div class="flex items-center justify-between flex-wrap">
+      <div>
+        <Flex>
+          <span class="text-[14px]">数据抓取日期: </span>
+          <el-date-picker
+            v-model="lastOrderTime"
+            type="date"
+            placeholder="请选择"
+            :clearable="false"
+            class="mr-[20px]"
+            :disabled-date="
+              (date: Date) => date > dayjs().endOf('day').toDate()
+            "
+          />
+        </Flex>
 
-    <Flex>
-      <span class="text-[14px]">累计周期: </span>
-      <el-date-picker
-        v-model="dateRange"
-        type="daterange"
-        unlink-panels
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-        :shortcuts="shortcuts"
-        :clearable="false"
-        class="mr-[20px]"
-      />
-    </Flex>
+        <Flex>
+          <span class="text-[14px]">累计周期: </span>
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :shortcuts="shortcuts"
+            :clearable="false"
+            class="mr-[20px]"
+          />
+        </Flex>
 
-    <el-button
-      type="primary"
-      @click="handleSearch"
-      class="w-[100px]"
-      :icon="Search"
-      :loading="rfmDataLoading"
-    >
-      查询
-    </el-button>
+        <el-button
+          type="primary"
+          class="w-[100px]"
+          :icon="Search"
+          :loading="rfmDataLoading"
+          @click="handleSearch"
+        >
+          查询
+        </el-button>
+      </div>
+
+      <el-anchor @click="handleClickAnchor">
+        <el-anchor-link href="peidi-RFM-analysis">
+          <el-button type="primary" class="w-[100px]" :icon="SolarChartOutline">
+            图表
+          </el-button></el-anchor-link
+        >
+      </el-anchor>
+    </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.el-anchor {
+  background-color: transparent;
+}
+
+:deep(.el-anchor.el-anchor--vertical .el-anchor__marker) {
+  height: 0;
+}
+</style>

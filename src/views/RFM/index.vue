@@ -63,7 +63,7 @@ function fetchBiRfm({
   // 模拟进度条增加
   const interval = setInterval(() => {
     loadingProgress.value += 1;
-    if (loadingProgress.value >= 98) {
+    if (loadingProgress.value >= 99) {
       clearInterval(interval);
     }
   }, 300);
@@ -109,9 +109,9 @@ onMounted(() => {
     <OperationBar :rfmDataLoading="rfmDataLoading" />
     <!-- 表格 -->
     <Table
+      v-loading="rfmDataLoading"
       class="mt-[15px]"
       :sourceData="rfmData"
-      v-loading="rfmDataLoading"
       :element-loading-text="`数据获取中...${loadingProgress}%`"
       element-loading-background="rgba(122, 122, 122, 0.8)"
     />

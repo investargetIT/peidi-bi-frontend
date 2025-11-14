@@ -1,10 +1,44 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import * as echarts from "echarts";
 import { chinaJson } from "@/views/RFM/chartCard/mapData"; // json数据放最后
 
 const mapRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
+
+// props
+const props = defineProps({
+  mapData: {
+    type: Array as PropType<any[]>,
+    required: true
+  },
+  mapTitle: {
+    type: String as PropType<string>,
+    required: true
+  }
+});
+
+// mapData变化重新渲染地图
+watch(
+  () => props.mapData,
+  newVal => {
+    if (chartInstance) {
+      chartInstance.setOption({
+        title: {
+          text: props.mapTitle
+        },
+        visualMap: {
+          max: newVal.reduce((max, item) => Math.max(max, item.value), 0)
+        },
+        series: [
+          {
+            data: newVal
+          }
+        ]
+      });
+    }
+  }
+);
 
 const initMap = () => {
   if (!mapRef.value) return;
@@ -19,7 +53,7 @@ const initMap = () => {
   // 配置选项
   const option = {
     title: {
-      text: "中国地图 -测试",
+      text: "中国地图",
       left: "center"
     },
     tooltip: {
@@ -29,6 +63,8 @@ const initMap = () => {
       }
     },
     visualMap: {
+      min: 0,
+      max: 200,
       type: "continuous",
       left: "left",
       top: "bottom",
@@ -46,11 +82,13 @@ const initMap = () => {
         roam: true,
         zoom: 1.2,
         label: {
-          show: false
+          show: true,
+          color: "#000",
+          fontSize: 10
         },
         emphasis: {
           itemStyle: {
-            areaColor: "#0160AD"
+            // areaColor: "#0160AD"
           }
         },
         itemStyle: {
@@ -59,9 +97,9 @@ const initMap = () => {
           borderWidth: 1
         },
         data: [
-          { name: "北京市", value: 100 },
-          { name: "上海市", value: 200 },
-          { name: "广东省", value: 300 }
+          // { name: "北京市", value: 100 },
+          // { name: "上海市", value: 200 },
+          // { name: "广东省", value: 300 }
         ]
       }
     ]
@@ -85,7 +123,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mapRef" class="peidi-chartCard-map-container"></div>
+  <div ref="mapRef" class="peidi-chartCard-map-container" />
 </template>
 
 <style lang="scss" scoped>
