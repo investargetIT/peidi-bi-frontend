@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { getBiDouyinSales } from "@/api/douyin";
+import { getBiDouyinSales, getBiDouyinSalesBusinessSum } from "@/api/douyin";
 import dayjs from "dayjs";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import EpSearch from "~icons/ep/search";
 
 // 加载状态
 const loading = ref<boolean>(false);
+
+//#region 商务总和逻辑
+const businessSumList = ref<any[]>([]);
+//#endregion
+
 // 抖音业绩数据类型定义
 export interface DouyinPerformanceData {
   /** 数据记录ID */
@@ -46,66 +51,133 @@ export interface DouyinPerformanceData {
   business: string | null;
   /** 账号列表 */
   accountList: any[] | null;
+  /** 支付金额汇总（元） */
+  userPaymentAmountSum: number;
 }
 const performanceList = ref<DouyinPerformanceData[]>([]);
+//#region 搜索逻辑
 // 搜索日期，默认当天 开发中先选择有数据的日期范围
 const searchDate = ref<string[]>([
   dayjs("2025-11-01").format("YYYY-MM-DD"),
   dayjs("2025-11-03").format("YYYY-MM-DD")
 ]);
+// 搜索店铺
+const searchShopName = ref<string>("");
+// 搜索商务
+const searchBusiness = ref<string>("");
+// 拼接查询参数
+const getSearchStr = () => {
+  const searchStr = [
+    {
+      searchName: "date",
+      searchType: "betweenStr",
+      searchValue: searchDate.value
+        .map(date => dayjs(date).format("YYYY-MM-DD"))
+        .join(",")
+    }
+  ];
+  if (searchShopName.value) {
+    searchStr.push({
+      searchName: "shopName",
+      searchType: "like",
+      searchValue: `${searchShopName.value}`
+    });
+  }
+  if (searchBusiness.value) {
+    searchStr.push({
+      searchName: "business",
+      searchType: "like",
+      searchValue: `${searchBusiness.value}`
+    });
+  }
+  return JSON.stringify(searchStr);
+};
+//#endregion
+
+//#region 分页逻辑
+const pageNo = ref<number>(1);
+const pageSize = ref<number>(10);
+const pageTotal = ref<number>(0);
+//#endregion
 
 //#region 请求逻辑
 // 获取抖音业绩数据
 function fetchDouyinSales() {
   loading.value = true;
   getBiDouyinSales({
-    pageNo: 1,
-    pageSize: 10000,
-    searchStr: JSON.stringify([
-      {
-        searchName: "date",
-        searchType: "betweenStr",
-        searchValue: searchDate.value
-          .map(date => dayjs(date).format("YYYY-MM-DD"))
-          .join(",")
-      }
+    pageNo: pageNo.value,
+    pageSize: pageSize.value,
+    searchStr: getSearchStr(),
+    sortStr: JSON.stringify([
+      { sortName: "userPaymentAmountSum", sortType: "desc" }
     ])
   })
     .then((res: any) => {
       console.log("抖音业绩数据", res);
 
+      // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
+      if (res.data?.current > res.data?.pages && res.data?.total !== 0) {
+        pageNo.value = res.data?.pages;
+        return;
+      }
+
+      // 更新总页数
+      pageTotal.value = res.data?.total || 0;
+
       // 把data.records里的每条数据里的accountList铺平 暂时把records里的business赋值给accountList里的business
-      performanceList.value = res.data.records.flatMap(
+      // 把外层的userPaymentAmountSum赋值给accountList里的userPaymentAmountSum
+      const performanceListTemp = res.data.records.flatMap(
         (item: DouyinPerformanceData) => {
           if (item.accountList && item.accountList.length > 0) {
             return item.accountList.map((account: any) => ({
               ...account,
-              business: item.business
+              business: item.business,
+              userPaymentAmountSum: item.userPaymentAmountSum
             }));
           }
           return [];
         }
       );
+      performanceList.value = performanceListTemp;
     })
     .finally(() => {
       loading.value = false;
     });
+}
+// 获取抖音业绩数据-商务总和
+function fetchDouyinSalesBusinessSum() {
+  getBiDouyinSalesBusinessSum({
+    searchStr: getSearchStr()
+  }).then((res: any) => {
+    console.log("抖音业绩数据-商务总和", res);
+    businessSumList.value = res.data || [];
+  });
 }
 //#endregion
 
 // 处理查询
 function handleSearch() {
   fetchDouyinSales();
+  fetchDouyinSalesBusinessSum();
 }
 
 onMounted(() => {
   fetchDouyinSales();
+  fetchDouyinSalesBusinessSum();
 });
 
-// 处理单元格合并的方法
+// 监听分页参数变化
+watch(
+  () => [pageNo.value, pageSize.value],
+  () => {
+    fetchDouyinSales();
+  }
+);
+
+// 处理单元格合并的方法 合并达人列（第一列），同时支付金额汇总列（第五列）和达人列合并数量一样，照着达人列合并
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
-  // 只处理第一列（达人列）
-  if (columnIndex === 0) {
+  // 只处理第一列（达人列）和第五列（支付金额汇总列）
+  if (columnIndex === 0 || columnIndex === 4) {
     // 获取当前行的达人名称
     const currentAccountName = row.accountName;
 
@@ -152,24 +224,73 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
       :clearable="false"
       class="mr-[20px]"
     />
+    <el-input
+      v-model="searchBusiness"
+      style="width: 240px"
+      placeholder="搜索商务..."
+      class="mr-[20px]"
+      :prefix-icon="EpSearch"
+      clearable
+    />
+    <el-input
+      v-model="searchShopName"
+      style="width: 240px"
+      placeholder="搜索店铺..."
+      class="mr-[20px]"
+      :prefix-icon="EpSearch"
+      clearable
+    />
 
     <el-button
       type="primary"
       :icon="EpSearch"
-      @click="handleSearch"
       :loading="loading"
+      @click="handleSearch"
       >查询</el-button
     >
   </div>
 
+  <!-- 商务总和表格 -->
+  <el-collapse :expand-icon-position="'left'">
+    <el-collapse-item title="商务汇总（点击展开）" name="1">
+      <el-table
+        :data="businessSumList"
+        :header-row-style="{ color: '#09090b' }"
+        size="small"
+        border
+        width="240"
+      >
+        <el-table-column
+          prop="business"
+          label="商务"
+          width="120"
+          align="center"
+          :resizable="false"
+        />
+        <el-table-column
+          prop="userPaymentAmount"
+          label="支付金额汇总"
+          width="120"
+          align="right"
+          :formatter="
+            (row: any) => row.userPaymentAmount?.toLocaleString() || '0'
+          "
+          :resizable="false"
+        />
+      </el-table>
+    </el-collapse-item>
+  </el-collapse>
+
   <!-- 表格 -->
   <el-table
+    v-loading="loading"
     :data="performanceList"
     :header-row-style="{ color: '#09090b' }"
     size="small"
     border
     height="720"
     :span-method="objectSpanMethod"
+    class="mt-[20px]"
   >
     <el-table-column
       prop="accountName"
@@ -203,6 +324,14 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
       label="店铺"
       width="120"
       show-overflow-tooltip
+      :resizable="false"
+    />
+
+    <el-table-column
+      prop="userPaymentAmountSum"
+      label="支付金额汇总"
+      width="120"
+      align="right"
       :resizable="false"
     />
 
@@ -310,4 +439,16 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
       </template>
     </el-table-column>
   </el-table>
+
+  <!-- 分页 -->
+  <div class="flex justify-end mt-[20px]">
+    <el-pagination
+      v-model:page-size="pageSize"
+      v-model:current-page="pageNo"
+      size="small"
+      layout="prev, pager, next"
+      :total="pageTotal"
+      background
+    />
+  </div>
 </template>
