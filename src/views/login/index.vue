@@ -281,7 +281,7 @@ onMounted(() => {
     background-position: center;
     background-size: contain;
     transform-origin: center center;
-    animation: loading-shake 1.5s ease-in-out infinite;
+    // animation: loading-shake 1.5s ease-in-out infinite;
   }
 }
 </style>

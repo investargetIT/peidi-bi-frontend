@@ -84,10 +84,10 @@
       // 尝试从localStorage中获取唯一标识 peidibi
       const uniqueId = JSON.parse(localStorage.getItem("peidibi") || null);
       if (uniqueId !== 1) {
-          localStorage.clear();
-          localStorage.setItem("peidibi", 1);
-          window.location.reload();
-        }
+        localStorage.clear();
+        localStorage.setItem("peidibi", 1);
+        window.location.reload();
+      }
     </script>
     <script type="module" src="/src/main.ts"></script>
   </body>

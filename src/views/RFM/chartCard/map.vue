@@ -79,7 +79,7 @@ const initMap = () => {
         name: "区域分布",
         type: "map",
         map: "china",
-        roam: true,
+        roam: false, // 禁用拖动和缩放
         zoom: 1.2,
         label: {
           show: true,

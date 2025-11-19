@@ -76,37 +76,52 @@ const handleClickButton = (type: string) => {
   <div class="relative">
     <MapChart :mapData="mapData" :mapTitle="chartTitle" />
 
-    <div class="absolute top-0 left-0 flex">
-      <el-button
-        type="primary"
-        size="small"
-        @click="handleClickButton('totalAmount')"
-        >累计消费金额</el-button
-      >
-      <el-button
-        type="primary"
-        size="small"
-        @click="handleClickButton('lastYearAmount')"
-        >近一年消费金额</el-button
-      >
-      <el-button
-        type="primary"
-        size="small"
-        @click="handleClickButton('lastDayAmount')"
-        >最近一次消费金额</el-button
-      >
-      <el-button
-        type="primary"
-        size="small"
-        @click="handleClickButton('totalOrders')"
-        >累计消费频次</el-button
-      >
-      <el-button
-        type="primary"
-        size="small"
-        @click="handleClickButton('lastYearOrders')"
-        >近一年消费频次</el-button
-      >
+    <div class="absolute top-0 left-0 flex flex-col">
+      <div class="mb-[10px]">
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleClickButton('totalAmount')"
+          class="w-[130px]"
+          >累计消费金额</el-button
+        >
+      </div>
+      <div class="mb-[10px]">
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleClickButton('lastYearAmount')"
+          class="w-[130px]"
+          >近一年消费金额</el-button
+        >
+      </div>
+      <div class="mb-[10px]">
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleClickButton('lastDayAmount')"
+          class="w-[130px]"
+          >最近一次消费金额</el-button
+        >
+      </div>
+      <div class="mb-[10px]">
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleClickButton('totalOrders')"
+          class="w-[130px]"
+          >累计消费频次</el-button
+        >
+      </div>
+      <div class="mb-[10px]">
+        <el-button
+          type="primary"
+          size="small"
+          @click="handleClickButton('lastYearOrders')"
+          class="w-[130px]"
+          >近一年消费频次</el-button
+        >
+      </div>
     </div>
   </div>
 </template>
