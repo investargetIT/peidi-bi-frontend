@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { getBiDouyinVideo } from "@/api/douyin";
+import { getBiDouyinVideo, postBiDouyinVideoUpdate } from "@/api/douyin";
 import { onMounted, ref, watch } from "vue";
 import dayjs from "dayjs";
 import EpSearch from "~icons/ep/search";
 import { ElMessage } from "element-plus";
+import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-circle-20-solid";
 
 // 加载状态
 const loading = ref<boolean>(false);
@@ -77,6 +78,43 @@ interface DouyinShortVideo {
 }
 // 抖音短视频数据列表
 const videoList = ref<DouyinShortVideo[]>([]);
+
+//#region 排序逻辑
+// 请求的排序参数
+const sortStr = ref<{ sortName: string; sortType: string }[]>([]);
+// 处理排序事件
+function handleSortChange(column: any) {
+  console.log("column", column);
+  // 处理排序逻辑
+  if (column.column.sortable === "custom") {
+    // 自定义排序逻辑
+    // 这里可以根据 column.prop 来判断是哪个列在排序
+    // 并根据 column.order 来判断排序方向（ascending 或 descending）
+    // 最后更新表格数据即可
+    if (!column.order) {
+      sortStr.value = [];
+    }
+    if (column.order === "descending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "desc"
+        }
+      ];
+    }
+    if (column.order === "ascending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "asc"
+        }
+      ];
+    }
+    fetchDouyinVideo();
+  }
+}
+//#endregion
+
 //#region 搜索逻辑
 // 搜索日期，默认当天 开发中先选择有数据的日期范围
 const searchDate = ref<string[]>([
@@ -129,7 +167,8 @@ function fetchDouyinVideo() {
   getBiDouyinVideo({
     pageNo: pageNo.value,
     pageSize: pageSize.value,
-    searchStr: getSearchStr()
+    searchStr: getSearchStr(),
+    sortStr: JSON.stringify(sortStr.value)
   })
     .then((res: any) => {
       console.log("抖音短视频数据", res);
@@ -166,6 +205,20 @@ function fetchDouyinVideo() {
     .finally(() => {
       loading.value = false;
     });
+}
+// 修改抖音短视频数据
+function updateDouyinVideo(data: any) {
+  postBiDouyinVideoUpdate(data).then((res: any) => {
+    console.log("修改抖音短视频数据", res);
+    if (res.code === 200) {
+      // ElMessage.success("修改成功");
+      ElMessage.success("千川消耗金额已更新");
+      // 刷新数据
+      fetchDouyinVideo();
+    } else {
+      ElMessage.error(res.msg || "修改失败");
+    }
+  });
 }
 //#endregion
 
@@ -256,13 +309,24 @@ const blurValueInput = (row: DouyinShortVideo, column: any) => {
     const value = parseFloat(row.qianchuan.toString());
     if (!isNaN(value)) {
       row.qianchuan = value;
-      // 计算ROI
-      calculateROI(row);
 
-      // 可以在这里添加保存到后端的逻辑
-      // saveQianchuanValue(row.id, row.qianchuan);
+      // 检查值是否真的发生了变化
+      const hasValueChanged = originalValue.value !== row.qianchuan;
 
-      ElMessage.success("千川消耗金额已更新");
+      if (hasValueChanged) {
+        // 计算ROI
+        calculateROI(row);
+
+        // 只有值发生变化时才发送请求
+        console.log("值发生变化，触发更新请求", row);
+        updateDouyinVideo({
+          ...row
+        });
+      } else {
+        // 值没有变化，不发送请求
+        console.log("值未发生变化，不发送请求");
+        ElMessage.info("千川消耗金额未发生变化");
+      }
     } else {
       // 如果输入无效，恢复原值
       row.qianchuan = originalValue.value;
@@ -368,6 +432,7 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     height="720"
     :span-method="objectSpanMethod"
     @cell-dblclick="handleCellDblClick"
+    @sort-change="handleSortChange"
   >
     <el-table-column
       prop="influencerNickname"
@@ -412,6 +477,7 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
       min-width="300"
       show-overflow-tooltip
       :resizable="false"
+      :fixed="true"
     >
       <template #default="scope">
         <a :href="scope.row.videoUrl" target="_blank" class="link">{{
@@ -422,9 +488,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="paymentAmountSum"
       label="用户支付金额汇总"
-      width="130"
+      width="150"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="paymentAmount"
@@ -436,10 +503,25 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="qianchuan"
       label="千川消耗金额（手填）"
-      width="150"
+      width="170"
       align="right"
       :resizable="false"
     >
+      <!-- 自定义表头 -->
+      <template #header>
+        <div class="flex items-center" :style="{ justifyContent: 'flex-end' }">
+          千川消耗金额（手填）
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="双击单元格编辑千川消耗金额"
+            placement="top"
+          >
+            <HeroiconsQuestionMarkCircle20Solid />
+          </el-tooltip>
+        </div>
+      </template>
+
       <!-- 可编辑单元格 -->
       <template #default="{ row, column }">
         <el-input
@@ -473,9 +555,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="ordersCntSum"
       label="成交订单数汇总"
-      width="130"
+      width="135"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="ordersCnt"
@@ -487,9 +570,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="viewCountSum"
       label="视频观看次数汇总"
-      width="130"
+      width="150"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="viewCount"
@@ -501,9 +585,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="exposureCntSum"
       label="商品曝光次数汇总"
-      width="130"
+      width="150"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="exposureCnt"
@@ -515,9 +600,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="clickCntSum"
       label="商品点击次数汇总"
-      width="130"
+      width="150"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="clickCnt"

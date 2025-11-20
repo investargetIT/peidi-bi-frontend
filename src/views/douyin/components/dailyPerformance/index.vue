@@ -258,7 +258,7 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
         :header-row-style="{ color: '#09090b' }"
         size="small"
         border
-        width="240"
+        style="width: 240px"
       >
         <el-table-column
           prop="business"

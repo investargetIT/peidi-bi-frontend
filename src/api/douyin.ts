@@ -33,9 +33,17 @@ export const getBiDouyinVideo = (params: {
   pageNo: number;
   pageSize: number;
   searchStr?: string;
+  sortStr?: string;
 }) => {
   return http.request("get", commonUrlApi("/oms/bi/douyin-video"), {
     params
+  });
+};
+
+/** 修改抖音短视频数据 */
+export const postBiDouyinVideoUpdate = (data: any) => {
+  return http.request("post", commonUrlApi("/oms/bi/douyin-video/update"), {
+    data
   });
 };
 
