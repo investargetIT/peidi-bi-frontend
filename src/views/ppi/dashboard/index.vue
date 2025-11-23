@@ -84,7 +84,7 @@ const listCards = ref<ListCardItem[]>([
           :icon="card.icon"
           :value="card.value"
           :text="card.text"
-          style="min-width: 300px; border-radius: 10px"
+          :style="{ minWidth: '300px', borderRadius: '10px' }"
         />
       </el-col>
     </el-row>

@@ -26,7 +26,7 @@ const { sourceData } = toRefs(props);
 
 <template>
   <div id="peidi-RFM-analysis">
-    <el-tabs type="border-card">
+    <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
       <el-tab-pane label="地图" lazy>
         <mapChart :sourceData="sourceData" />
       </el-tab-pane>

@@ -22,17 +22,20 @@ const detailDialogRef = ref<typeof DetailDialog>();
 
 // 抖音商品类别列表 -源数据
 const productIDList = ref<ProductInfo[]>([]);
+const searchValue = ref<string>("");
 const filteredProductIDList = computed(() => {
+  console.log("searchValue.value:", searchValue.value);
   if (!searchValue.value) {
     return productIDList.value;
   }
   return productIDList.value.filter(item => {
-    item.productName.includes(searchValue.value) ||
+    return (
+      item.productName.includes(searchValue.value) ||
       item.salesType.includes(searchValue.value) ||
-      item.productId.includes(searchValue.value);
+      item.productId.includes(searchValue.value)
+    );
   });
 });
-const searchValue = ref<string>("");
 
 //#region 请求逻辑
 // 获取所有抖音商品类别

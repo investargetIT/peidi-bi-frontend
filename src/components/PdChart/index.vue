@@ -1,0 +1,61 @@
+<script setup lang="ts">
+import * as echarts from "echarts";
+import "echarts-wordcloud";
+import { computed, onMounted } from "vue";
+
+// props
+const props = defineProps({
+  // name用于图表的初始化
+  name: {
+    type: String,
+    required: true
+  },
+  title: {
+    type: String,
+    default: ""
+  },
+  text: {
+    type: String,
+    default: ""
+  },
+  option: {
+    type: Object,
+    default: () => ({})
+  },
+  style: {
+    type: Object,
+    default: () => ({ width: "700px" })
+  }
+});
+
+const chartId = props.name + new Date().getTime();
+
+onMounted(() => {
+  const chartDom = document.getElementById(chartId);
+  if (!chartDom) return;
+
+  const myChart = echarts.init(chartDom);
+  props.option && myChart.setOption(props.option);
+});
+
+// 计算属性 来计算图表的最低高度
+const chartMinHeight = computed(() => {
+  if (!props.style.height) return "450px";
+  return props.style.height.replace("px", "") - 65 + "px" || "450px";
+});
+</script>
+
+<template>
+  <el-card shadow="never" :style="style">
+    <div class="text-[16px] font-bold text-[#09090B]">{{ title }}</div>
+    <div class="text-[14px] text-[#71717a]">{{ text }}</div>
+    <!-- 图表容器 id用时间戳拼接 -->
+    <!-- 最低高度用card高度减去标题和文本的高度 style.height可以带px 需要截取px前的数字 -->
+    <div
+      :id="chartId"
+      :style="{
+        minHeight: chartMinHeight
+      }"
+    />
+  </el-card>
+</template>

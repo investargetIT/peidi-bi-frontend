@@ -7,7 +7,7 @@ import ProductID from "./components/productID/index.vue";
 
 <template>
   <div class="peidi-douyin">
-    <el-tabs type="border-card">
+    <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
       <el-tab-pane label="每日业绩数据" lazy>
         <DailyPerformance />
       </el-tab-pane>

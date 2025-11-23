@@ -1,0 +1,268 @@
+<script setup lang="ts">
+import ChartCard from "@/components/PdChart/index.vue";
+import { ref } from "vue";
+
+// Top 10 Products by Estimated Sales
+const top10ProductsCards = ref({
+  name: "top10ProductsCards",
+  title: "Top 10 Products by Estimated Sales",
+  text: "",
+  option: {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow"
+      }
+    },
+    legend: {
+      x: "center", //可设定图例在左、右、居中
+      y: "bottom" //可设定图例在上、下、居中
+    },
+    xAxis: {
+      type: "value",
+      boundaryGap: [0, 0.01],
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      }
+    },
+    yAxis: {
+      type: "category",
+      data: [
+        // 模拟十个产品
+        "Peanut ButterBones",
+        "Premium ChickenBites",
+        "Beef Jerky Strips",
+        "Salmon Flavor Treats",
+        "Duck & Sweet Potato",
+        "Grain-Free Kibble",
+        "Organic Cat Food",
+        "Small Breed Formula",
+        "Senior Dog Formula",
+        "Puppy Training Treats"
+      ],
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      }
+    },
+    series: [
+      {
+        name: "Estimated Sales",
+        type: "bar",
+        data: [
+          18203, 23489, 29034, 104970, 131744, 630230, 89000, 45000, 32000,
+          28000
+        ].sort((a, b) => a - b),
+        itemStyle: {
+          color: "#10B981"
+        },
+        barWidth: "80%"
+      }
+    ]
+  },
+  style: {
+    width: "100%",
+    height: "700px",
+    borderRadius: "10px"
+  }
+});
+
+// Price Range Distribution
+const priceRangeDistributionCards = ref({
+  name: "priceRangeDistributionCards",
+  title: "Price Range Distribution",
+  text: "",
+  option: {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow"
+      }
+    },
+    legend: {
+      x: "center", //可设定图例在左、右、居中
+      y: "bottom" //可设定图例在上、下、居中
+    },
+    xAxis: {
+      type: "category",
+      data: ["$0-$10", "$10-$20", "$20-$50", "$50+"],
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      }
+    },
+    yAxis: {
+      type: "value",
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      }
+    },
+    series: [
+      {
+        name: "Number of Products",
+        type: "bar",
+        data: [100, 200, 300, 400],
+        itemStyle: {
+          color: "#F59E0B"
+        }
+      }
+    ]
+  },
+  style: {
+    width: "100%",
+    borderRadius: "10px"
+  }
+});
+
+// Product Keywords Word Cloud
+const productKeywordsWordCloudCards = ref({
+  name: "productKeywordsWordCloudCards",
+  title: "Product Keywords Word Cloud",
+  text: "",
+  option: {
+    series: [
+      {
+        type: "wordCloud",
+        //maskImage: maskImage,
+        sizeRange: [12, 60], // 增大字体范围
+        rotationRange: [0, 0], // 增加旋转角度范围
+        rotationStep: 45, // 减小旋转步长
+        gridSize: 30, // 减小网格大小，让排列更紧密
+        shape: "pentagon",
+        width: "100%",
+        height: "100%",
+        drawOutOfBound: false, // 不绘制超出边界的文字
+        layoutAnimation: true, // 启用布局动画
+        textStyle: {
+          normal: {
+            fontFamily: "Arial, sans-serif",
+            fontWeight: "bold" // 使用粗体
+          },
+          color: function (params) {
+            // 根据单词的值进行颜色平滑过渡
+            const value = params.data.value;
+            const minValue = 15.8; // 最小值
+            const maxValue = 48.3; // 最大值
+
+            // 计算颜色过渡比例 (0-1)
+            const ratio = (value - minValue) / (maxValue - minValue);
+
+            // 定义颜色渐变范围：从蓝色到红色
+            const startColor = { r: 54, g: 162, b: 235 }; // 蓝色
+            const endColor = { r: 255, g: 99, b: 132 }; // 红色
+
+            // 计算过渡颜色
+            const r = Math.round(
+              startColor.r + (endColor.r - startColor.r) * ratio
+            );
+            const g = Math.round(
+              startColor.g + (endColor.g - startColor.g) * ratio
+            );
+            const b = Math.round(
+              startColor.b + (endColor.b - startColor.b) * ratio
+            );
+
+            return `rgb(${r}, ${g}, ${b})`;
+          },
+          emphasis: {
+            shadowBlur: 15,
+            shadowColor: "#333",
+            textShadowBlur: 10,
+            textShadowColor: "#fff"
+          }
+        },
+        data: [
+          { name: "treats", value: 48.3 },
+          { name: "quality", value: 46.5 },
+          { name: "chicken", value: 45.2 },
+          { name: "product", value: 44.7 },
+          { name: "premium", value: 42.1 },
+          { name: "taste", value: 41.8 },
+          { name: "flavor", value: 41.5 },
+          { name: "training", value: 40.3 },
+          { name: "high", value: 39.1 },
+          { name: "beef", value: 38.7 },
+          { name: "protein", value: 37.4 },
+          { name: "jerky", value: 35.6 },
+          { name: "honey", value: 34.8 },
+          { name: "bones", value: 33.7 },
+          { name: "peanut", value: 32.5 },
+          { name: "friend", value: 32.8 },
+          { name: "flavors", value: 31.2 },
+          { name: "rewarding", value: 30.6 },
+          { name: "bites", value: 29.8 },
+          { name: "butter", value: 28.9 },
+          { name: "furry", value: 28.4 },
+          { name: "salt", value: 27.5 },
+          { name: "sweet", value: 26.9 },
+          { name: "review", value: 26.1 },
+          { name: "strips", value: 25.4 },
+          { name: "potato", value: 24.6 },
+          { name: "providing", value: 24.3 },
+          { name: "flour", value: 23.4 },
+          { name: "breast", value: 22.1 },
+          { name: "smoke", value: 21.9 },
+          { name: "cinnamon", value: 20.7 },
+          { name: "oat", value: 19.6 },
+          { name: "pea", value: 18.3 },
+          { name: "goes", value: 17.5 },
+          { name: "here", value: 16.9 },
+          { name: "glycerin", value: 15.8 },
+          { name: "test", value: 22.7 },
+          { name: "feedback", value: 29.5 },
+          { name: "perfect", value: 36.2 }
+        ].sort((a, b) => b.value - a.value) // 按值从大到小排序
+      }
+    ]
+  },
+  style: {
+    width: "100%",
+    height: "500px", // 增加高度以容纳更大的间距
+    borderRadius: "10px"
+  }
+});
+</script>
+
+<template>
+  <!-- 标题 -->
+  <div class="text-[36px] font-bold text-[#0a0a0a] mb-[20px]">
+    Global Pet Food Intelligence
+  </div>
+  <div>
+    <ChartCard
+      :name="top10ProductsCards.name"
+      :title="top10ProductsCards.title"
+      :text="top10ProductsCards.text"
+      :option="top10ProductsCards.option"
+      :style="top10ProductsCards?.style"
+    />
+  </div>
+  <div class="mt-[20px]">
+    <ChartCard
+      :name="priceRangeDistributionCards.name"
+      :title="priceRangeDistributionCards.title"
+      :text="priceRangeDistributionCards.text"
+      :option="priceRangeDistributionCards.option"
+      :style="priceRangeDistributionCards?.style"
+    />
+  </div>
+  <div class="mt-[20px]">
+    <ChartCard
+      :name="productKeywordsWordCloudCards.name"
+      :title="productKeywordsWordCloudCards.title"
+      :text="productKeywordsWordCloudCards.text"
+      :option="productKeywordsWordCloudCards.option"
+      :style="productKeywordsWordCloudCards?.style"
+    />
+  </div>
+</template>
