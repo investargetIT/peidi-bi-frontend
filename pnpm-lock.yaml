@@ -77,6 +77,9 @@ importers:
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
+      pd-ui-package:
+        specifier: ^1.0.0
+        version: 1.0.0
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))
@@ -2969,6 +2972,9 @@ packages:
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
+  pd-ui-package@1.0.0:
+    resolution: {integrity: sha512-AS0fhQkETzN2VkXHx0Oq+LDfrrQupygMFzi05w/qu2C1BYm8JSKK9gkdv/+etiwsfQCDFaeDpW8/DH/B+xl7mA==}
 
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
@@ -6666,6 +6672,8 @@ snapshots:
   pathe@1.1.2: {}
 
   pathe@2.0.3: {}
+
+  pd-ui-package@1.0.0: {}
 
   perfect-debounce@1.0.0: {}
 

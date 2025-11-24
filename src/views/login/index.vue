@@ -101,7 +101,7 @@ const ddLogin = () => {
   let ddUserEmail = "";
   let userInfoInDingTalk = {
     username: "",
-    password: SYSTEM_CONFIG.DINGTALK_LOGIN_FREE_DEFAULT_PASSWORD
+    password: SYSTEM_CONFIG.DINGTALK_LOGIN_FREE_DEFAULT_PASSWORD_ENCRYPTED
   };
   dd.runtime.permission.requestAuthCode({
     corpId: SYSTEM_CONFIG.DINGTALK_CORP_ID, // 企业id
