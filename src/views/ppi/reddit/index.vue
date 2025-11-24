@@ -80,9 +80,18 @@ const monthlyDiscussionTrendCards = ref({
   title: "Monthly Discussion Trend",
   text: "",
   option: {
+    tooltip: {
+      trigger: "axis"
+    },
     xAxis: {
       type: "category",
       boundaryGap: false,
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      },
       // 12 months
       data: [
         "Jan",
@@ -100,7 +109,13 @@ const monthlyDiscussionTrendCards = ref({
       ]
     },
     yAxis: {
-      type: "value"
+      type: "value",
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: "dashed"
+        }
+      }
     },
     series: [
       {

@@ -38,14 +38,14 @@ const handleTagType = computed(() => (data: string): any => {
       v-for="(item, index) in props.list"
       :key="index"
       shadow="never"
-      style=" margin-top: 16px;border-radius: 10px"
+      style="margin-top: 16px; border-radius: 10px"
     >
       <!-- 标题、类型标签 -->
       <div class="flex justify-between items-center">
         <div class="text-[18px] font-[700] text-[#09090B]">
           {{ item.title }}
         </div>
-        <el-tag :type="handleTagType(item.type)">{{ item.type }}</el-tag>
+        <el-tag :type="handleTagType(item.type)" round>{{ item.type }}</el-tag>
       </div>
 
       <!-- 描述 -->
