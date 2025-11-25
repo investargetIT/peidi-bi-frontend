@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as echarts from "echarts";
 import "echarts-wordcloud";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 // props
 const props = defineProps({
@@ -29,13 +29,33 @@ const props = defineProps({
 });
 
 const chartId = props.name + new Date().getTime();
+const myChart = ref<echarts.ECharts | null>(null);
 
 onMounted(() => {
   const chartDom = document.getElementById(chartId);
   if (!chartDom) return;
 
-  const myChart = echarts.init(chartDom);
-  props.option && myChart.setOption(props.option);
+  myChart.value = echarts.init(chartDom);
+  props.option && myChart.value.setOption(props.option);
+});
+
+// 监听option变化，实现响应式更新
+watch(
+  () => props.option,
+  newOption => {
+    if (myChart.value && newOption) {
+      myChart.value.setOption(newOption);
+    }
+  },
+  { deep: true }
+);
+
+// 组件销毁时清理图表实例
+onUnmounted(() => {
+  if (myChart.value) {
+    myChart.value.dispose();
+    myChart.value = null;
+  }
 });
 
 // 计算属性 来计算图表的最低高度
@@ -49,6 +69,8 @@ const chartMinHeight = computed(() => {
   <el-card shadow="never" :style="style">
     <div class="text-[16px] font-bold text-[#09090B]">{{ title }}</div>
     <div class="text-[14px] text-[#71717a]">{{ text }}</div>
+    <!-- 自定义内容插槽 -->
+    <slot name="custom-content" />
     <!-- 图表容器 id用时间戳拼接 -->
     <!-- 最低高度用card高度减去标题和文本的高度 style.height可以带px 需要截取px前的数字 -->
     <div

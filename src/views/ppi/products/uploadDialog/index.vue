@@ -95,7 +95,7 @@ defineExpose({
       >Upload product images and extract key information automatically. Multiple
       products per image supported.</span
     >
-    <el-card shadow="never" style=" margin-top: 20px;border-radius: 10px">
+    <el-card shadow="never" style="margin-top: 20px; border-radius: 10px">
       <!-- 标题 -->
       <div class="text-[16px] font-[600] text-[#0a0a0a]">Upload Images</div>
       <span class="text-[#737373]">
@@ -110,10 +110,7 @@ defineExpose({
         drag
         accept=".png,.jpg,.jpeg,.webp"
         list-type="picture"
-        :action="commonUrlApi('/ai/chewy/new')"
-        :data="{
-          prompt: JSON.stringify(ApiConfig.PROMPT_)
-        }"
+        :action="commonUrlApi('/ai/intelligence/parse')"
         :headers="{
           Authorization: formatToken(getToken().accessToken)
         }"
@@ -149,7 +146,7 @@ defineExpose({
         >Detect & Extract Products</el-button
       >
       <!-- 备注 -->
-      <el-card shadow="never" style=" margin-top: 20px;border-radius: 5px">
+      <el-card shadow="never" style="margin-top: 20px; border-radius: 5px">
         <div class="text-[14px] font-[600] text-[#737373]">
           Smart Detection:
         </div>

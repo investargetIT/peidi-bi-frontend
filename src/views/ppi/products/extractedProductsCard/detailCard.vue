@@ -7,6 +7,8 @@ import BasilStarSolid from "~icons/basil/star-solid";
 import MaterialSymbolsComment from "~icons/material-symbols/comment";
 import OiDollar from "~icons/oi/dollar";
 import LineiconsDollar from "~icons/lineicons/dollar";
+import { postAiIntelligenceProductNew } from "@/api/ppi";
+import { message } from "@/utils/message";
 
 // props
 const props = defineProps({
@@ -28,9 +30,12 @@ const props = defineProps({
   }
 });
 
-// 信息卡片数据 赋值一份props.product的属性
-const productForm = ref<ExtractedProduct>({
-  ...props.product
+const loading = ref(false);
+
+// 信息卡片数据 赋值一份props.product的属性 并默认平台为Chewy
+const productForm = ref<ExtractedProduct & { platform: string }>({
+  ...props.product,
+  platform: props.product.platform || "Chewy"
 });
 
 // 商品卡片状态 extracted 提取中 saved 已保存
@@ -46,6 +51,38 @@ watch(
     immediate: true
   }
 );
+
+//#region 请求逻辑
+const fetchSaveProduct = async (successCallback: () => void) => {
+  loading.value = true;
+  try {
+    const res: any = await postAiIntelligenceProductNew({
+      amount: productForm.value.amount,
+      channel: productForm.value.platform,
+      id: 0, // 新增产品 所以id为0
+      longAmount: productForm.value.longAmount,
+      reviewCnt: productForm.value.reviewCnt,
+      star: productForm.value.star,
+      title: productForm.value.title
+    });
+    if (res?.code === 200) {
+      message("Saved successfully", { type: "success" });
+      successCallback();
+    } else {
+      message(res.msg || "Saved failed", { type: "error" });
+    }
+    loading.value = false;
+  } catch (error) {
+    message(error.message || "Saved failed", { type: "error" });
+    loading.value = false;
+  }
+};
+const handleSaveClick = () => {
+  fetchSaveProduct(() => {
+    props.save(productForm.value.id);
+  });
+};
+//#endregion
 </script>
 
 <template>
@@ -93,7 +130,11 @@ watch(
     </div>
     <!-- 内容展示 -->
     <div class="peidi-ppi-extractedProductsCard-detailCard-form mt-[12px]">
-      <el-form :disabled="productStatus === 'saved'" :model="productForm">
+      <el-form
+        :disabled="productStatus === 'saved'"
+        :model="productForm"
+        :label-position="'top'"
+      >
         <el-form-item>
           <el-input v-model="productForm.title" style="width: 100%" />
         </el-form-item>
@@ -129,6 +170,14 @@ watch(
             </template>
           </el-input>
         </el-form-item>
+
+        <el-form-item label="Platform">
+          <el-select v-model="productForm.platform" style="width: 100%">
+            <el-option label="Chewy" value="Chewy" />
+            <el-option label="Amazon" value="Amazon" />
+            <el-option label="Petco" value="Petco" />
+          </el-select>
+        </el-form-item>
       </el-form>
     </div>
     <!-- 保存按钮 -->
@@ -138,7 +187,8 @@ watch(
       style="width: 100%"
       color="#000"
       :icon="MdiTickCircleOutline"
-      @click="props.save(productForm.id)"
+      :loading="loading"
+      @click="handleSaveClick"
       >Save to Database</el-button
     >
   </el-card>
@@ -153,5 +203,10 @@ watch(
   .el-form-item {
     margin-bottom: 10px;
   }
+}
+
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  font-weight: 500;
 }
 </style>

@@ -1,8 +1,28 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, inject, ref } from "vue";
 
-const filterCategory = ref("");
-const brandName = ref("");
+// props
+const props = defineProps({
+  searchContent: {
+    type: Object,
+    default: () => ({
+      title: ""
+    })
+  }
+});
+
+// 从父组件注入fetchProductPage方法
+const fetchProductPage = inject("fetchProductPage") as () => void;
+
+const emit = defineEmits(["update:searchContent"]);
+const searchContentModel = computed({
+  get: () => props.searchContent,
+  set: value => emit("update:searchContent", value)
+});
+
+// const filterCategory = ref("");
+// const brandName = ref("");
+// const productName = ref("");
 </script>
 
 <template>
@@ -11,7 +31,7 @@ const brandName = ref("");
     <div class="text-[16px] font-[600] text-[#0a0a0a] ml-[12px]">Filter</div>
     <!-- 筛选器 -->
     <div class="ml-[12px] mt-[12px] flex items-center">
-      <el-select
+      <!-- <el-select
         v-model="filterCategory"
         placeholder="Select category"
         style="width: 240px"
@@ -20,13 +40,21 @@ const brandName = ref("");
         <el-option label="Dog Treats" value="2"></el-option>
         <el-option label="Bird Treats" value="3"></el-option>
         <el-option label="Small Animal Treats" value="4"></el-option>
-      </el-select>
-      <el-input
+      </el-select> -->
+      <!-- <el-input
         v-model="brandName"
-        style="width: 240px; margin-left: 12px"
+        style="width: 240px"
         placeholder="Enter brand name"
+      /> -->
+      <el-input
+        v-model="searchContentModel.title"
+        style="width: 240px"
+        placeholder="Enter product name"
       />
-      <el-button style="width: 120px; margin-left: 12px" color="#000"
+      <el-button
+        style="width: 120px; margin-left: 12px"
+        color="#000"
+        @click="fetchProductPage"
         >Apply</el-button
       >
     </div>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ChartCard from "@/components/PdChart/index.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { getAiIntelligenceProductWordCload } from "@/api/ppi";
+import SolarRefreshBold from "~icons/solar/refresh-bold";
 
 // Top 10 Products by Estimated Sales
 const top10ProductsCards = ref({
@@ -125,6 +127,7 @@ const priceRangeDistributionCards = ref({
 });
 
 // Product Keywords Word Cloud
+const cloudLoading = ref(false);
 const productKeywordsWordCloudCards = ref({
   name: "productKeywordsWordCloudCards",
   title: "Product Keywords Word Cloud",
@@ -182,46 +185,46 @@ const productKeywordsWordCloudCards = ref({
           }
         },
         data: [
-          { name: "treats", value: 48.3 },
-          { name: "quality", value: 46.5 },
-          { name: "chicken", value: 45.2 },
-          { name: "product", value: 44.7 },
-          { name: "premium", value: 42.1 },
-          { name: "taste", value: 41.8 },
-          { name: "flavor", value: 41.5 },
-          { name: "training", value: 40.3 },
-          { name: "high", value: 39.1 },
-          { name: "beef", value: 38.7 },
-          { name: "protein", value: 37.4 },
-          { name: "jerky", value: 35.6 },
-          { name: "honey", value: 34.8 },
-          { name: "bones", value: 33.7 },
-          { name: "peanut", value: 32.5 },
-          { name: "friend", value: 32.8 },
-          { name: "flavors", value: 31.2 },
-          { name: "rewarding", value: 30.6 },
-          { name: "bites", value: 29.8 },
-          { name: "butter", value: 28.9 },
-          { name: "furry", value: 28.4 },
-          { name: "salt", value: 27.5 },
-          { name: "sweet", value: 26.9 },
-          { name: "review", value: 26.1 },
-          { name: "strips", value: 25.4 },
-          { name: "potato", value: 24.6 },
-          { name: "providing", value: 24.3 },
-          { name: "flour", value: 23.4 },
-          { name: "breast", value: 22.1 },
-          { name: "smoke", value: 21.9 },
-          { name: "cinnamon", value: 20.7 },
-          { name: "oat", value: 19.6 },
-          { name: "pea", value: 18.3 },
-          { name: "goes", value: 17.5 },
-          { name: "here", value: 16.9 },
-          { name: "glycerin", value: 15.8 },
-          { name: "test", value: 22.7 },
-          { name: "feedback", value: 29.5 },
-          { name: "perfect", value: 36.2 }
-        ].sort((a, b) => b.value - a.value) // 按值从大到小排序
+          // { name: "treats", value: 48.3 },
+          // { name: "quality", value: 46.5 },
+          // { name: "chicken", value: 45.2 },
+          // { name: "product", value: 44.7 },
+          // { name: "premium", value: 42.1 },
+          // { name: "taste", value: 41.8 },
+          // { name: "flavor", value: 41.5 },
+          // { name: "training", value: 40.3 },
+          // { name: "high", value: 39.1 },
+          // { name: "beef", value: 38.7 },
+          // { name: "protein", value: 37.4 },
+          // { name: "jerky", value: 35.6 },
+          // { name: "honey", value: 34.8 },
+          // { name: "bones", value: 33.7 },
+          // { name: "peanut", value: 32.5 },
+          // { name: "friend", value: 32.8 },
+          // { name: "flavors", value: 31.2 },
+          // { name: "rewarding", value: 30.6 },
+          // { name: "bites", value: 29.8 },
+          // { name: "butter", value: 28.9 },
+          // { name: "furry", value: 28.4 },
+          // { name: "salt", value: 27.5 },
+          // { name: "sweet", value: 26.9 },
+          // { name: "review", value: 26.1 },
+          // { name: "strips", value: 25.4 },
+          // { name: "potato", value: 24.6 },
+          // { name: "providing", value: 24.3 },
+          // { name: "flour", value: 23.4 },
+          // { name: "breast", value: 22.1 },
+          // { name: "smoke", value: 21.9 },
+          // { name: "cinnamon", value: 20.7 },
+          // { name: "oat", value: 19.6 },
+          // { name: "pea", value: 18.3 },
+          // { name: "goes", value: 17.5 },
+          // { name: "here", value: 16.9 },
+          // { name: "glycerin", value: 15.8 },
+          // { name: "test", value: 22.7 },
+          // { name: "feedback", value: 29.5 },
+          // { name: "perfect", value: 36.2 }
+        ]
       }
     ]
   },
@@ -230,6 +233,50 @@ const productKeywordsWordCloudCards = ref({
     height: "500px", // 增加高度以容纳更大的间距
     borderRadius: "10px"
   }
+});
+
+//#region 请求逻辑
+// 获取产品词云
+const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
+  cloudLoading.value = true;
+  getAiIntelligenceProductWordCload({ refresh })
+    .then((res: any) => {
+      // console.log("产品词云", res, JSON.parse(res.data));
+      const productKeywords = JSON.parse(res.data);
+      // 修改 {word: 'Dog', frequency: 27} 为 {name: 'Dog', value: 27}
+      // 推荐：替换整个对象 用于触发响应式更新
+      // productKeywordsWordCloudCards.value = {
+      //   ...productKeywordsWordCloudCards.value,
+      //   option: {
+      //     series: [
+      //       {
+      //         ...productKeywordsWordCloudCards.value.option.series[0],
+      //         data: productKeywords.map((item: any) => ({
+      //           name: item.word,
+      //           value: item.frequency
+      //         }))
+      //       }
+      //     ]
+      //   }
+      // };
+      productKeywordsWordCloudCards.value.option.series[0].data =
+        productKeywords.map((item: any) => ({
+          name: item.word,
+          value: item.frequency
+        }));
+      // console.log(
+      //   "产品词云",
+      //   productKeywordsWordCloudCards.value.option.series[0].data
+      // );
+    })
+    .finally(() => {
+      cloudLoading.value = false;
+    });
+};
+//#endregion
+
+onMounted(() => {
+  fetchProductKeywordsWordCloud();
 });
 </script>
 
@@ -263,6 +310,16 @@ const productKeywordsWordCloudCards = ref({
       :text="productKeywordsWordCloudCards.text"
       :option="productKeywordsWordCloudCards.option"
       :style="productKeywordsWordCloudCards?.style"
-    />
+    >
+      <template #custom-content>
+        <el-button
+          :icon="SolarRefreshBold"
+          color="#000"
+          :loading="cloudLoading"
+          @click="fetchProductKeywordsWordCloud(true)"
+          >统计最新词云</el-button
+        >
+      </template>
+    </ChartCard>
   </div>
 </template>

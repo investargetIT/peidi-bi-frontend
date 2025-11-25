@@ -620,7 +620,7 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
       v-model:page-size="pageSize"
       v-model:current-page="pageNo"
       size="small"
-      layout="prev, pager, next"
+      layout="total, prev, pager, next"
       :total="pageTotal"
       background
     />

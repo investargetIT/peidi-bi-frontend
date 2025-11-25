@@ -258,7 +258,7 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
         :header-row-style="{ color: '#09090b' }"
         size="small"
         border
-        style="width: 240px"
+        :style="{ width: '240px' }"
       >
         <el-table-column
           prop="business"
@@ -446,7 +446,7 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
       v-model:page-size="pageSize"
       v-model:current-page="pageNo"
       size="small"
-      layout="prev, pager, next"
+      layout="total, prev, pager, next"
       :total="pageTotal"
       background
     />
