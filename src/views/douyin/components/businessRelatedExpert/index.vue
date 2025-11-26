@@ -6,7 +6,15 @@ import { ElMessage } from "element-plus";
 
 const handleDownload = () => {
   // 处理下载逻辑 下载/static/抖音模板.xlsx
-  window.open("/static/佩蒂BI抖音模板.xlsx");
+  // 创建隐藏的下载链接并触发点击
+  const link = document.createElement("a");
+  link.href = "/static/佩蒂BI抖音模板.xlsx";
+  link.download = "佩蒂BI抖音模板.xlsx"; // 设置下载的文件名
+  link.style.display = "none";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 const beforeAvatarUpload = (file: File) => {

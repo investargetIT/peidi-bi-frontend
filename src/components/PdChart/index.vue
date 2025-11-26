@@ -29,22 +29,23 @@ const props = defineProps({
 });
 
 const chartId = props.name + new Date().getTime();
-const myChart = ref<echarts.ECharts | null>(null);
+// 注意，不能用ref 不然会导致tooltip失效等问题
+let myChart: echarts.ECharts | null = null;
 
 onMounted(() => {
   const chartDom = document.getElementById(chartId);
   if (!chartDom) return;
 
-  myChart.value = echarts.init(chartDom);
-  props.option && myChart.value.setOption(props.option);
+  myChart = echarts.init(chartDom);
+  props.option && myChart.setOption(props.option);
 });
 
 // 监听option变化，实现响应式更新
 watch(
   () => props.option,
   newOption => {
-    if (myChart.value && newOption) {
-      myChart.value.setOption(newOption);
+    if (myChart && newOption) {
+      myChart.setOption(newOption);
     }
   },
   { deep: true }
@@ -52,9 +53,9 @@ watch(
 
 // 组件销毁时清理图表实例
 onUnmounted(() => {
-  if (myChart.value) {
-    myChart.value.dispose();
-    myChart.value = null;
+  if (myChart) {
+    myChart.dispose();
+    myChart = null;
   }
 });
 

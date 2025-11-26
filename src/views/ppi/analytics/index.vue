@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import ChartCard from "@/components/PdChart/index.vue";
 import { onMounted, ref } from "vue";
-import { getAiIntelligenceProductWordCload } from "@/api/ppi";
+import {
+  getAiIntelligenceProductPage,
+  getAiIntelligenceProductWordCload
+} from "@/api/ppi";
 import SolarRefreshBold from "~icons/solar/refresh-bold";
+import { COMMENT_RATING_RATIO } from "@/views/ppi/config";
+import { message } from "@/utils/message";
 
 // Top 10 Products by Estimated Sales
 const top10ProductsCards = ref({
@@ -34,16 +39,16 @@ const top10ProductsCards = ref({
       type: "category",
       data: [
         // 模拟十个产品
-        "Peanut ButterBones",
-        "Premium ChickenBites",
-        "Beef Jerky Strips",
-        "Salmon Flavor Treats",
-        "Duck & Sweet Potato",
-        "Grain-Free Kibble",
-        "Organic Cat Food",
-        "Small Breed Formula",
-        "Senior Dog Formula",
-        "Puppy Training Treats"
+        // "Peanut ButterBones",
+        // "Premium ChickenBites",
+        // "Beef Jerky Strips",
+        // "Salmon Flavor Treats",
+        // "Duck & Sweet Potato",
+        // "Grain-Free Kibble",
+        // "Organic Cat Food",
+        // "Small Breed Formula",
+        // "Senior Dog Formula",
+        // "Puppy Training Treats"
       ],
       splitLine: {
         show: true,
@@ -57,9 +62,9 @@ const top10ProductsCards = ref({
         name: "Estimated Sales",
         type: "bar",
         data: [
-          18203, 23489, 29034, 104970, 131744, 630230, 89000, 45000, 32000,
-          28000
-        ].sort((a, b) => a - b),
+          // 18203, 23489, 29034, 104970, 131744, 630230, 89000, 45000, 32000,
+          // 28000
+        ],
         itemStyle: {
           color: "#10B981"
         },
@@ -236,38 +241,92 @@ const productKeywordsWordCloudCards = ref({
 });
 
 //#region 请求逻辑
+// 分页获取产品信息 reviewCnt Top10
+const fetchProductPageReviewCntTop10 = () => {
+  getAiIntelligenceProductPage({
+    pageNo: 1,
+    pageSize: 10,
+    sortStr: JSON.stringify([
+      {
+        sortName: "reviewCnt",
+        sortType: "desc"
+      }
+    ])
+  })
+    .then((res: any) => {
+      console.log("获取产品列表Top10成功", res);
+      if (res?.code === 200 && res.data) {
+        // 解析出产品名称和评论数量 分成两个数组 一个是名称数组 一个是评论数量数组
+        const productNames =
+          res.data?.records?.map((item: any) => item.title) || [];
+        const sales =
+          res.data?.records?.map(
+            (item: any) => item.reviewCnt * COMMENT_RATING_RATIO
+          ) || [];
+
+        top10ProductsCards.value = {
+          ...top10ProductsCards.value,
+          option: {
+            ...top10ProductsCards.value.option,
+            yAxis: {
+              ...top10ProductsCards.value.option.yAxis,
+              data: productNames.reverse()
+            },
+            series: [
+              {
+                ...top10ProductsCards.value.option.series[0],
+                data: sales.reverse()
+              }
+            ]
+          }
+        };
+      } else {
+        message("获取产品列表Top10失败", { type: "error" });
+      }
+    })
+    .catch(() => {
+      message("获取产品列表Top10失败", { type: "error" });
+    });
+};
 // 获取产品词云
 const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
   cloudLoading.value = true;
   getAiIntelligenceProductWordCload({ refresh })
     .then((res: any) => {
       // console.log("产品词云", res, JSON.parse(res.data));
-      const productKeywords = JSON.parse(res.data);
-      // 修改 {word: 'Dog', frequency: 27} 为 {name: 'Dog', value: 27}
-      // 推荐：替换整个对象 用于触发响应式更新
-      // productKeywordsWordCloudCards.value = {
-      //   ...productKeywordsWordCloudCards.value,
-      //   option: {
-      //     series: [
-      //       {
-      //         ...productKeywordsWordCloudCards.value.option.series[0],
-      //         data: productKeywords.map((item: any) => ({
-      //           name: item.word,
-      //           value: item.frequency
-      //         }))
-      //       }
-      //     ]
-      //   }
-      // };
-      productKeywordsWordCloudCards.value.option.series[0].data =
-        productKeywords.map((item: any) => ({
-          name: item.word,
-          value: item.frequency
-        }));
-      // console.log(
-      //   "产品词云",
-      //   productKeywordsWordCloudCards.value.option.series[0].data
-      // );
+      if (res?.code === 200 && res.data) {
+        const productKeywords = JSON.parse(res.data);
+        // 修改 {word: 'Dog', frequency: 27} 为 {name: 'Dog', value: 27}
+        // 推荐：替换整个对象 用于触发响应式更新
+        // productKeywordsWordCloudCards.value = {
+        //   ...productKeywordsWordCloudCards.value,
+        //   option: {
+        //     series: [
+        //       {
+        //         ...productKeywordsWordCloudCards.value.option.series[0],
+        //         data: productKeywords.map((item: any) => ({
+        //           name: item.word,
+        //           value: item.frequency
+        //         }))
+        //       }
+        //     ]
+        //   }
+        // };
+        productKeywordsWordCloudCards.value.option.series[0].data =
+          productKeywords.map((item: any) => ({
+            name: item.word,
+            value: item.frequency
+          }));
+        // console.log(
+        //   "产品词云",
+        //   productKeywordsWordCloudCards.value.option.series[0].data
+        // );
+      } else {
+        message("获取产品词云失败", { type: "error" });
+      }
+    })
+    .catch(() => {
+      message("获取产品词云失败", { type: "error" });
     })
     .finally(() => {
       cloudLoading.value = false;
@@ -276,6 +335,7 @@ const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
 //#endregion
 
 onMounted(() => {
+  fetchProductPageReviewCntTop10();
   fetchProductKeywordsWordCloud();
 });
 </script>

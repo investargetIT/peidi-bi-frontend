@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { getBiDouyinVideo, postBiDouyinVideoUpdate } from "@/api/douyin";
+import {
+  getBiDouyinVideo,
+  postBiDouyinVideoUpdate,
+  getBiDouyinVideoAmountSum
+} from "@/api/douyin";
 import { onMounted, ref, watch } from "vue";
 import dayjs from "dayjs";
 import EpSearch from "~icons/ep/search";
@@ -8,6 +12,8 @@ import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-c
 
 // 加载状态
 const loading = ref<boolean>(false);
+// 抖音短视频支付金额总和
+const douyinVideoAmountSum = ref<number>(0);
 // 抖音短视频数据类型定义
 interface DouyinShortVideo {
   /** 数据记录ID */
@@ -121,6 +127,8 @@ const searchDate = ref<string[]>([
   dayjs("2025-11-16").format("YYYY-MM-DD"),
   dayjs("2025-11-16").format("YYYY-MM-DD")
 ]);
+// 搜索类别
+const searchSalesType = ref<string>("");
 // 搜索产品
 const searchProductName = ref<string>("");
 // 搜索达人
@@ -136,6 +144,13 @@ const getSearchStr = () => {
         .join(",")
     }
   ];
+  if (searchSalesType.value) {
+    searchStr.push({
+      searchName: "salesType",
+      searchType: "like",
+      searchValue: `${searchSalesType.value}`
+    });
+  }
   if (searchProductName.value) {
     searchStr.push({
       searchName: "productName",
@@ -163,6 +178,9 @@ const pageTotal = ref<number>(0);
 //#region 请求逻辑
 // 获取抖音短视频数据
 function fetchDouyinVideo() {
+  // 先获取抖音短视频支付金额总和 暂时没想好放哪里合适
+  fetchDouyinVideoAmountSum();
+
   loading.value = true;
   getBiDouyinVideo({
     pageNo: pageNo.value,
@@ -217,6 +235,20 @@ function updateDouyinVideo(data: any) {
       fetchDouyinVideo();
     } else {
       ElMessage.error(res.msg || "修改失败");
+    }
+  });
+}
+// 获取抖音短视频支付金额总和
+function fetchDouyinVideoAmountSum() {
+  getBiDouyinVideoAmountSum({
+    searchStr: getSearchStr()
+  }).then((res: any) => {
+    console.log("抖音短视频支付金额总和", res);
+    if (res.code === 200) {
+      // ElMessage.success("修改成功");
+      douyinVideoAmountSum.value = res.data || 0;
+    } else {
+      ElMessage.error(res.msg || "获取抖音短视频支付金额总和失败");
     }
   });
 }
@@ -398,16 +430,24 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     />
     <el-input
       v-model="searchInfluencerNickname"
-      style="width: 240px"
+      style="width: 150px"
       placeholder="搜索达人..."
       class="mr-[20px]"
       :prefix-icon="EpSearch"
       clearable
     />
     <el-input
+      v-model="searchSalesType"
+      style="width: 180px"
+      placeholder="搜索销售类别..."
+      class="mr-[20px]"
+      :prefix-icon="EpSearch"
+      clearable
+    />
+    <el-input
       v-model="searchProductName"
-      style="width: 240px"
-      placeholder="搜索产品..."
+      style="width: 180px"
+      placeholder="搜索销售产品..."
       class="mr-[20px]"
       :prefix-icon="EpSearch"
       clearable
@@ -420,6 +460,14 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
       @click="handleSearch"
       >查询</el-button
     >
+  </div>
+
+  <!-- 抖音短视频支付金额总和 -->
+  <div class="mb-[10px] text-[12px] text-[#09090b]">
+    <div>
+      用户支付金额汇总：
+      <span class="text-[16px] font-bold">{{ douyinVideoAmountSum }}</span>
+    </div>
   </div>
 
   <!-- 表格 -->

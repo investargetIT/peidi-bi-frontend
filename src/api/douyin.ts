@@ -47,6 +47,13 @@ export const postBiDouyinVideoUpdate = (data: any) => {
   });
 };
 
+/** 获取抖音短视频支付金额总和 */
+export const getBiDouyinVideoAmountSum = (params: { searchStr?: string }) => {
+  return http.request("get", commonUrlApi("/oms/bi/douyin-video/amount-sum"), {
+    params
+  });
+};
+
 /** 获取所有抖音商品类别 */
 export const getBiDouyinVideoType = () => {
   return http.request("get", commonUrlApi("/oms/bi/douyin-video/type"), {});
