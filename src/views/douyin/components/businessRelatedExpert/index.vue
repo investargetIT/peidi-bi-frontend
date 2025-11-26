@@ -7,6 +7,7 @@ import { ElMessage } from "element-plus";
 const handleDownload = () => {
   // 处理下载逻辑 下载/static/抖音模板.xlsx
   // 创建隐藏的下载链接并触发点击
+  // 特别注意：项目是放到pms.peidigroup.cn域名下的，文件需要放在/pms/static目录下
   const link = document.createElement("a");
   link.href = "/static/佩蒂BI抖音模板.xlsx";
   link.download = "佩蒂BI抖音模板.xlsx"; // 设置下载的文件名

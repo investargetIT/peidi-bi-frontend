@@ -45,3 +45,22 @@ export const getAiIntelligenceProductWordCload = (params: {
     }
   );
 };
+
+export interface RedditQuestionItem {
+  downs: number | string;
+  id: number | string;
+  reviewCnt: number | string;
+  reviews: any[];
+  score: number | string;
+  selfText: string;
+  sentiment: string;
+  subreddit: string;
+  title: string;
+  ups: number | string;
+}
+/** 获取Reddit问题 */
+export const getAiIntelligenceQuestion = (params: { question: string }) => {
+  return http.request("get", commonUrlApi("/ai/intelligence/question"), {
+    params
+  });
+};

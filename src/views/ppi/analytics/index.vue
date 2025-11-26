@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ChartCard from "@/components/PdChart/index.vue";
-import { onMounted, ref } from "vue";
+import { onActivated, onMounted, ref } from "vue";
 import {
   getAiIntelligenceProductPage,
   getAiIntelligenceProductWordCload
@@ -54,6 +54,17 @@ const top10ProductsCards = ref({
         show: true,
         lineStyle: {
           type: "dashed"
+        }
+      },
+      axisLabel: {
+        show: true,
+        fontSize: 10,
+        width: 65,
+        formatter: function (value) {
+          if (value.length > 24) {
+            return `${value.slice(0, 24)}...`;
+          }
+          return value;
         }
       }
     },
@@ -145,7 +156,7 @@ const productKeywordsWordCloudCards = ref({
         sizeRange: [12, 60], // 增大字体范围
         rotationRange: [0, 0], // 增加旋转角度范围
         rotationStep: 45, // 减小旋转步长
-        gridSize: 30, // 减小网格大小，让排列更紧密
+        gridSize: 26, // 减小网格大小，让排列更紧密
         shape: "pentagon",
         width: "100%",
         height: "100%",
@@ -254,7 +265,7 @@ const fetchProductPageReviewCntTop10 = () => {
     ])
   })
     .then((res: any) => {
-      console.log("获取产品列表Top10成功", res);
+      // console.log("获取产品列表Top10成功", res);
       if (res?.code === 200 && res.data) {
         // 解析出产品名称和评论数量 分成两个数组 一个是名称数组 一个是评论数量数组
         const productNames =
@@ -288,6 +299,70 @@ const fetchProductPageReviewCntTop10 = () => {
       message("获取产品列表Top10失败", { type: "error" });
     });
 };
+// 请求四类价格区间的产品数量 需要用到Promise.all
+const fetchProductPriceRangeCnt = () => {
+  Promise.all([
+    getAiIntelligenceProductPage({
+      pageNo: 1,
+      pageSize: 1,
+      searchStr: JSON.stringify([
+        {
+          searchName: "amount",
+          searchType: "betweenStr",
+          searchValue: [0, 10]
+        }
+      ])
+    }),
+    getAiIntelligenceProductPage({
+      pageNo: 1,
+      pageSize: 1,
+      searchStr: JSON.stringify([
+        {
+          searchName: "amount",
+          searchType: "betweenStr",
+          searchValue: [10, 20]
+        }
+      ])
+    }),
+    getAiIntelligenceProductPage({
+      pageNo: 1,
+      pageSize: 1,
+      searchStr: JSON.stringify([
+        {
+          searchName: "amount",
+          searchType: "betweenStr",
+          searchValue: [20, 50]
+        }
+      ])
+    }),
+    getAiIntelligenceProductPage({
+      pageNo: 1,
+      pageSize: 1,
+      searchStr: JSON.stringify([
+        {
+          searchName: "amount",
+          searchType: "betweenStr",
+          searchValue: [50, Number.MAX_SAFE_INTEGER]
+        }
+      ])
+    })
+  ])
+    .then((res: any[]) => {
+      // console.log("价格区间的产品数量", res);
+      if (res?.length === 4) {
+        // 提取数组res[x].data?.total
+        const temp = res.map((item: any) => item.data?.total || 0);
+        // console.log("价格区间的产品数量", temp);
+        priceRangeDistributionCards.value.option.series[0].data = temp;
+      } else {
+        message("获取价格区间的产品数量失败", { type: "error" });
+      }
+    })
+    .catch(() => {
+      message("获取价格区间的产品数量失败", { type: "error" });
+    });
+};
+
 // 获取产品词云
 const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
   cloudLoading.value = true;
@@ -336,6 +411,7 @@ const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
 
 onMounted(() => {
   fetchProductPageReviewCntTop10();
+  fetchProductPriceRangeCnt();
   fetchProductKeywordsWordCloud();
 });
 </script>

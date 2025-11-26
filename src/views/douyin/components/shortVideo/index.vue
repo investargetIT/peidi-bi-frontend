@@ -273,8 +273,8 @@ watch(
 
 // 处理单元格合并的方法 合并达人列（第一列）
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
-  // 只处理第一列（达人列） 和汇总列6 10 12 14 16
-  if (columnIndex === 0 || [6, 10, 12, 14, 16].includes(columnIndex)) {
+  // 处理第一列（达人列） 和汇总列6 8 9 10 12 14 16
+  if (columnIndex === 0 || [6, 8, 9, 10, 12, 14, 16].includes(columnIndex)) {
     // 获取当前行的达人名称
     const currentInfluencerNickname = row.influencerNickname;
 
@@ -465,7 +465,7 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
   <!-- 抖音短视频支付金额总和 -->
   <div class="mb-[10px] text-[12px] text-[#09090b]">
     <div>
-      用户支付金额汇总：
+      所有用户支付金额汇总：
       <span class="text-[16px] font-bold">{{ douyinVideoAmountSum }}</span>
     </div>
   </div>
@@ -596,9 +596,10 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
     <el-table-column
       prop="roi"
       label="ROI（计算）"
-      width="100"
+      width="120"
       align="right"
       :resizable="false"
+      sortable="custom"
     />
     <el-table-column
       prop="ordersCntSum"

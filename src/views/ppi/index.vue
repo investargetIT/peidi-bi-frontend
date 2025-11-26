@@ -3,10 +3,18 @@ import Dashboard from "./dashboard/index.vue";
 import Products from "./products/index.vue";
 import Analytics from "./analytics/index.vue";
 import Reddit from "./reddit/index.vue";
+
+const handleTabClick = (tab: any) => {
+  console.log("点击了", tab);
+};
 </script>
 
 <template>
-  <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
+  <el-tabs
+    type="border-card"
+    class="peidi-el-tabs-modern-tabs"
+    @tab-click="tab => handleTabClick(tab)"
+  >
     <el-tab-pane label="Dashboard" lazy>
       <Dashboard />
     </el-tab-pane>
