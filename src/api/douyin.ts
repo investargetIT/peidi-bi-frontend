@@ -42,7 +42,7 @@ export const getBiDouyinVideo = (params: {
       params
     },
     {
-      timeout: 1000 * 60 * 2
+      timeout: 1000 * 60 * 5
     }
   );
 };

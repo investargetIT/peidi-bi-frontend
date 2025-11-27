@@ -4,7 +4,11 @@ import OperationBar from "./operationBar/index.vue";
 import UploadDialog from "./uploadDialog/index.vue";
 import MynauiUploadSolid from "~icons/mynaui/upload-solid";
 import { onMounted, provide, ref, watch } from "vue";
-import { getAiIntelligenceProductPage, type ProductNewData } from "@/api/ppi";
+import {
+  getAiIntelligenceProductPage,
+  type ProductNewData,
+  postAiIntelligenceProductDelete
+} from "@/api/ppi";
 import { message } from "@/utils/message";
 
 // 加载状态
@@ -114,6 +118,19 @@ const fetchProductPage = () => {
 };
 // 往子组件提供请求方法fetchProductPage
 provide("fetchProductPage", fetchProductPage);
+// 删除产品
+const fetchDeleteProduct = (id: string | number) => {
+  postAiIntelligenceProductDelete({ id })
+    .then(() => {
+      message(`delete product success`, { type: "success" });
+      fetchProductPage();
+    })
+    .catch(() => {
+      message(`delete product id: ${id} failed`, { type: "error" });
+    });
+};
+// 往子组件提供请求方法fetchDeleteProduct
+provide("fetchDeleteProduct", fetchDeleteProduct);
 //#endregion
 
 // 监听分页参数变化
@@ -159,7 +176,11 @@ defineExpose({
     <OperationBar v-model:searchContent="searchContent" :loading="loading" />
   </div>
   <!-- 列表卡片 -->
-  <TableCard v-model:pagination="pagination" :tableData="tableData" />
+  <TableCard
+    v-model:pagination="pagination"
+    :tableData="tableData"
+    :loading="loading"
+  />
 
   <!-- 上传弹窗 -->
   <UploadDialog ref="uploadDialogRef" />

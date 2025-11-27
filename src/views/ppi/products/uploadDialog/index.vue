@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { inject, ref } from "vue";
 import Stars from "./stars.svg";
 import { UploadFilled } from "@element-plus/icons-vue";
 import ExtractedProductsCard from "../extractedProductsCard/index.vue";
@@ -19,6 +19,9 @@ export interface ExtractedProduct {
   longAmount: number;
   status?: "extracted" | "saved";
 }
+
+// 从父组件注入fetchProductPage方法
+const fetchProductPage = inject("fetchProductPage") as () => void;
 
 // 提取后的信息
 const extractedProducts = ref<ExtractedProduct[]>([]);
@@ -89,6 +92,8 @@ const closeUploadDialog = () => {
   // 清空文件列表
   uploadFileList.value = [];
   dialogVisible.value = false;
+  // 刷新父组件数据
+  fetchProductPage();
 };
 // 暴露方法
 defineExpose({

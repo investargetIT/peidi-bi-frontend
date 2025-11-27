@@ -7,6 +7,9 @@ import DiscussionCard from "@/views/ppi/reddit/discussionCard/index.vue";
 import { getAiIntelligenceQuestion, type RedditQuestionItem } from "@/api/ppi";
 import _ from "lodash";
 
+// 加载状态
+const loading = ref(false);
+
 // 搜索内容
 const searchTopic = ref("");
 const showSearchTopic = ref("");
@@ -343,174 +346,183 @@ const discussionList = ref<DiscussionItem[]>([
 //#region 请求逻辑
 // 获取Reddit问题
 const fetchRedditQuestion = (question: string) => {
+  // 加载状态设置为true
+  loading.value = true;
   // 用then处理异步请求
-  getAiIntelligenceQuestion({ question }).then((res: any) => {
-    console.log("Reddit问题:", res.data);
-    if (res.code === 200) {
-      showSearchTopic.value = question;
-      redditQuestionItems.value = res.data;
+  getAiIntelligenceQuestion({ question })
+    .then((res: any) => {
+      console.log("Reddit问题:", res.data);
+      if (res.code === 200) {
+        showSearchTopic.value = question;
+        redditQuestionItems.value = res.data;
 
-      if (redditQuestionItems.value.length === 0) {
-        return;
-      }
-
-      const data = res.data;
-      // 对数据进行处理
-      // 先遍历一遍得到数据统计
-      // 数据统计相关对象
-      const sentimentCounts = {
-        total: data.length, // 总讨论数
-        positive: 0, // 正面讨论数
-        neutral: 0, // 中性讨论数
-        negative: 0, // 负面讨论数
-        upvotes: 0, // 点赞数
-        comments: 0 // 评论数
-      };
-      // 社区对象 键值对 键为社区名 值为帖子数组
-      const subredditPosts: Record<string, RedditQuestionItem[]> = {};
-
-      data.forEach(item => {
-        // 情感统计
-        if (item.sentiment === "positive") {
-          sentimentCounts.positive++;
-        } else if (item.sentiment === "neutral") {
-          sentimentCounts.neutral++;
-        } else if (item.sentiment === "negative") {
-          sentimentCounts.negative++;
+        if (redditQuestionItems.value.length === 0) {
+          return;
         }
-        // 点赞数统计
-        sentimentCounts.upvotes += item.ups;
-        // 评论数统计
-        sentimentCounts.comments += item.reviewCnt;
-        // 社区统计
-        if (!subredditPosts[item.subreddit]) {
-          subredditPosts[item.subreddit] = [];
-        }
-        subredditPosts[item.subreddit].push(item);
-      });
-      console.log("数据统计:", sentimentCounts);
-      console.log("社区统计:", subredditPosts);
 
-      // 再遍历一遍 data数组 筛选出互动度(点赞数+评论数)前10的帖子
-      const topPosts = data
-        .sort(
-          (a, b) =>
-            (b.ups as number) +
-            (b.reviewCnt as number) -
-            (a.ups as number) -
-            (a.reviewCnt as number)
-        )
-        .slice(0, 10);
-      console.log("互动度前10的帖子:", topPosts);
+        const data = res.data;
+        // 对数据进行处理
+        // 先遍历一遍得到数据统计
+        // 数据统计相关对象
+        const sentimentCounts = {
+          total: data.length, // 总讨论数
+          positive: 0, // 正面讨论数
+          neutral: 0, // 中性讨论数
+          negative: 0, // 负面讨论数
+          upvotes: 0, // 点赞数
+          comments: 0 // 评论数
+        };
+        // 社区对象 键值对 键为社区名 值为帖子数组
+        const subredditPosts: Record<string, RedditQuestionItem[]> = {};
 
-      // 二次处理
-      // subredditPosts选出值数组长度前5的对象
-      const subredditPostsTop5 = Object.entries(subredditPosts)
-        .sort((a, b) => b[1].length - a[1].length)
-        .slice(0, 5);
-      console.log("互动度前5的社区:", subredditPostsTop5);
+        data.forEach(item => {
+          // 情感统计
+          if (item.sentiment === "positive") {
+            sentimentCounts.positive++;
+          } else if (item.sentiment === "neutral") {
+            sentimentCounts.neutral++;
+          } else if (item.sentiment === "negative") {
+            sentimentCounts.negative++;
+          }
+          // 点赞数统计
+          sentimentCounts.upvotes += item.ups;
+          // 评论数统计
+          sentimentCounts.comments += item.reviewCnt;
+          // 社区统计
+          if (!subredditPosts[item.subreddit]) {
+            subredditPosts[item.subreddit] = [];
+          }
+          subredditPosts[item.subreddit].push(item);
+        });
+        console.log("数据统计:", sentimentCounts);
+        console.log("社区统计:", subredditPosts);
 
-      // ################################################ 顶层卡片 ################################################
-      dataCards.value = [
-        {
-          ...dataCards.value[0],
-          value: sentimentCounts.total.toLocaleString()
-        },
-        {
-          ...dataCards.value[1],
-          value: (
-            sentimentCounts.upvotes + sentimentCounts.comments
-          ).toLocaleString()
-        },
-        {
-          ...dataCards.value[2],
-          value: Object.keys(subredditPosts).length.toLocaleString()
-        },
-        {
-          ...dataCards.value[3],
-          value:
-            _.round(
-              (sentimentCounts.positive / (sentimentCounts.total || 1)) * 100, // 这里用1是为了避免total为0时的除0错误
-              2
-            ) + "%"
-        }
-      ];
-      // ################################################ Discussion Sentiment Distribution ################################################
-      discussionSentimentDistributionCards.value.option.series[0].data = [
-        {
-          ...discussionSentimentDistributionCards.value.option.series[0]
-            .data[0],
-          value: sentimentCounts.positive
-        },
-        {
-          ...discussionSentimentDistributionCards.value.option.series[0]
-            .data[1],
-          value: sentimentCounts.neutral
-        },
-        {
-          ...discussionSentimentDistributionCards.value.option.series[0]
-            .data[2],
-          value: sentimentCounts.negative
-        }
-      ];
-      // ################################################ Monthly Discussion Trend ################################################
-      monthlyDiscussionTrendCards.value.option.series[0].data = [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        sentimentCounts.total,
-        0
-      ];
-      // ################################################ Trending Topics ################################################
-      trendingTopicsCards.value = {
-        ...trendingTopicsCards.value,
-        option: {
-          ...trendingTopicsCards.value.option,
-          yAxis: {
-            ...trendingTopicsCards.value.option.yAxis,
-            data: topPosts.map(item => item.title).reverse()
+        // 再遍历一遍 data数组 筛选出互动度(点赞数+评论数)前10的帖子
+        const topPosts = data
+          .sort(
+            (a, b) =>
+              (b.ups as number) +
+              (b.reviewCnt as number) -
+              (a.ups as number) -
+              (a.reviewCnt as number)
+          )
+          .slice(0, 10);
+        console.log("互动度前10的帖子:", topPosts);
+
+        // 二次处理
+        // subredditPosts选出值数组长度前5的对象
+        const subredditPostsTop5 = Object.entries(subredditPosts)
+          .sort((a, b) => b[1].length - a[1].length)
+          .slice(0, 5);
+        console.log("互动度前5的社区:", subredditPostsTop5);
+
+        // ################################################ 顶层卡片 ################################################
+        dataCards.value = [
+          {
+            ...dataCards.value[0],
+            value: sentimentCounts.total.toLocaleString()
           },
-          series: [
-            {
-              ...trendingTopicsCards.value.option.series[0],
-              data: topPosts
-                .map(item => (item.ups as number) + (item.reviewCnt as number))
-                .reverse()
-            }
-          ]
-        }
-      };
-      // ################################################ Top Subreddits by Activity ################################################
-      topSubredditsList.value = subredditPostsTop5.map((item, index) => ({
-        rank: index + 1,
-        name: "r/" + item[0].toLowerCase(),
-        members: "-",
-        posts: item[1].length.toLocaleString()
-      }));
-      // ################################################ 讨论数据 ################################################
-      discussionList.value = topPosts.map((item, index) => ({
-        title: item.title,
-        type: item.sentiment,
-        description: item.selfText,
-        info: {
-          subreddit: `r/${item.subreddit.toLowerCase()}`,
-          author: "",
-          date: ""
-        },
-        likes: item.ups,
-        comments: item.reviewCnt,
-        mentions: [],
-        keywords: []
-      }));
-    }
-  });
+          {
+            ...dataCards.value[1],
+            value: (
+              sentimentCounts.upvotes + sentimentCounts.comments
+            ).toLocaleString()
+          },
+          {
+            ...dataCards.value[2],
+            value: Object.keys(subredditPosts).length.toLocaleString()
+          },
+          {
+            ...dataCards.value[3],
+            value:
+              _.round(
+                (sentimentCounts.positive / (sentimentCounts.total || 1)) * 100, // 这里用1是为了避免total为0时的除0错误
+                2
+              ) + "%"
+          }
+        ];
+        // ################################################ Discussion Sentiment Distribution ################################################
+        discussionSentimentDistributionCards.value.option.series[0].data = [
+          {
+            ...discussionSentimentDistributionCards.value.option.series[0]
+              .data[0],
+            value: sentimentCounts.positive
+          },
+          {
+            ...discussionSentimentDistributionCards.value.option.series[0]
+              .data[1],
+            value: sentimentCounts.neutral
+          },
+          {
+            ...discussionSentimentDistributionCards.value.option.series[0]
+              .data[2],
+            value: sentimentCounts.negative
+          }
+        ];
+        // ################################################ Monthly Discussion Trend ################################################
+        monthlyDiscussionTrendCards.value.option.series[0].data = [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          sentimentCounts.total,
+          0
+        ];
+        // ################################################ Trending Topics ################################################
+        trendingTopicsCards.value = {
+          ...trendingTopicsCards.value,
+          option: {
+            ...trendingTopicsCards.value.option,
+            yAxis: {
+              ...trendingTopicsCards.value.option.yAxis,
+              data: topPosts.map(item => item.title).reverse()
+            },
+            series: [
+              {
+                ...trendingTopicsCards.value.option.series[0],
+                data: topPosts
+                  .map(
+                    item => (item.ups as number) + (item.reviewCnt as number)
+                  )
+                  .reverse()
+              }
+            ]
+          }
+        };
+        // ################################################ Top Subreddits by Activity ################################################
+        topSubredditsList.value = subredditPostsTop5.map((item, index) => ({
+          rank: index + 1,
+          name: "r/" + item[0].toLowerCase(),
+          members: "-",
+          posts: item[1].length.toLocaleString()
+        }));
+        // ################################################ 讨论数据 ################################################
+        discussionList.value = topPosts.map((item, index) => ({
+          title: item.title,
+          type: item.sentiment,
+          description: item.selfText,
+          info: {
+            subreddit: `r/${item.subreddit.toLowerCase()}`,
+            author: "",
+            date: ""
+          },
+          likes: item.ups,
+          comments: item.reviewCnt,
+          mentions: [],
+          keywords: []
+        }));
+      }
+    })
+    .finally(() => {
+      // 加载状态设置为false
+      loading.value = false;
+    });
 };
 //#endregion
 
@@ -554,7 +566,9 @@ const isShowContent = computed(() => {
         class="mr-[12px]"
         placeholder="Enter topic to research (e.g., grain-free, chicken flavor, Blue Buffalo, digestive issues...)"
       />
-      <el-button color="#000" @click="handleSearch">Search</el-button>
+      <el-button color="#000" :loading="loading" @click="handleSearch"
+        >Search</el-button
+      >
       <el-button @click="handleClearSearch">Clear</el-button>
     </div>
     <div

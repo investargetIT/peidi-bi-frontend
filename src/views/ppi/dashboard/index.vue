@@ -105,9 +105,10 @@ const fetchProductPageReviewCntTop10 = () => {
           },
           {
             ...dataCards.value[2],
-            value: `$${(
-              sourceData.reduce((acc, cur) => acc + Number(cur.amount), 0) /
-              sourceData.length
+            value: `$${(sourceData.length > 0
+              ? sourceData.reduce((acc, cur) => acc + Number(cur.amount), 0) /
+                sourceData.length
+              : 0
             ).toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
@@ -115,9 +116,10 @@ const fetchProductPageReviewCntTop10 = () => {
           },
           {
             ...dataCards.value[3],
-            value: `${(
-              sourceData.reduce((acc, cur) => acc + Number(cur.star), 0) /
-              sourceData.length
+            value: `${(sourceData.length > 0
+              ? sourceData.reduce((acc, cur) => acc + Number(cur.star), 0) /
+                sourceData.length
+              : 0
             ).toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2

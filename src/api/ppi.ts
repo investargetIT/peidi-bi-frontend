@@ -21,6 +21,15 @@ export const postAiIntelligenceProductNew = (data: ProductNewData) => {
   });
 };
 
+/** 删除产品 */
+export const postAiIntelligenceProductDelete = (data: {
+  id: string | number;
+}) => {
+  return http.request("post", commonUrlApi("/ai/intelligence/product/delete"), {
+    data
+  });
+};
+
 /** 分页获取产品信息 */
 export const getAiIntelligenceProductPage = (params: {
   pageNo: number;
@@ -42,6 +51,9 @@ export const getAiIntelligenceProductWordCload = (params: {
     commonUrlApi("/ai/intelligence/product/word-cload"),
     {
       params
+    },
+    {
+      timeout: 1000 * 60 * 5
     }
   );
 };
@@ -60,7 +72,14 @@ export interface RedditQuestionItem {
 }
 /** 获取Reddit问题 */
 export const getAiIntelligenceQuestion = (params: { question: string }) => {
-  return http.request("get", commonUrlApi("/ai/intelligence/question"), {
-    params
-  });
+  return http.request(
+    "get",
+    commonUrlApi("/ai/intelligence/question"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 5
+    }
+  );
 };

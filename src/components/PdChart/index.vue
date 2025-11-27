@@ -31,6 +31,10 @@ const props = defineProps({
 const chartId = props.name + new Date().getTime();
 // 注意，不能用ref 不然会导致tooltip失效等问题
 let myChart: echarts.ECharts | null = null;
+// 存储ResizeObserver实例
+let resizeObserver: ResizeObserver | null = null;
+// 存储容器元素引用
+const chartContainerRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
   const chartDom = document.getElementById(chartId);
@@ -38,6 +42,24 @@ onMounted(() => {
 
   myChart = echarts.init(chartDom);
   props.option && myChart.setOption(props.option);
+
+  // 创建ResizeObserver监听容器尺寸变化
+  resizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const { width } = entry.contentRect;
+      if (myChart && width > 0) {
+        // 当宽度变化时，重新调整图表大小
+        myChart.resize();
+      }
+    }
+  });
+
+  // 获取图表容器并开始观察
+  const container = chartDom.parentElement;
+  if (container) {
+    chartContainerRef.value = container;
+    resizeObserver.observe(container);
+  }
 });
 
 // 监听option变化，实现响应式更新
@@ -56,6 +78,13 @@ onUnmounted(() => {
   if (myChart) {
     myChart.dispose();
     myChart = null;
+  }
+
+  // 停止观察并清理ResizeObserver
+  if (resizeObserver && chartContainerRef.value) {
+    resizeObserver.unobserve(chartContainerRef.value);
+    resizeObserver.disconnect();
+    resizeObserver = null;
   }
 });
 

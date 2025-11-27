@@ -2,6 +2,9 @@
 import { type ProductNewData } from "@/api/ppi";
 import { computed, inject } from "vue";
 import { COMMENT_RATING_RATIO } from "@/views/ppi/config";
+import { ElMessageBox } from "element-plus";
+import { message } from "@/utils/message";
+import EpDelete from "~icons/ep/delete";
 
 // props
 const props = defineProps({
@@ -17,17 +20,44 @@ const props = defineProps({
       pageTotal: number;
     }>,
     required: true
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 });
 
 // 注入排序方法handleSortChange
 const handleSortChange = inject("handleSortChange") as (column: any) => void;
+// 注入删除方法fetchDeleteProduct
+const fetchDeleteProduct = inject("fetchDeleteProduct") as (
+  id: string | number
+) => void;
 
 const emit = defineEmits(["update:pagination"]);
 const paginationModel = computed({
   get: () => props.pagination,
   set: value => emit("update:pagination", value)
 });
+
+const handleDeleteClick = (row: ProductNewData) => {
+  // 二次确认删除
+  ElMessageBox.confirm(
+    `Are you sure you want to delete product: ${row.title}?`,
+    "Delete Product",
+    {
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      type: "warning"
+    }
+  )
+    .then(() => {
+      fetchDeleteProduct(row.id);
+    })
+    .catch(() => {
+      // message("Delete operation cancelled", { type: "info" });
+    });
+};
 
 // 设计时的模拟数据
 // const tableData = [
@@ -70,6 +100,7 @@ const paginationModel = computed({
     <div class="text-[16px] font-[600] text-[#0a0a0a] ml-[12px]">Products</div>
     <!-- 列表 -->
     <el-table
+      v-loading="props.loading"
       :data="props.tableData"
       :style="{ width: '100%' }"
       :header-row-style="{ color: '#09090b' }"
@@ -82,7 +113,7 @@ const paginationModel = computed({
       <el-table-column prop="title" label="Product Name" min-width="400" />
       <!-- <el-table-column prop="brand" label="Brand" width="120" /> -->
       <!-- <el-table-column prop="category" label="Category" width="120" /> -->
-      <el-table-column prop="channel" label="Platforms" width="200">
+      <el-table-column prop="channel" label="Platforms" width="100">
         <template #default="scope">
           <el-tag
             type="info"
@@ -166,6 +197,13 @@ const paginationModel = computed({
       >
         <template #default="scope">
           <div class="text-[#71717a]">{{ scope.row.star }}</div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="id" label="Operation" width="80" align="right">
+        <template #default="scope">
+          <el-button text type="danger" @click="handleDeleteClick(scope.row)">
+            <EpDelete class="w-[16px] h-[16px]" />
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
