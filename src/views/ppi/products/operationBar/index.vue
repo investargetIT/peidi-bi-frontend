@@ -8,6 +8,10 @@ const props = defineProps({
     default: () => ({
       title: ""
     })
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -54,6 +58,7 @@ const searchContentModel = computed({
       <el-button
         style="width: 120px; margin-left: 12px"
         color="#000"
+        :loading="loading"
         @click="fetchProductPage"
         >Apply</el-button
       >

@@ -409,10 +409,20 @@ const fetchProductKeywordsWordCloud = (refresh: boolean = false) => {
 };
 //#endregion
 
-onMounted(() => {
+// 页面初始化/更新/激活 方法 （组件挂载时调用）
+const initComponent = () => {
   fetchProductPageReviewCntTop10();
   fetchProductPriceRangeCnt();
   fetchProductKeywordsWordCloud();
+};
+
+onMounted(() => {
+  initComponent();
+});
+
+// 暴露方法
+defineExpose({
+  initComponent
 });
 </script>
 

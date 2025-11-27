@@ -56,6 +56,16 @@ const handleUploadError = (err: any, file: UploadFile) => {
 const handleUploadChange = (file: UploadFile, fileList: UploadFile[]) => {
   console.log("上传图片 改变回调", file, fileList);
 };
+// 上传图片 删除回调
+const handleUploadRemove = (file: UploadFile, fileList: UploadFile[]) => {
+  // 取消上传请求
+  uploadRef.value?.abort(file);
+  // 从文件列表中移除
+  uploadFileList.value = [];
+  // 清空加载状态
+  uploadLoading.value = false;
+  console.log("上传图片 删除回调", file, fileList, uploadFileList.value);
+};
 // 上传图片触发提交
 const handleUploadClick = () => {
   uploadLoading.value = true;
@@ -74,6 +84,10 @@ const closeUploadDialog = () => {
   extractedProducts.value = [];
   // 清空提取后展示的图片
   extractedProductImages.value = [];
+  // 清空加载状态
+  uploadLoading.value = false;
+  // 清空文件列表
+  uploadFileList.value = [];
   dialogVisible.value = false;
 };
 // 暴露方法
@@ -121,6 +135,7 @@ defineExpose({
         :on-success="handleUploadSuccess"
         :on-change="handleUploadChange"
         :on-error="handleUploadError"
+        :on-remove="handleUploadRemove"
       >
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
         <div class="el-upload__text">

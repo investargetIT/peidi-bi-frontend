@@ -59,7 +59,9 @@ const handleAvatarError = (err: any) => {
     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
     <div class="el-upload__text">拖拽文件 或 <em>点击上传</em></div>
     <template #tip>
-      <div class="el-upload__tip">仅支持xlsx文件</div>
+      <div class="el-upload__tip">
+        仅支持.xlsx文件，抖音id相同的商务信息会覆盖，抖音id之前不存在的会新增
+      </div>
     </template>
   </el-upload>
 </template>

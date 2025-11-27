@@ -58,8 +58,8 @@ const performanceList = ref<DouyinPerformanceData[]>([]);
 //#region 搜索逻辑
 // 搜索日期，默认当天 开发中先选择有数据的日期范围
 const searchDate = ref<string[]>([
-  dayjs("2025-11-01").format("YYYY-MM-DD"),
-  dayjs("2025-11-03").format("YYYY-MM-DD")
+  dayjs().format("YYYY-MM-DD"),
+  dayjs().format("YYYY-MM-DD")
 ]);
 // 搜索店铺
 const searchShopName = ref<string>("");

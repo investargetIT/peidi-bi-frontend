@@ -124,8 +124,8 @@ function handleSortChange(column: any) {
 //#region 搜索逻辑
 // 搜索日期，默认当天 开发中先选择有数据的日期范围
 const searchDate = ref<string[]>([
-  dayjs("2025-11-16").format("YYYY-MM-DD"),
-  dayjs("2025-11-16").format("YYYY-MM-DD")
+  dayjs().format("YYYY-MM-DD"),
+  dayjs().format("YYYY-MM-DD")
 ]);
 // 搜索类别
 const searchSalesType = ref<string>("");
@@ -273,8 +273,8 @@ watch(
 
 // 处理单元格合并的方法 合并达人列（第一列）
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
-  // 处理第一列（达人列） 和汇总列6 8 9 10 12 14 16
-  if (columnIndex === 0 || [6, 8, 9, 10, 12, 14, 16].includes(columnIndex)) {
+  // 处理第一列（达人列） 和汇总列6 10 12 14 16
+  if (columnIndex === 0 || [6, 10, 12, 14, 16].includes(columnIndex)) {
     // 获取当前行的达人名称
     const currentInfluencerNickname = row.influencerNickname;
 
@@ -599,7 +599,6 @@ const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
       width="120"
       align="right"
       :resizable="false"
-      sortable="custom"
     />
     <el-table-column
       prop="ordersCntSum"

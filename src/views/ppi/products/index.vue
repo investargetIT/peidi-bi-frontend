@@ -5,6 +5,10 @@ import UploadDialog from "./uploadDialog/index.vue";
 import MynauiUploadSolid from "~icons/mynaui/upload-solid";
 import { onMounted, provide, ref, watch } from "vue";
 import { getAiIntelligenceProductPage, type ProductNewData } from "@/api/ppi";
+import { message } from "@/utils/message";
+
+// 加载状态
+const loading = ref(false);
 
 const uploadDialogRef = ref<typeof UploadDialog>(null);
 
@@ -80,33 +84,37 @@ provide("handleSortChange", handleSortChange);
 //#region 请求逻辑
 // 分页获取产品信息
 const fetchProductPage = () => {
+  loading.value = true;
   getAiIntelligenceProductPage({
     pageNo: pagination.value.pageNo,
     pageSize: pagination.value.pageSize,
     searchStr: getSearchStr(),
     sortStr: JSON.stringify(sortStr.value)
-  }).then((res: any) => {
-    // console.log("获取产品列表成功", res);
+  })
+    .then((res: any) => {
+      // console.log("获取产品列表成功", res);
 
-    // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
-    if (res.data?.current > res.data?.pages && res.data?.total !== 0) {
-      pagination.value.pageNo = res.data?.pages;
-      return;
-    }
+      // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
+      if (res.data?.current > res.data?.pages && res.data?.total !== 0) {
+        pagination.value.pageNo = res.data?.pages;
+        return;
+      }
 
-    // 更新总页数
-    pagination.value.pageTotal = res.data?.total || 0;
+      // 更新总页数
+      pagination.value.pageTotal = res.data?.total || 0;
 
-    tableData.value = res.data?.records || [];
-  });
+      tableData.value = res.data?.records || [];
+    })
+    .catch(() => {
+      message("获取产品列表Top10失败", { type: "error" });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 // 往子组件提供请求方法fetchProductPage
 provide("fetchProductPage", fetchProductPage);
 //#endregion
-
-onMounted(() => {
-  fetchProductPage();
-});
 
 // 监听分页参数变化
 watch(
@@ -115,6 +123,20 @@ watch(
     fetchProductPage();
   }
 );
+
+// 页面初始化/更新/激活 方法 （组件挂载时调用）
+const initComponent = () => {
+  fetchProductPage();
+};
+
+onMounted(() => {
+  initComponent();
+});
+
+// 暴露方法
+defineExpose({
+  initComponent
+});
 </script>
 
 <template>
@@ -134,7 +156,7 @@ watch(
 
   <!-- 搜索卡片 -->
   <div class="mb-[20px]">
-    <OperationBar v-model:searchContent="searchContent" />
+    <OperationBar v-model:searchContent="searchContent" :loading="loading" />
   </div>
   <!-- 列表卡片 -->
   <TableCard v-model:pagination="pagination" :tableData="tableData" />
