@@ -35,9 +35,16 @@ export const getBiDouyinVideo = (params: {
   searchStr?: string;
   sortStr?: string;
 }) => {
-  return http.request("get", commonUrlApi("/oms/bi/douyin-video"), {
-    params
-  });
+  return http.request(
+    "get",
+    commonUrlApi("/oms/bi/douyin-video"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 2
+    }
+  );
 };
 
 /** 修改抖音短视频数据 */
