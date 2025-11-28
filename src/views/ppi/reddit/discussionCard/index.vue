@@ -2,15 +2,29 @@
 import IconParkSolidGoodTwo from "~icons/icon-park-solid/good-two";
 import HeroiconsSolidChat from "~icons/heroicons-solid/chat";
 import type { DiscussionItem } from "@/views/ppi/reddit/index.vue";
-import { computed } from "vue";
+import { computed, inject } from "vue";
+import LineMdLoadingLoop from "~icons/line-md/loading-loop";
 
 // props
 const props = defineProps({
   list: {
     type: Array as PropType<DiscussionItem[]>,
     required: true
+  },
+  commentsLoading: {
+    type: Boolean,
+    default: false
+  },
+  currentCommentId: {
+    type: String as PropType<string | number>,
+    default: ""
   }
 });
+
+// 注入修改评论id方法
+const setCurrentCommentId: (id: string | number) => void = inject(
+  "setCurrentCommentId"
+);
 
 // 计算属性 -判断类型标签颜色
 const handleTagType = computed(() => (data: string): any => {
@@ -68,8 +82,21 @@ const handleTagType = computed(() => (data: string): any => {
             <span class="ml-[8px]">{{ item.likes }}</span>
           </div>
           <div class="flex items-center ml-[16px]">
-            <HeroiconsSolidChat />
-            <span class="ml-[8px]">{{ item.comments }}</span>
+            <el-tooltip content="Click to view comments" placement="top">
+              <div
+                class="peidi-ppi-reddit-discussionCard-comment flex items-center cursor-pointer hover:text-[#2b7fff] transition-colors"
+                @click="() => setCurrentCommentId(item.id)"
+              >
+                <HeroiconsSolidChat />
+                <span class="ml-[8px]">{{ item.comments }}</span>
+                <LineMdLoadingLoop
+                  v-show="
+                    props.commentsLoading && props.currentCommentId === item.id
+                  "
+                  class="ml-[8px] w-4 h-4 animate-spin"
+                />
+              </div>
+            </el-tooltip>
           </div>
         </div>
         <div class="text-[14px] text-[#71717A]">

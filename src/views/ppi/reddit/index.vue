@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
 import DataCard from "@/views/ppi/reddit/dataCard/index.vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import RankingListCard from "@/views/ppi/reddit/rankingListCard/index.vue";
 import DiscussionCard from "@/views/ppi/reddit/discussionCard/index.vue";
-import { getAiIntelligenceQuestion, type RedditQuestionItem } from "@/api/ppi";
+import {
+  getAiIntelligenceQuestion,
+  getAiIntelligenceReviews,
+  type RedditQuestionItem
+} from "@/api/ppi";
 import _ from "lodash";
+import CommentsCard from "@/views/ppi/reddit/commentsCard/index.vue";
 
 // 加载状态
 const loading = ref(false);
@@ -252,6 +257,7 @@ const topSubredditsList = ref<TopSubredditsItem[]>([
 
 // 讨论数据
 export interface DiscussionItem {
+  id: string;
   title: string;
   type: string;
   description: string;
@@ -342,6 +348,51 @@ const discussionList = ref<DiscussionItem[]>([
   //   keywords: ["training", "recommendations", "healthy"]
   // }
 ]);
+
+export interface CommentItem {
+  body: string;
+  downs: number;
+  ups: number;
+}
+//#region 评论逻辑
+// 评论加载状态
+const commentsLoading = ref<boolean>(false);
+// 评论数据
+const commentsList = ref<CommentItem[]>([
+  // {
+  //   body: "Proplan but try the sensitive salmon or lamb and be careful what's in their treats and chews",
+  //   downs: 0,
+  //   ups: 19
+  // },
+  // {
+  //   body: "Purina Pro Plan by a mile",
+  //   downs: 0,
+  //   ups: 17
+  // }
+]);
+const commentsCardRef = ref<typeof CommentsCard>(null);
+// 当前评论id
+const currentCommentId = ref<string | number>("");
+// 修改评论id方法
+const setCurrentCommentId = (id: string | number) => {
+  // 如果当前评论id与新id相同，直接打开drawer
+  if (currentCommentId.value === id) {
+    commentsCardRef.value?.openDrawer();
+    return;
+  }
+  currentCommentId.value = id;
+};
+// watch监听currentCommentId变化
+watch(currentCommentId, async newId => {
+  if (newId) {
+    console.log("currentCommentId:", newId);
+    await fetchRedditComments(newId);
+    commentsCardRef.value?.openDrawer(true);
+  }
+});
+// provide 修改评论id方法给子组件
+provide("setCurrentCommentId", setCurrentCommentId);
+//#endregion
 
 //#region 请求逻辑
 // 获取Reddit问题
@@ -504,6 +555,7 @@ const fetchRedditQuestion = (question: string) => {
         }));
         // ################################################ 讨论数据 ################################################
         discussionList.value = topPosts.map((item, index) => ({
+          id: item.id,
           title: item.title,
           type: item.sentiment,
           description: item.selfText,
@@ -522,6 +574,20 @@ const fetchRedditQuestion = (question: string) => {
     .finally(() => {
       // 加载状态设置为false
       loading.value = false;
+    });
+};
+// 获取评论列表
+const fetchRedditComments = (id: string | number) => {
+  // 加载状态设置为true
+  commentsLoading.value = true;
+  return getAiIntelligenceReviews({ id })
+    .then((res: any) => {
+      console.log("评论数据详情:", res.data);
+      commentsList.value = res.data || [];
+    })
+    .finally(() => {
+      // 加载状态设置为false
+      commentsLoading.value = false;
     });
 };
 //#endregion
@@ -643,8 +709,22 @@ const isShowContent = computed(() => {
 
       <!-- 讨论卡片 -->
       <div class="mt-[28px]">
-        <DiscussionCard :list="discussionList" />
+        <DiscussionCard
+          :list="discussionList"
+          :commentsLoading="commentsLoading"
+          :currentCommentId="currentCommentId"
+        />
       </div>
+    </div>
+
+    <!-- 评论展示卡片 -->
+    <div class="mt-[28px]">
+      <CommentsCard
+        ref="commentsCardRef"
+        :list="commentsList"
+        title="Community Comments"
+        :show-stats="true"
+      />
     </div>
   </template>
 </template>

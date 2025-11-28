@@ -201,4 +201,10 @@ class PureHttp {
   }
 }
 
+/**
+ * 通用http请求工具函数
+ *
+ * 默认配置：
+ * - 超时时间：1分钟
+ */
 export const http = new PureHttp();

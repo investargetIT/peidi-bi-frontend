@@ -138,8 +138,8 @@ function handleSortChange(column: any) {
 //#region 搜索逻辑
 // 搜索日期，默认当天 开发中先选择有数据的日期范围
 const searchDate = ref<string[]>([
-  dayjs("2025-11-16").format("YYYY-MM-DD"),
-  dayjs("2025-11-16").format("YYYY-MM-DD")
+  dayjs().format("YYYY-MM-DD"),
+  dayjs().format("YYYY-MM-DD")
 ]);
 // 搜索类别
 const searchSalesType = ref<string>("");
