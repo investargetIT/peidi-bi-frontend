@@ -77,6 +77,11 @@ export const getJsApi = params => {
   });
 };
 
+// 判断用户是否登陆
+export const getUserCheck = params => {
+  return http.request("get", commonUrlApi("/user/user-check"), { params });
+};
+
 /** 刷新`token` */
 export const refreshTokenApi = (data?: object) => {
   return http.request<RefreshTokenResult>("post", "/refresh-token", { data });

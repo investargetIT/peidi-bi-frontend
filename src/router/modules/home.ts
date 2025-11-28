@@ -1,26 +1,26 @@
-import { $t } from "@/plugins/i18n";
-const { VITE_HIDE_HOME, VITE_BASE_URL } = import.meta.env;
+// import { $t } from "@/plugins/i18n";
+// const { VITE_HIDE_HOME, VITE_BASE_URL } = import.meta.env;
 const Layout = () => import("@/layout/index.vue");
 
 export default {
   path: "/",
-  name: "RFMLayout",
+  name: "HomeLayout",
   component: Layout,
-  redirect: VITE_BASE_URL + "/rfm",
+  redirect: "/ppi",
   meta: {
-    icon: "vaadin/chart-3d",
-    title: "RFM",
+    icon: "",
+    title: "",
     rank: 0
   },
   children: [
-    {
-      path: VITE_BASE_URL + "/rfm",
-      name: "RFM",
-      component: () => import("@/views/RFM/index.vue"),
-      meta: {
-        title: "RFM",
-        showLink: VITE_HIDE_HOME === "true" ? false : true
-      }
-    }
+    // {
+    //   path: "/douyin",
+    //   name: "Douyin",
+    //   component: () => import("@/views/douyin/index.vue"),
+    //   meta: {
+    //     title: "抖音数据需求",
+    //     showLink: VITE_HIDE_HOME === "true" ? false : true
+    //   }
+    // }
   ]
 } satisfies RouteConfigsTable;

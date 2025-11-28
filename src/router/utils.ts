@@ -29,8 +29,11 @@ const Layout = () => import("@/layout/index.vue");
 
 // 动态路由
 import { getAsyncRoutes } from "@/api/routes";
-import { getCommonEnum } from "@/api/vdb";
+// import { getCommonEnum } from "@/api/vdb";
 import { message } from "@/utils/message";
+import { getUserCheck } from "@/api/user";
+import { formatToken, getToken } from "@/utils/auth";
+import { hasPermission } from "@/utils/permissionSettings";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -216,6 +219,49 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
+      // 获取异步路由 这里获取用户信息 用户id
+      getUserCheck({ token: formatToken(getToken().accessToken) })
+        .then((res: any) => {
+          if (res?.code === 200) {
+            // 处理成功逻辑 拿到id
+            const userId = res?.data?.id;
+            const routesTemp = [];
+            // 判断douyin权限
+            if (hasPermission(userId, "douyin")) {
+              routesTemp.push({
+                path: "/douyin",
+                name: "DouyinLayout",
+                redirect: "/douyin/index",
+                component: Layout,
+                meta: {
+                  icon: "ri/tiktok-line",
+                  title: "抖音数据需求",
+                  showLink: true,
+                  rank: 12
+                },
+                children: [
+                  {
+                    path: "/douyin/index",
+                    name: "DouyinIndex",
+                    component: () => import("@/views/douyin/index.vue"),
+                    meta: {
+                      title: "抖音数据需求",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            handleAsyncRoutes(cloneDeep(routesTemp));
+            resolve(router);
+          } else {
+            message("获取用户信息失败", { type: "error" });
+          }
+        })
+        .catch(() => {
+          message("获取用户信息失败", { type: "error" });
+        });
+
       // 获取异步路由 这里根据枚举 reportType 动态添加路由
       // getCommonEnum("reportType")
       //   .then((res: any) => {
@@ -262,10 +308,12 @@ function initRouter() {
       //     // 处理失败逻辑
       //     message("请求报告类型失败", { type: "error" });
       //   });
-      getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data));
-        resolve(router);
-      });
+
+      // 模板自带代码
+      // getAsyncRoutes().then(({ data }) => {
+      //   handleAsyncRoutes(cloneDeep(data));
+      //   resolve(router);
+      // });
     });
   }
 }
