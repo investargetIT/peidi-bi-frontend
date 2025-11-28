@@ -256,10 +256,12 @@ function initRouter() {
             resolve(router);
           } else {
             message("获取用户信息失败", { type: "error" });
+            resolve(router);
           }
         })
         .catch(() => {
           message("获取用户信息失败", { type: "error" });
+          resolve(router);
         });
 
       // 获取异步路由 这里根据枚举 reportType 动态添加路由

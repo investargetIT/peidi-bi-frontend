@@ -17,7 +17,7 @@ import { saveAs } from "file-saver"; // 用于保存文件
 // 加载状态
 const loading = ref<boolean>(false);
 // 抖音短视频数据汇总
-const douyinVideoAmountSum = ref<number>(0);
+const douyinVideoAmountSum = ref<[number, number]>([0, 0]);
 // 计算属性 -计算数据汇总的ROI
 const douyinVideoAmountSumROI = computed(() => {
   if (!douyinVideoAmountSum.value[1]) return "--";
