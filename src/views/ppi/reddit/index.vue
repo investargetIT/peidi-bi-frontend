@@ -583,7 +583,12 @@ const fetchRedditComments = (id: string | number) => {
   return getAiIntelligenceReviews({ id })
     .then((res: any) => {
       console.log("评论数据详情:", res.data);
-      commentsList.value = res.data || [];
+      const tempCommentsList = res.data || [];
+      commentsList.value = tempCommentsList.map(item => ({
+        ...item,
+        downs: item.ups < 0 ? -item.ups : 0,
+        ups: item.ups > 0 ? item.ups : 0
+      }));
     })
     .finally(() => {
       // 加载状态设置为false
