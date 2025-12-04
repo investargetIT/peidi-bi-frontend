@@ -362,30 +362,37 @@ const blurValueInput = (row: DouyinShortVideo, column: any) => {
   if (row.qianchuan !== null && row.qianchuan !== undefined) {
     // 确保输入的是数字
     const value = parseFloat(row.qianchuan.toString());
-    if (!isNaN(value)) {
-      row.qianchuan = value;
 
-      // 检查值是否真的发生了变化
-      const hasValueChanged = originalValue.value !== row.qianchuan;
-
-      if (hasValueChanged) {
-        // 计算ROI
-        calculateROI(row);
-
-        // 只有值发生变化时才发送请求
-        console.log("值发生变化，触发更新请求", row);
-        updateDouyinVideo({
-          ...row
-        });
-      } else {
-        // 值没有变化，不发送请求
-        console.log("值未发生变化，不发送请求");
-        ElMessage.info("千川消耗金额未发生变化");
-      }
-    } else {
-      // 如果输入无效，恢复原值
+    // 特殊处理，如果有两个以上小数点.字符则提示
+    if (row.qianchuan.toString().split(".").length > 2) {
       row.qianchuan = originalValue.value;
-      ElMessage.warning("请输入有效的数字");
+      ElMessage.warning("千川消耗金额只能有一个小数点");
+    } else {
+      if (!isNaN(value)) {
+        row.qianchuan = value;
+
+        // 检查值是否真的发生了变化
+        const hasValueChanged = originalValue.value !== row.qianchuan;
+
+        if (hasValueChanged) {
+          // 计算ROI
+          calculateROI(row);
+
+          // 只有值发生变化时才发送请求
+          console.log("值发生变化，触发更新请求", row);
+          updateDouyinVideo({
+            ...row
+          });
+        } else {
+          // 值没有变化，不发送请求
+          console.log("值未发生变化，不发送请求");
+          ElMessage.info("千川消耗金额未发生变化");
+        }
+      } else {
+        // 如果输入无效，恢复原值
+        row.qianchuan = originalValue.value;
+        ElMessage.warning("请输入有效的数字");
+      }
     }
   }
 
@@ -903,7 +910,7 @@ const handleExport = async () => {
       <template #default="{ row, column }">
         <el-input
           v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
-          v-model.number="row.qianchuan"
+          v-model="row.qianchuan"
           size="small"
           placeholder="请输入金额"
           :min="0"
