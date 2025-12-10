@@ -34,72 +34,65 @@ interface DouyinShortVideo {
   id: number;
   /** 数据日期 */
   date: string;
+  /** 平台名称 */
+  platform: string;
   /** 店铺名称 */
   shopName: string;
+  /** 视频标题 */
+  videoTitle: string;
+  /** 视频ID */
+  videoId: string;
+  /** 是否为广告视频（是/否） */
+  isAd: string;
+  /** 视频链接 */
+  videoUrl: string;
+  /** 发布时间 */
+  publishTime: string;
+  /** 达人昵称 */
+  influencerNickname: string;
+  /** 达人抖音ID */
+  influencerDouyinId: string;
   /** 商品ID */
   productId: string;
   /** 商品名称 */
   productName: string;
+  /** 观看次数 */
+  viewCount: number | null;
+  /** 支付金额 */
+  paymentAmount: number;
+  /** 退款金额 */
+  refundAmount: number;
+  /** 直播间跳转次数 */
+  liveRoomRedirect: number;
+  /** 观看后搜索次数 */
+  searchAfterView: number;
+  /** 店铺页面跳转次数 */
+  storePageRedirect: number | null;
   /** 销售类型 */
   salesType: string | null;
   /** 账户列表（可能包含多个账户数据） */
   accountList: any[] | null;
-  /** 实际支付金额 */
-  actualPaymentAmount: number | null;
-  /** 加购数量 */
-  addToCartCount: number | null;
-  /** 抖音账户ID */
-  douyinAccountId: string;
-  /** 抖音昵称 */
-  douyinNickname: string;
-  /** 收藏数量 */
-  favoriteCount: number | null;
-  /** 加购率（展示） */
-  displayAddToCartRate: number | null;
-  /** 收藏率（展示） */
-  displayFavoriteRate: number | null;
-  /** 净GMV */
-  netGmv: number;
-  /** 净GMV结算率 */
-  netGmvSettlementRate: number | null;
-  /** 净订单成本 */
-  netOrderCost: number | null;
-  /** 净订单数量 */
-  netOrderCount: number | null;
-  /** 净订单结算率 */
-  netOrderSettlementRate: number | null;
-  /** 净ROI */
-  netRoi: number;
-  /** 整体转化率 */
-  overallConversionRate: number | null;
-  /** 整体点击率 */
-  overallCtr: number | null;
-  /** 整体订单成本 */
-  overallOrderCost: number | null;
-  /** 整体支付ROI */
-  overallPaymentRoi: number;
-  /** 平台补贴金额 */
-  platformSubsidyAmount: number | null;
-  /** 发货前退款金额 */
-  preShipRefundAmount: number | null;
-  /** 发货前退款订单数 */
-  preShipRefundOrderCount: number | null;
-  /** 发货前退款率 */
-  preShipRefundRate: number | null;
-  /** 智能优惠券金额 */
-  smartCouponAmount: number | null;
-  /** 总点击量 */
-  totalClicks: number;
-  /** 总成本 */
-  totalCost: number;
-  /** 总GMV */
-  totalGmv: number;
-  /** 总曝光量 */
-  totalImpressions: number;
-  /** 总订单数 */
-  totalOrderCount: number | null;
-  /** 未支付预售预估 */
-  unpaidPresaleEstimate: number | null;
+  /** 商品曝光次数 */
+  exposureCnt: number;
+  /** 商品点击次数 */
+  clickCnt: number;
+  /** 成交订单数 */
+  ordersCnt: number;
+  // 后续增加
+  /** 支付金额总和 */
+  paymentAmountSum: number;
+  /** 成交订单数总和 */
+  ordersCntSum: number;
+  /** 观看次数总和 */
+  viewCountSum: number;
+  /** 商品曝光次数总和 */
+  exposureCntSum: number;
+  /** 商品点击次数总和 */
+  clickCntSum: number;
+  /** 千川消耗金额（手填） */
+  qianchuan: number | null;
+  /** ROI（计算） */
+  roi: number | null;
   // 前端加入 - 是否选中
   isSelected: boolean;
 }
@@ -149,15 +142,13 @@ const searchDate = ref<string[]>([
   dayjs().subtract(1, "day").format("YYYY-MM-DD")
 ]);
 // 搜索类别
-// const searchSalesType = ref<string>("");
+const searchSalesType = ref<string>("");
 // 搜索产品
 const searchProductName = ref<string>("");
-// 搜索达人抖音ID
-const searchDouyinAccountId = ref<string>("");
 // 搜索达人
 const searchInfluencerNickname = ref<string>("");
 // 搜索视频标题
-// const searchVideoTitle = ref<string>("");
+const searchVideoTitle = ref<string>("");
 // 拼接查询参数
 const getSearchStr = () => {
   const searchStr = [
@@ -169,18 +160,11 @@ const getSearchStr = () => {
         .join(",")
     }
   ];
-  // if (searchSalesType.value) {
-  //   searchStr.push({
-  //     searchName: "salesType",
-  //     searchType: "like",
-  //     searchValue: `${searchSalesType.value}`
-  //   });
-  // }
-  if (searchDouyinAccountId.value) {
+  if (searchSalesType.value) {
     searchStr.push({
-      searchName: "douyinAccountId",
+      searchName: "salesType",
       searchType: "like",
-      searchValue: `${searchDouyinAccountId.value}`
+      searchValue: `${searchSalesType.value}`
     });
   }
   if (searchProductName.value) {
@@ -190,16 +174,16 @@ const getSearchStr = () => {
       searchValue: `${searchProductName.value}`
     });
   }
-  // if (searchVideoTitle.value) {
-  //   searchStr.push({
-  //     searchName: "videoTitle",
-  //     searchType: "like",
-  //     searchValue: `${searchVideoTitle.value}`
-  //   });
-  // }
+  if (searchVideoTitle.value) {
+    searchStr.push({
+      searchName: "videoTitle",
+      searchType: "like",
+      searchValue: `${searchVideoTitle.value}`
+    });
+  }
   if (searchInfluencerNickname.value) {
     searchStr.push({
-      searchName: "douyinNickname",
+      searchName: "influencerNickname",
       searchType: "like",
       searchValue: `${searchInfluencerNickname.value}`
     });
@@ -210,7 +194,7 @@ const getSearchStr = () => {
 
 //#region 分页逻辑
 const pageNo = ref<number>(1);
-const pageSize = ref<number>(20);
+const pageSize = ref<number>(10);
 const pageTotal = ref<number>(0);
 //#endregion
 
@@ -243,22 +227,15 @@ function fetchDouyinVideo() {
       // 把data.records里的每条数据里的accountList铺平 放入汇总数据
       const videoListTemp = res.data.records.flatMap((item: any) => {
         if (item.accountList && item.accountList.length > 0) {
-          return item.accountList.flatMap((item2: any) => {
-            return item2.accountList.map((account: any) => ({
-              ...account,
-              douyinNickname: item2.douyinNickname,
-              douyinAccountId: item.douyinAccountId
-            }));
-          });
-          // return item.accountList.map((account: any) => ({
-          //   ...account,
-          //   paymentAmountSum: item.paymentAmountSum,
-          //   ordersCntSum: item.ordersCntSum,
-          //   viewCountSum: item.viewCountSum,
-          //   exposureCntSum: item.exposureCntSum,
-          //   clickCntSum: item.clickCntSum,
-          //   isSelected: false
-          // }));
+          return item.accountList.map((account: any) => ({
+            ...account,
+            paymentAmountSum: item.paymentAmountSum,
+            ordersCntSum: item.ordersCntSum,
+            viewCountSum: item.viewCountSum,
+            exposureCntSum: item.exposureCntSum,
+            clickCntSum: item.clickCntSum,
+            isSelected: false
+          }));
         }
         return [];
       });
@@ -317,65 +294,28 @@ watch(
   }
 );
 
-// 处理单元格合并的方法 达人ID列基于ID合并，达人名称列基于ID和名称分别合并
+// 处理单元格合并的方法 合并达人列（第一列）
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
-  // 处理第一列（达人ID列）- 基于ID进行合并
-  if (columnIndex === 0) {
-    // 获取当前行的达人ID
-    const currentInfluencerId = row.douyinAccountId;
+  // 处理第一列（达人列） 和汇总列6 10 12 14 17
+  if (columnIndex === 0 || [6, 10, 12, 14, 17].includes(columnIndex)) {
+    // 获取当前行的达人名称
+    const currentInfluencerNickname = row.influencerNickname;
 
-    // 查找相同达人ID的连续行数
+    // 查找相同达人名称的连续行数
     let rowspan = 1;
     for (let i = rowIndex + 1; i < videoList.value.length; i++) {
-      if (videoList.value[i].douyinAccountId === currentInfluencerId) {
+      if (videoList.value[i].influencerNickname === currentInfluencerNickname) {
         rowspan++;
       } else {
         break;
       }
     }
 
-    // 如果是相同达人ID的第一行，返回合并信息
+    // 如果是相同达人名称的第一行，返回合并信息
     if (
       rowIndex === 0 ||
-      videoList.value[rowIndex - 1].douyinAccountId !== currentInfluencerId
-    ) {
-      return {
-        rowspan: rowspan,
-        colspan: 1
-      };
-    } else {
-      // 如果不是第一行，隐藏单元格
-      return {
-        rowspan: 0,
-        colspan: 0
-      };
-    }
-  }
-
-  // 处理第二列（达人名称列）- 基于ID和名称的组合进行分别合并
-  if (columnIndex === 1) {
-    // 获取当前行的达人ID和达人名称
-    const currentInfluencerId = row.douyinAccountId;
-    const currentInfluencerName = row.douyinNickname;
-
-    // 查找相同达人ID和达人名称的连续行数
-    let rowspan = 1;
-    for (let i = rowIndex + 1; i < videoList.value.length; i++) {
-      if (
-        videoList.value[i].douyinAccountId === currentInfluencerId &&
-        videoList.value[i].douyinNickname === currentInfluencerName
-      ) {
-        rowspan++;
-      } else {
-        break;
-      }
-    }
-
-    // 如果是相同达人ID和名称的第一行，返回合并信息
-    if (
-      rowIndex === 0 ||
-      videoList.value[rowIndex - 1].douyinAccountId !== currentInfluencerId ||
-      videoList.value[rowIndex - 1].douyinNickname !== currentInfluencerName
+      videoList.value[rowIndex - 1].influencerNickname !==
+        currentInfluencerNickname
     ) {
       return {
         rowspan: rowspan,
@@ -390,6 +330,129 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
     }
   }
 };
+
+//#region 千川消耗金额 逻辑
+// 当前正在编辑的行ID
+const tableRowEditId = ref<number | null>(null);
+// 当前正在编辑的列ID
+const tableColumnEditIndex = ref<string | null>(null);
+// 编辑前的值，用于取消编辑时恢复
+const originalValue = ref<any>(null);
+
+/**
+ * 开始编辑单元格
+ * @param row 行数据
+ * @param column 列数据
+ */
+const startEdit = (row: DouyinShortVideo, column: any) => {
+  // 保存编辑前的值
+  originalValue.value = row.qianchuan;
+  // 设置当前编辑的行和列
+  tableRowEditId.value = row.id;
+  tableColumnEditIndex.value = column.id;
+};
+
+/**
+ * 结束编辑单元格
+ * @param row 行数据
+ * @param column 列数据
+ */
+const blurValueInput = (row: DouyinShortVideo, column: any) => {
+  // 验证输入的值
+  if (row.qianchuan !== null && row.qianchuan !== undefined) {
+    // 确保输入的是数字
+    const value = parseFloat(row.qianchuan.toString());
+
+    // 特殊处理，如果有两个以上小数点.字符则提示
+    if (row.qianchuan.toString().split(".").length > 2) {
+      row.qianchuan = originalValue.value;
+      ElMessage.warning("千川消耗金额只能有一个小数点");
+    } else {
+      if (!isNaN(value)) {
+        row.qianchuan = value;
+
+        // 检查值是否真的发生了变化
+        const hasValueChanged = originalValue.value !== row.qianchuan;
+
+        if (hasValueChanged) {
+          // 计算ROI
+          calculateROI(row);
+
+          // 只有值发生变化时才发送请求
+          console.log("值发生变化，触发更新请求", row);
+          updateDouyinVideo({
+            ...row
+          });
+        } else {
+          // 值没有变化，不发送请求
+          console.log("值未发生变化，不发送请求");
+          ElMessage.info("千川消耗金额未发生变化");
+        }
+      } else {
+        // 如果输入无效，恢复原值
+        row.qianchuan = originalValue.value;
+        ElMessage.warning("请输入有效的数字");
+      }
+    }
+  }
+
+  // 结束编辑状态
+  tableRowEditId.value = null;
+  tableColumnEditIndex.value = null;
+  originalValue.value = null;
+};
+
+/**
+ * 计算ROI
+ * @param row 行数据
+ */
+const calculateROI = (row: DouyinShortVideo) => {
+  if (row.qianchuan && row.qianchuan > 0 && row.paymentAmount) {
+    row.roi = parseFloat((row.paymentAmount / row.qianchuan).toFixed(2));
+  } else {
+    row.roi = null;
+  }
+};
+
+/**
+ * 取消编辑
+ */
+const cancelEdit = () => {
+  if (tableRowEditId.value !== null && originalValue.value !== null) {
+    // 找到对应的行并恢复原值
+    const row = videoList.value.find(item => item.id === tableRowEditId.value);
+    if (row) {
+      row.qianchuan = originalValue.value;
+    }
+  }
+
+  tableRowEditId.value = null;
+  tableColumnEditIndex.value = null;
+  originalValue.value = null;
+};
+
+/**
+ * 双击单元格开始编辑
+ * @param row 行数据
+ * @param column 列数据
+ */
+const handleCellDblClick = (row: DouyinShortVideo, column: any) => {
+  // 只允许编辑千川消耗金额列
+  if (column.property === "qianchuan") {
+    startEdit(row, column);
+  }
+};
+//#endregion
+
+//#region 表格操作按钮逻辑
+// 操作栏点击搜索按钮
+const handleSearchClick = (row: any) => {
+  // 填充搜索栏
+  searchVideoTitle.value = row.videoTitle;
+  // 触发查询
+  handleSearch();
+};
+//#endregion
 
 //#region 导出逻辑
 const handleExport = async () => {
@@ -437,29 +500,22 @@ const handleExport = async () => {
         // 处理数据，将accountList铺平
         const pageData = res.data.records.flatMap((item: any) => {
           if (item.accountList && item.accountList.length > 0) {
-            return item.accountList.flatMap((item2: any) => {
-              return item2.accountList.map((account: any) => ({
-                ...account,
-                douyinNickname: item2.douyinNickname,
-                douyinAccountId: item.douyinAccountId
-              }));
-            });
-            // return item.accountList.map((account: any) => ({
-            //   ...account,
-            //   paymentAmountSum: item.paymentAmountSum,
-            //   ordersCntSum: item.ordersCntSum,
-            //   viewCountSum: item.viewCountSum,
-            //   exposureCntSum: item.exposureCntSum,
-            //   clickCntSum: item.clickCntSum,
-            //   exposureRate: calculatePercentage(
-            //     account.exposureCnt,
-            //     account.viewCount
-            //   ), // 商品曝光率
-            //   clickRate: calculatePercentage(
-            //     account.clickCnt,
-            //     account.viewCount
-            //   ) // 商品点击率
-            // }));
+            return item.accountList.map((account: any) => ({
+              ...account,
+              paymentAmountSum: item.paymentAmountSum,
+              ordersCntSum: item.ordersCntSum,
+              viewCountSum: item.viewCountSum,
+              exposureCntSum: item.exposureCntSum,
+              clickCntSum: item.clickCntSum,
+              exposureRate: calculatePercentage(
+                account.exposureCnt,
+                account.viewCount
+              ), // 商品曝光率
+              clickRate: calculatePercentage(
+                account.clickCnt,
+                account.viewCount
+              ) // 商品点击率
+            }));
           }
           return [];
         });
@@ -475,40 +531,35 @@ const handleExport = async () => {
 
     // 定义表头
     const headers = [
-      "数据记录ID",
-      "数据日期",
-      "店铺名称",
+      "达人昵称",
+      "达人抖音ID",
+      "日期",
+      "销售类别",
+      "销售产品",
+      "视频标题",
+      "视频ID",
+      "是否为广告视频",
+      "视频链接",
+      "发布时间",
       "商品ID",
-      "商品名称",
-      "销售类型",
-      "抖音账户ID",
-      "抖音昵称",
-      "实际支付金额",
-      "加购数量",
-      "收藏数量",
-      "加购率(%)",
-      "收藏率(%)",
-      "净GMV",
-      "净GMV结算率(%)",
-      "净订单成本",
-      "净订单数量",
-      "净订单结算率(%)",
-      "净ROI",
-      "整体转化率(%)",
-      "整体点击率(%)",
-      "整体订单成本",
-      "整体支付ROI",
-      "平台补贴金额",
-      "发货前退款金额",
-      "发货前退款订单数",
-      "发货前退款率(%)",
-      "智能优惠券金额",
-      "总点击量",
-      "总成本",
-      "总GMV",
-      "总曝光量",
-      "总订单数",
-      "未支付预售预估"
+      "观看次数",
+      "支付金额",
+      "退款金额",
+      "直播间跳转次数",
+      "观看后搜索次数",
+      "店铺页面跳转次数",
+      "商品曝光次数",
+      "商品点击次数",
+      "成交订单数",
+      "支付金额总和",
+      "成交订单数总和",
+      "观看次数总和",
+      "商品曝光次数总和",
+      "商品点击次数总和",
+      "千川消耗金额",
+      "ROI",
+      "商品曝光率(%)",
+      "商品点击率(%)"
     ];
 
     // 添加表头行并设置样式
@@ -537,40 +588,35 @@ const handleExport = async () => {
 
     // 设置列宽
     const columnWidths = [
-      12, // 数据记录ID
-      12, // 数据日期
-      15, // 店铺名称
-      15, // 商品ID
-      20, // 商品名称
-      12, // 销售类型
-      15, // 抖音账户ID
-      15, // 抖音昵称
-      12, // 实际支付金额
-      12, // 加购数量
-      12, // 收藏数量
-      12, // 加购率
-      12, // 收藏率
-      12, // 净GMV
-      12, // 净GMV结算率
-      12, // 净订单成本
-      12, // 净订单数量
-      12, // 净订单结算率
-      12, // 净ROI
-      12, // 整体转化率
-      12, // 整体点击率
-      12, // 整体订单成本
-      12, // 整体支付ROI
-      12, // 平台补贴金额
-      12, // 发货前退款金额
-      12, // 发货前退款订单数
-      12, // 发货前退款率
-      12, // 智能优惠券金额
-      12, // 总点击量
-      12, // 总成本
-      12, // 总GMV
-      12, // 总曝光量
-      12, // 总订单数
-      12 // 未支付预售预估
+      15, // 达人昵称
+      15, // 达人抖音ID
+      12, // 日期
+      12, // 销售类别
+      20, // 销售产品
+      30, // 视频标题
+      20, // 视频ID
+      12, // 是否为广告视频
+      30, // 视频链接
+      20, // 发布时间
+      20, // 商品ID
+      12, // 观看次数
+      12, // 支付金额
+      12, // 退款金额
+      15, // 直播间跳转次数
+      15, // 观看后搜索次数
+      15, // 店铺页面跳转次数
+      15, // 商品曝光次数
+      15, // 商品点击次数
+      12, // 成交订单数
+      15, // 支付金额总和
+      15, // 成交订单数总和
+      15, // 观看次数总和
+      18, // 商品曝光次数总和
+      18, // 商品点击次数总和
+      15, // 千川消耗金额
+      12, // ROI
+      12, // 商品曝光率
+      12 // 商品点击率
     ];
 
     columnWidths.forEach((width, index) => {
@@ -580,40 +626,35 @@ const handleExport = async () => {
     // 添加数据行
     allData.forEach(item => {
       const dataRow = worksheet.addRow([
-        item.id || "",
+        item.influencerNickname || "",
+        item.influencerDouyinId || "",
         item.date || "",
-        item.shopName || "",
-        item.productId || "",
-        item.productName || "",
         item.salesType || "",
-        item.douyinAccountId || "",
-        item.douyinNickname || "",
-        item.actualPaymentAmount || 0,
-        item.addToCartCount || 0,
-        item.favoriteCount || 0,
-        item.displayAddToCartRate || 0,
-        item.displayFavoriteRate || 0,
-        item.netGmv || 0,
-        item.netGmvSettlementRate || 0,
-        item.netOrderCost || 0,
-        item.netOrderCount || 0,
-        item.netOrderSettlementRate || 0,
-        item.netRoi || 0,
-        item.overallConversionRate || 0,
-        item.overallCtr || 0,
-        item.overallOrderCost || 0,
-        item.overallPaymentRoi || 0,
-        item.platformSubsidyAmount || 0,
-        item.preShipRefundAmount || 0,
-        item.preShipRefundOrderCount || 0,
-        item.preShipRefundRate || 0,
-        item.smartCouponAmount || 0,
-        item.totalClicks || 0,
-        item.totalCost || 0,
-        item.totalGmv || 0,
-        item.totalImpressions || 0,
-        item.totalOrderCount || 0,
-        item.unpaidPresaleEstimate || 0
+        item.productName || "",
+        item.videoTitle || "",
+        item.videoId || "",
+        item.isAd || "",
+        item.videoUrl || "",
+        item.publishTime || "",
+        item.productId || "",
+        item.viewCount || 0,
+        item.paymentAmount || 0,
+        item.refundAmount || 0,
+        item.liveRoomRedirect || 0,
+        item.searchAfterView || 0,
+        item.storePageRedirect || 0,
+        item.exposureCnt || 0,
+        item.clickCnt || 0,
+        item.ordersCnt || 0,
+        item.paymentAmountSum || 0,
+        item.ordersCntSum || 0,
+        item.viewCountSum || 0,
+        item.exposureCntSum || 0,
+        item.clickCntSum || 0,
+        item.qianchuan || 0,
+        item.roi || 0,
+        item.exposureRate || 0, // 商品曝光率
+        item.clickRate || 0 // 商品点击率
       ]);
 
       // 设置数据行样式
@@ -675,14 +716,6 @@ const handleExport = async () => {
         class="mr-[20px]"
       />
       <el-input
-        v-model="searchDouyinAccountId"
-        style="width: 150px"
-        placeholder="搜索ID..."
-        class="mr-[20px]"
-        :prefix-icon="EpSearch"
-        clearable
-      />
-      <el-input
         v-model="searchInfluencerNickname"
         style="width: 150px"
         placeholder="搜索达人..."
@@ -690,22 +723,22 @@ const handleExport = async () => {
         :prefix-icon="EpSearch"
         clearable
       />
-      <!-- <el-input
+      <el-input
         v-model="searchVideoTitle"
         style="width: 200px"
         placeholder="搜索视频标题..."
         class="mr-[20px]"
         :prefix-icon="EpSearch"
         clearable
-      /> -->
-      <!-- <el-input
+      />
+      <el-input
         v-model="searchSalesType"
         style="width: 180px"
         placeholder="搜索销售类别..."
         class="mr-[20px]"
         :prefix-icon="EpSearch"
         clearable
-      /> -->
+      />
       <el-input
         v-model="searchProductName"
         style="width: 180px"
@@ -764,91 +797,251 @@ const handleExport = async () => {
     border
     height="720"
     :span-method="objectSpanMethod"
+    @cell-dblclick="handleCellDblClick"
     @sort-change="handleSortChange"
   >
     <el-table-column
-      prop="douyinAccountId"
-      label="ID"
-      min-width="200"
-      align="left"
-      :resizable="false"
-    />
-    <el-table-column
-      prop="douyinNickname"
+      prop="influencerNickname"
       label="达人"
-      min-width="200"
-      align="left"
+      width="150"
+      align="center"
       :resizable="false"
+      fixed
     />
     <el-table-column
       prop="date"
       label="日期"
-      min-width="100"
+      width="100"
       align="center"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="salesType"
+      label="销售类别"
+      width="100"
       :resizable="false"
     />
     <el-table-column
       prop="productName"
       label="销售产品"
+      width="200"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="publishTime"
+      label="发布时间（历史发视频）"
+      width="160"
+      :resizable="false"
+    >
+      <template #default="scope">
+        {{ dayjs(scope.row.publishTime).format("YYYY-MM-DD HH:mm:ss") }}
+      </template>
+    </el-table-column>
+    <el-table-column
+      prop="videoTitle"
+      label="视频标题"
       min-width="200"
+      show-overflow-tooltip
       :resizable="false"
-    />
+      :fixed="true"
+    >
+      <!-- 自定义表头 -->
+      <template #header>
+        <div
+          class="flex items-center"
+          :style="{ justifyContent: 'flex-start' }"
+        >
+          视频标题
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="点击视频标题自动打开抖音视频详情页"
+            placement="top"
+          >
+            <HeroiconsQuestionMarkCircle20Solid />
+          </el-tooltip>
+        </div>
+      </template>
+
+      <template #default="scope">
+        <a :href="scope.row.videoUrl" target="_blank" class="link">{{
+          scope.row.videoTitle
+        }}</a>
+      </template>
+    </el-table-column>
     <el-table-column
-      prop="totalCost"
-      label="整体消耗"
-      min-width="100"
+      prop="paymentAmountSum"
+      label="用户支付金额汇总"
+      width="150"
       align="right"
       :resizable="false"
       sortable="custom"
     />
     <el-table-column
-      prop="totalGmv"
-      label="整体成交金额"
-      min-width="100"
+      prop="paymentAmount"
+      label="用户支付金额"
+      width="100"
+      align="right"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="qianchuan"
+      label="千川消耗金额（手填）"
+      width="170"
+      align="right"
+      :resizable="false"
+    >
+      <!-- 自定义表头 -->
+      <template #header>
+        <div class="flex items-center" :style="{ justifyContent: 'flex-end' }">
+          千川消耗金额（手填）
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="双击单元格编辑千川消耗金额"
+            placement="top"
+          >
+            <HeroiconsQuestionMarkCircle20Solid />
+          </el-tooltip>
+        </div>
+      </template>
+
+      <!-- 可编辑单元格 -->
+      <template #default="{ row, column }">
+        <el-input
+          v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+          v-model="row.qianchuan"
+          size="small"
+          placeholder="请输入金额"
+          :min="0"
+          @blur="blurValueInput(row, column)"
+          @keyup.enter="blurValueInput(row, column)"
+          @keyup.esc="cancelEdit"
+        />
+        <span
+          v-else
+          class="editable-cell"
+          :class="{ 'editable-cell--editable': true }"
+          @click="startEdit(row, column)"
+        >
+          {{ row.qianchuan || "-" }}
+        </span>
+      </template>
+    </el-table-column>
+    <el-table-column
+      prop="roi"
+      label="ROI（计算）"
+      width="120"
+      align="right"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="ordersCntSum"
+      label="成交订单数汇总"
+      width="135"
       align="right"
       :resizable="false"
       sortable="custom"
     />
     <el-table-column
-      prop="totalImpressions"
-      label="整体展示次数"
-      min-width="100"
+      prop="ordersCnt"
+      label="成交订单数"
+      width="100"
+      align="right"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="viewCountSum"
+      label="视频观看次数汇总"
+      width="150"
       align="right"
       :resizable="false"
       sortable="custom"
     />
     <el-table-column
-      prop="totalClicks"
-      label="整体点击次数"
-      min-width="100"
+      prop="viewCount"
+      label="视频观看次数"
+      width="100"
+      align="right"
+      :resizable="false"
+    />
+    <el-table-column
+      prop="exposureCntSum"
+      label="商品曝光次数汇总"
+      width="150"
       align="right"
       :resizable="false"
       sortable="custom"
     />
     <el-table-column
-      prop="overallPaymentRoi"
-      label="整体支付ROI"
-      min-width="100"
+      prop="exposureCnt"
+      label="商品曝光次数"
+      width="100"
+      align="right"
+      :resizable="false"
+    />
+    <el-table-column
+      label="商品曝光率"
+      width="100"
+      align="right"
+      :resizable="false"
+    >
+      <template #default="scope">
+        {{
+          calculatePercentage(scope.row.exposureCnt, scope.row.viewCount) + "%"
+        }}
+      </template>
+    </el-table-column>
+    <el-table-column
+      prop="clickCntSum"
+      label="商品点击次数汇总"
+      width="150"
       align="right"
       :resizable="false"
       sortable="custom"
     />
     <el-table-column
-      prop="netRoi"
-      label="净成交ROI"
-      min-width="100"
+      prop="clickCnt"
+      label="商品点击次数"
+      width="100"
       align="right"
       :resizable="false"
-      sortable="custom"
     />
     <el-table-column
-      prop="netGmv"
-      label="净成交金额"
-      min-width="100"
+      label="商品点击率"
+      width="100"
       align="right"
       :resizable="false"
-      sortable="custom"
-    />
+    >
+      <template #default="scope">
+        {{ calculatePercentage(scope.row.clickCnt, scope.row.viewCount) + "%" }}
+      </template>
+    </el-table-column>
+    <el-table-column
+      label="操作"
+      width="50"
+      align="right"
+      :resizable="false"
+      :fixed="'right'"
+    >
+      <template #default="scope">
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="点击快速搜索该视频标题"
+          placement="top"
+        >
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="handleSearchClick(scope.row)"
+          >
+            <EpSearch />
+          </el-button>
+        </el-tooltip>
+      </template>
+    </el-table-column>
   </el-table>
 
   <!-- 分页 -->
