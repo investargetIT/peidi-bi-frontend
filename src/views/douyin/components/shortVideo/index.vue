@@ -769,34 +769,34 @@ const handleExport = async () => {
     <el-table-column
       prop="douyinAccountId"
       label="ID"
-      min-width="200"
+      min-width="160"
       align="left"
       :resizable="false"
     />
     <el-table-column
       prop="douyinNickname"
       label="达人"
-      min-width="200"
+      min-width="160"
       align="left"
       :resizable="false"
     />
     <el-table-column
       prop="date"
       label="日期"
-      min-width="100"
+      width="90"
       align="center"
       :resizable="false"
     />
     <el-table-column
       prop="productName"
       label="销售产品"
-      min-width="200"
+      width="180"
       :resizable="false"
     />
     <el-table-column
       prop="totalCost"
       label="整体消耗"
-      min-width="100"
+      width="100"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -804,7 +804,7 @@ const handleExport = async () => {
     <el-table-column
       prop="totalGmv"
       label="整体成交金额"
-      min-width="100"
+      width="120"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -812,7 +812,7 @@ const handleExport = async () => {
     <el-table-column
       prop="totalImpressions"
       label="整体展示次数"
-      min-width="100"
+      width="120"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -820,7 +820,7 @@ const handleExport = async () => {
     <el-table-column
       prop="totalClicks"
       label="整体点击次数"
-      min-width="100"
+      width="120"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -828,7 +828,7 @@ const handleExport = async () => {
     <el-table-column
       prop="overallPaymentRoi"
       label="整体支付ROI"
-      min-width="100"
+      width="120"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -836,7 +836,7 @@ const handleExport = async () => {
     <el-table-column
       prop="netRoi"
       label="净成交ROI"
-      min-width="100"
+      width="100"
       align="right"
       :resizable="false"
       sortable="custom"
@@ -844,7 +844,7 @@ const handleExport = async () => {
     <el-table-column
       prop="netGmv"
       label="净成交金额"
-      min-width="100"
+      width="120"
       align="right"
       :resizable="false"
       sortable="custom"
