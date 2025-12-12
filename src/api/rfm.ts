@@ -1,24 +1,35 @@
-import { formatToken, getToken } from "@/utils/auth";
+// import { formatToken, getToken } from "@/utils/auth";
 import { http } from "@/utils/http";
 
 export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.12:8091"}${url}`;
+  // `${"http://12.18.1.12:8085"}${url}`;
   `${"https://api.peidigroup.cn"}${url}`;
 
+export interface GetBiRfmParams {
+  areaLevel2?: string;
+  channel?: string;
+  endTime?: string;
+  lastOrderTime: string;
+  level?: string;
+  startTime?: string;
+  totalAmount: string;
+  totalOrders: string;
+}
 /** 获取rfm模型 */
-export const getBiRfm = (params: {
-  date: string;
-  endTime: string;
-  startTime: string;
-}) => {
+export const getBiRfm = (data: GetBiRfmParams) => {
   return http.request(
-    "get",
+    "post",
     commonUrlApi("/oms/bi/rfm"),
     {
-      params
+      data
     },
     {
-      timeout: 1000 * 60 * 2
+      timeout: 1000 * 60 * 15
     }
   );
+};
+
+/* 获取rfm模型城市级联 */
+export const getBiRfmArea = () => {
+  return http.request("get", commonUrlApi("/oms/bi/rfm/area"));
 };

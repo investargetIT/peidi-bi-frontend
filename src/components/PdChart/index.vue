@@ -91,7 +91,7 @@ onUnmounted(() => {
 // 计算属性 来计算图表的最低高度
 const chartMinHeight = computed(() => {
   if (!props.style.height) return "450px";
-  return props.style.height.replace("px", "") - 65 + "px" || "450px";
+  return props.style.height.replace("px", "") - 100 + "px" || "450px";
 });
 </script>
 

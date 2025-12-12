@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import MapChart from "@/views/RFM/chartCard/map.vue";
-import type { RFMCustomerData } from "@/views/RFM/index.vue";
+import MapChart from "@/views/RFM_backup_20251212/chartCard/map.vue";
+import type { RFMCustomerData } from "@/views/RFM_backup_20251212/index.vue";
 import { computed, ref, watch } from "vue";
 
 //props

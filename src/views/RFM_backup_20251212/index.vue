@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { onMounted, provide, ref } from "vue";
-import Table from "@/views/RFM/tableCard/index.vue";
-import OperationBar from "@/views/RFM/operationBar/index.vue";
-import ChartCard from "@/views/RFM/chartCard/index.vue";
-import { lineChartTest, pieChartTest } from "@/views/RFM/chartCard/template";
-import MapChart from "@/views/RFM/chartCard/map.vue";
+import Table from "@/views/RFM_backup_20251212/tableCard/index.vue";
+import OperationBar from "@/views/RFM_backup_20251212/operationBar/index.vue";
+import ChartCard from "@/views/RFM_backup_20251212/chartCard/index.vue";
+import {
+  lineChartTest,
+  pieChartTest
+} from "@/views/RFM_backup_20251212/chartCard/template";
+import MapChart from "@/views/RFM_backup_20251212/chartCard/map.vue";
 import { getBiRfm } from "@/api/rfm";
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import Analysis from "@/views/RFM/analysis.vue";
+import Analysis from "@/views/RFM_backup_20251212/analysis.vue";
 // 调试数据
-import debugData from "@/views/RFM/response_debug.json";
+import debugData from "@/views/RFM_backup_20251212/response_debug.json";
 
 // RFM客户分析数据类型定义
 export interface RFMCustomerData {

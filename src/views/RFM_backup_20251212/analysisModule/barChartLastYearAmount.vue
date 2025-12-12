@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import type { RFMCustomerData } from "@/views/RFM/index.vue";
-import { barChartAmount } from "@/views/RFM/chartCard/template";
-import ChartCard from "@/views/RFM/chartCard/index.vue";
+import type { RFMCustomerData } from "@/views/RFM_backup_20251212/index.vue";
+import { barChartAmount } from "@/views/RFM_backup_20251212/chartCard/template";
+import ChartCard from "@/views/RFM_backup_20251212/chartCard/index.vue";
 
 const props = defineProps({
   sourceData: {
