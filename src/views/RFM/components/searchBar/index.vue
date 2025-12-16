@@ -219,7 +219,7 @@ const fetchAreaLevel2 = () => {
           }
         });
 
-        console.log("temp", temp);
+        console.log("fetchAreaLevel2", temp);
         // areaLevel2AllData.value = temp;
         areaLevel2Data.value = temp;
       } else {
@@ -301,7 +301,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           .join(",");
       }
       if (form.channel && form.channel.length > 0) {
-        params.channel = form.channel.join(",");
+        params.channel = [...form.channel]
+          .sort((a: string, b: string) => {
+            return a.localeCompare(b);
+          })
+          .join(",");
       }
       if (form.timeRange && form.timeRange.length > 0) {
         params.startTime = dayjs(form.timeRange[0]).format("YYYY-MM-DD");
@@ -322,11 +326,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       ref="formRef"
       :model="form"
       :inline="true"
-      label-width="125px"
+      label-width="130px"
       :rules="rules"
     >
       <!-- RFM -->
-      <div class="text-[16px] font-bold text-[#0a0a0a] mb-[20px]">RFM</div>
+      <div class="text-[16px] font-bold text-[#0a0a0a]">RFM</div>
       <el-form-item label="R-最近消费时间" prop="lastOrderTime">
         <el-date-picker
           v-model="form.lastOrderTime"
@@ -341,7 +345,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         <el-input v-model="form.totalAmount" placeholder="请输入" clearable />
       </el-form-item>
       <!-- 搜索条件 -->
-      <div class="text-[16px] font-bold text-[#0a0a0a] mb-[20px]">搜索条件</div>
+      <div class="text-[16px] font-bold text-[#0a0a0a] mt-[20px]">搜索条件</div>
       <el-form-item label="日期区间" prop="timeRange">
         <el-date-picker
           ref="timeRangeRef"
@@ -362,6 +366,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           multiple
           collapse-tags
           collapse-tags-tooltip
+          :max-collapse-tags="2"
         >
           <el-option label="抖音" value="抖音" />
           <el-option label="淘宝" value="淘宝" />
