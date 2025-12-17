@@ -590,6 +590,10 @@ const fetchRedditComments = (id: string | number) => {
         ups: item.ups > 0 ? item.ups : 0
       }));
     })
+    .catch((err: any) => {
+      console.error("获取评论失败:", err);
+      commentsList.value = [];
+    })
     .finally(() => {
       // 加载状态设置为false
       commentsLoading.value = false;
