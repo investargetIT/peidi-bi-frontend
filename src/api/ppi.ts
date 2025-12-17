@@ -83,3 +83,10 @@ export const getAiIntelligenceQuestion = (params: { question: string }) => {
     }
   );
 };
+
+/** 获取评论列表 */
+export const getAiIntelligenceReviews = (params: { id: string | number }) => {
+  return http.request("get", commonUrlApi("/ai/intelligence/reviews"), {
+    params
+  });
+};

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import MapChart from "@/views/RFM/chartCard/map.vue";
-import type { RFMCustomerData } from "@/views/RFM/index.vue";
+import MapChart from "@/views/RFM_backup_20251212/chartCard/map.vue";
+import type { RFMCustomerData } from "@/views/RFM_backup_20251212/index.vue";
 import { computed, ref, watch } from "vue";
 
 //props
@@ -81,8 +81,8 @@ const handleClickButton = (type: string) => {
         <el-button
           type="primary"
           size="small"
-          @click="handleClickButton('totalAmount')"
           class="w-[130px]"
+          @click="handleClickButton('totalAmount')"
           >累计消费金额</el-button
         >
       </div>
@@ -90,8 +90,8 @@ const handleClickButton = (type: string) => {
         <el-button
           type="primary"
           size="small"
-          @click="handleClickButton('lastYearAmount')"
           class="w-[130px]"
+          @click="handleClickButton('lastYearAmount')"
           >近一年消费金额</el-button
         >
       </div>
@@ -99,8 +99,8 @@ const handleClickButton = (type: string) => {
         <el-button
           type="primary"
           size="small"
-          @click="handleClickButton('lastDayAmount')"
           class="w-[130px]"
+          @click="handleClickButton('lastDayAmount')"
           >最近一次消费金额</el-button
         >
       </div>
@@ -108,8 +108,8 @@ const handleClickButton = (type: string) => {
         <el-button
           type="primary"
           size="small"
-          @click="handleClickButton('totalOrders')"
           class="w-[130px]"
+          @click="handleClickButton('totalOrders')"
           >累计消费频次</el-button
         >
       </div>
@@ -117,8 +117,8 @@ const handleClickButton = (type: string) => {
         <el-button
           type="primary"
           size="small"
-          @click="handleClickButton('lastYearOrders')"
           class="w-[130px]"
+          @click="handleClickButton('lastYearOrders')"
           >近一年消费频次</el-button
         >
       </div>

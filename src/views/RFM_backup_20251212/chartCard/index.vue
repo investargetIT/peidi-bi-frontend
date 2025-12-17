@@ -93,8 +93,8 @@ defineExpose({
     <div class="text-[14px] text-[#71717a]">{{ text }}</div>
     <!-- 使用ref绑定DOM元素 -->
     <div
-      ref="chartDom"
       :id="chartId"
+      ref="chartDom"
       :style="{ minHeight: style.chartMinHeight }"
     />
   </el-card>

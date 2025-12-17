@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ChartCard from "@/views/RFM/chartCard/index.vue";
-import { barChartAmount } from "@/views/RFM/chartCard/template";
+import ChartCard from "@/views/RFM_backup_20251212/chartCard/index.vue";
+import { barChartAmount } from "@/views/RFM_backup_20251212/chartCard/template";
 import type { RFMCustomerData } from "./index.vue";
 import { ref, toRefs, watch } from "vue";
 import {
@@ -10,7 +10,7 @@ import {
   barChartTotalOrders,
   barChartLastYearOrders,
   mapChart
-} from "@/views/RFM/analysisModule";
+} from "@/views/RFM_backup_20251212/analysisModule";
 
 //props
 const props = defineProps({

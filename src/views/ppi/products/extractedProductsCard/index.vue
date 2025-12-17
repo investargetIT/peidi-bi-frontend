@@ -60,7 +60,7 @@ watch(
   <el-card
     v-show="extractedProductsCopy.length > 0"
     shadow="never"
-    style=" margin-top: 20px;border-radius: 10px"
+    style="margin-top: 20px; border-radius: 10px"
   >
     <div class="text-[16px] font-[600] text-[#0a0a0a]">
       Extracted Products ({{ extractedProductsCopy.length }})
@@ -83,7 +83,7 @@ watch(
     </div>
 
     <!-- 备注 -->
-    <el-card shadow="never" style=" margin-top: 20px;border-radius: 5px">
+    <el-card shadow="never" style="margin-top: 20px; border-radius: 5px">
       <div class="text-[14px] font-[600] text-[#737373]">Progress:</div>
       <div class="text-[12px] font-[400] text-[#737373]">
         {{ savedProductsCount }} of {{ extractedProductsCopy.length }} products

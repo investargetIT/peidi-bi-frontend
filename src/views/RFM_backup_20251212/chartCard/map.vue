@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
 import * as echarts from "echarts";
-import { chinaJson } from "@/views/RFM/chartCard/mapData"; // json数据放最后
+import { chinaJson } from "@/views/RFM_backup_20251212/chartCard/mapData"; // json数据放最后
 
 const mapRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;

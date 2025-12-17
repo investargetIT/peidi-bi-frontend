@@ -82,11 +82,47 @@
     <script>
       // 因为是二级域名和pms共用一个一级域名，样式配置会被pms影响，需要存入一个唯一标识来区分
       // 尝试从localStorage中获取唯一标识 peidibi
-      const uniqueId = JSON.parse(localStorage.getItem("peidibi") || null);
-      if (uniqueId !== 1) {
-        localStorage.clear();
-        localStorage.setItem("peidibi", 1);
-        window.location.reload();
+      // const uniqueId = JSON.parse(localStorage.getItem("peidibi") || null);
+      // if (uniqueId !== 1) {
+      //   localStorage.clear();
+      //   localStorage.setItem("peidibi", 1);
+      //   window.location.reload();
+      // }
+
+      /**
+       * 更优雅的初始化 peidibi 唯一标识
+       * 检查 localStorage 是否可用
+       * 检查 peidibi 是否存在
+       * 如果不存在，设置为 1 并刷新页面
+       * 如果存在且不是 1，清除 localStorage 并刷新页面
+       * 防止无限循环，设置最大重试次数为 3
+       */
+      try {
+        // 检查 localStorage 是否可用
+        if (typeof Storage !== "undefined") {
+          const uniqueId = localStorage.getItem("peidibi");
+          if (uniqueId !== "1") {
+            // 添加重载计数器防止无限循环
+            const reloadCount = parseInt(
+              sessionStorage.getItem("peidibi-reload-count") || "0"
+            );
+            if (reloadCount < 3) {
+              sessionStorage.setItem(
+                "peidibi-reload-count",
+                String(reloadCount + 1)
+              );
+              localStorage.clear();
+              localStorage.setItem("peidibi", "1");
+              window.location.reload();
+            } else {
+              console.error("peidibi 初始化失败，已达到最大重试次数");
+            }
+          } else {
+            sessionStorage.removeItem("peidibi-reload-count");
+          }
+        }
+      } catch (e) {
+        console.error("localStorage 初始化失败:", e);
       }
     </script>
     <script type="module" src="/src/main.ts"></script>

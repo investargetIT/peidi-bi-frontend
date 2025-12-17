@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { RFMCustomerData } from "@/views/RFM/index.vue";
+import type { RFMCustomerData } from "@/views/RFM_backup_20251212/index.vue";
 import { TableColumnCtx } from "element-plus";
 import dayjs from "dayjs";
 
