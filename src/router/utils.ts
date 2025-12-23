@@ -223,6 +223,7 @@ function initRouter() {
       getUserCheck({ token: formatToken(getToken().accessToken) })
         .then((res: any) => {
           if (res?.code === 200) {
+            localStorage.setItem("dataSource", JSON.stringify(res?.data));
             // 处理成功逻辑 拿到id
             const userId = res?.data?.id;
             const routesTemp = [];

@@ -101,3 +101,5 @@ pd:
     productDocumentation: 产品文档
     peidiDocumentation: 佩蒂文档
     detectAndTagReport: 检测&标签报告
+  navbar:
+    changePassword: 修改密码
