@@ -48,7 +48,7 @@ export const getAiIntelligenceProductWordCload = (params: {
 }) => {
   return http.request(
     "get",
-    commonUrlApi("/ai/intelligence/product/word-cload"),
+    commonUrlApi("/ai/intelligence/product/word-cloud"),
     {
       params
     },
