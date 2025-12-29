@@ -66,7 +66,7 @@ watch(
 <template>
   <div class="peidi-taobao-reviewAnalytics-textCard-container h-full">
     <el-card
-      style=" height: 100%; background-color: transparent;border-radius: 10px"
+      style=" height: 100%;background-color: transparent; border-radius: 10px"
     >
       <div
         class="flex flex-col gap-6 rounded-xl border py-6 shadow-sm h-full"

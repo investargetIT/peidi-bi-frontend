@@ -1,33 +1,84 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+
+const props = defineProps({
+  isCompareMode: {
+    type: Boolean,
+    required: true
+  },
+  // 本产品
+  product: {
+    type: String,
+    required: true
+  },
+  // 竞品
+  competitor: {
+    type: String,
+    required: true
+  },
+  productOptions: {
+    type: Array<{
+      value: string;
+      label: string;
+    }>,
+    required: true
+  },
+  competitorOptions: {
+    type: Array<{
+      value: string;
+      label: string;
+    }>,
+    required: true
+  }
+});
+
+const emit = defineEmits([
+  "update:isCompareMode",
+  "update:product",
+  "update:competitor"
+]);
+
+// 使用计算属性实现双向绑定
+const isCompareModeModel = computed({
+  get: () => props.isCompareMode,
+  set: value => emit("update:isCompareMode", value)
+});
+const productModel = computed({
+  get: () => props.product,
+  set: value => emit("update:product", value)
+});
+const competitorModel = computed({
+  get: () => props.competitor,
+  set: value => emit("update:competitor", value)
+});
 
 // 竞品对比模式
-const isCompareMode = ref(false);
+// const isCompareMode = ref(false);
 
 // 本产品
-const product = ref("");
-const productOptions = ref([
-  {
-    value: "1",
-    label: "产品1"
-  },
-  {
-    value: "2",
-    label: "产品2"
-  }
-]);
+// const product = ref("");
+// const productOptions = ref([
+//   {
+//     value: "1",
+//     label: "产品1"
+//   },
+//   {
+//     value: "2",
+//     label: "产品2"
+//   }
+// ]);
 // 竞品
-const competitor = ref("");
-const competitorOptions = ref([
-  {
-    value: "1",
-    label: "竞品1"
-  },
-  {
-    value: "2",
-    label: "竞品2"
-  }
-]);
+// const competitor = ref("");
+// const competitorOptions = ref([
+//   {
+//     value: "1",
+//     label: "竞品1"
+//   },
+//   {
+//     value: "2",
+//     label: "竞品2"
+//   }
+// ]);
 </script>
 
 <template>
@@ -40,7 +91,7 @@ const competitorOptions = ref([
         </span>
       </div>
       <div>
-        <el-switch v-model="isCompareMode" />
+        <el-switch v-model="isCompareModeModel" />
       </div>
     </div>
   </el-card>
@@ -54,9 +105,13 @@ const competitorOptions = ref([
       <el-col :xs="24" :sm="12">
         <div class="mt-[16px]">
           <div class="text-[14px] text-[#0b0b0b]">本产品</div>
-          <el-select v-model="product" placeholder="请选择本产品">
+          <el-select
+            v-model="productModel"
+            placeholder="请选择本产品"
+            filterable
+          >
             <el-option
-              v-for="item in productOptions"
+              v-for="item in props.productOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -67,9 +122,13 @@ const competitorOptions = ref([
       <el-col :xs="24" :sm="12">
         <div class="mt-[16px]">
           <div class="text-[14px] text-[#0b0b0b]">竞品</div>
-          <el-select v-model="competitor" placeholder="请选择竞品">
+          <el-select
+            v-model="competitorModel"
+            placeholder="请选择竞品"
+            filterable
+          >
             <el-option
-              v-for="item in competitorOptions"
+              v-for="item in props.competitorOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"

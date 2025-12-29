@@ -43,6 +43,10 @@ const props = defineProps({
   competitorChangeStatus: {
     type: String as PropType<"positive" | "negative">,
     required: true
+  },
+  isCompareMode: {
+    type: Boolean,
+    required: true
   }
 });
 </script>
@@ -57,6 +61,7 @@ const props = defineProps({
             {{ content }}
           </div>
           <div
+            v-if="false"
             class="text-sm flex items-center gap-1 text-accent mt-[8px]"
             :class="
               changeStatus === 'positive' ? 'peidi-good-num' : 'peidi-bad-num'
@@ -65,12 +70,12 @@ const props = defineProps({
             <div class="peidi-svg" v-html="changeIconHTML" />
             {{ changeContent }}
           </div>
-          <div class="pt-2 border-t border-border">
+          <div v-if="isCompareMode" class="pt-2 border-t border-border">
             <div class="flex items-center gap-2">
               <div
                 class="flex items-center gap-1 text-sm font-medium"
                 :class="
-                  changeStatus === 'positive'
+                  competitorChangeStatus === 'positive'
                     ? 'text-green-600'
                     : 'text-red-600'
                 "

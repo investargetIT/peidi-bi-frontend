@@ -2,10 +2,30 @@
 import { ref } from "vue";
 import EpSearch from "~icons/ep/search";
 import { STAR_ICON } from "@/views/taobao/reviewAnalytics/svg/index";
+import { ElMessage } from "element-plus";
+
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    required: true
+  },
+  handleSearch: {
+    type: Function,
+    required: true
+  }
+});
 
 const TAGS = ["质量问题", "物流速度", "好评趋势", "差评分析"];
 
 const searchInput = ref("");
+
+const handleClick = () => {
+  if (!searchInput.value) {
+    ElMessage.warning("请输入搜索关键词");
+    return;
+  }
+  props.handleSearch(searchInput.value);
+};
 </script>
 
 <template>
@@ -26,7 +46,13 @@ const searchInput = ref("");
         placeholder="输入关键词或问题，例如：质量问题的评论、好评率趋势..."
         :prefix-icon="EpSearch"
       />
-      <el-button type="primary" :icon="EpSearch">搜索</el-button>
+      <el-button
+        type="primary"
+        :icon="EpSearch"
+        :loading="isLoading"
+        @click="handleClick"
+        >搜索</el-button
+      >
     </div>
 
     <div class="flex items-center gap-[10px] mt-[12px]">
@@ -44,6 +70,10 @@ const searchInput = ref("");
 <style lang="scss" scoped>
 :deep(.el-input__wrapper) {
   background-color: #eee;
+}
+
+:deep(.el-input__inner) {
+  color: oklch(15% 0 0deg);
 }
 
 :deep(.el-input__inner::placeholder) {
