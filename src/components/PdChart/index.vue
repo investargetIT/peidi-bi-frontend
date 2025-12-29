@@ -25,6 +25,11 @@ const props = defineProps({
   style: {
     type: Object,
     default: () => ({ width: "700px" })
+  },
+  shadow: {
+    // 枚举类型
+    type: String as PropType<"always" | "never" | "hover">,
+    default: "never"
   }
 });
 
@@ -41,7 +46,7 @@ onMounted(() => {
   if (!chartDom) return;
 
   myChart = echarts.init(chartDom);
-  props.option && myChart.setOption(props.option);
+  props.option && myChart.setOption(props.option, true);
 
   // 创建ResizeObserver监听容器尺寸变化
   resizeObserver = new ResizeObserver(entries => {
@@ -67,7 +72,7 @@ watch(
   () => props.option,
   newOption => {
     if (myChart && newOption) {
-      myChart.setOption(newOption);
+      myChart.setOption(newOption, true);
     }
   },
   { deep: true }
@@ -96,7 +101,7 @@ const chartMinHeight = computed(() => {
 </script>
 
 <template>
-  <el-card shadow="never" :style="style">
+  <el-card :shadow="shadow" :style="style">
     <div class="text-[16px] font-bold text-[#09090B]">{{ title }}</div>
     <div class="text-[14px] text-[#71717a]">{{ text }}</div>
     <!-- 自定义内容插槽 -->

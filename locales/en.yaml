@@ -101,3 +101,5 @@ pd:
     productDocumentation: Product Documentation
     peidiDocumentation: Peidi Documentation
     detectAndTagReport: Detect & Tag Report
+  navbar:
+    changePassword: Change Password

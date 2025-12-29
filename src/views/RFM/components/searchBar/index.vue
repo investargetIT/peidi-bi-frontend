@@ -270,7 +270,7 @@ onMounted(() => {
 const handleReset = () => {
   // console.log("form", form);
 
-  formRef.value.resetFields();
+  formRef.value?.resetFields();
   // 调用重置数据方法
   props.reset();
 };

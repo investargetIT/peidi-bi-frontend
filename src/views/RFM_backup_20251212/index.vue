@@ -88,7 +88,7 @@ function fetchBiRfm({
       }
     })
     .catch((err: any) => {
-      message(err.msg || "获取rfm模型失败", { type: "error" });
+      message(err.message || "获取rfm模型失败", { type: "error" });
     })
     .finally(() => {
       loadingProgress.value = 100;

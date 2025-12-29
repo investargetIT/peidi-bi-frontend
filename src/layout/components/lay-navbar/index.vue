@@ -11,11 +11,14 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import GlobalizationIcon from "@/assets/svg/globalization.svg?component";
 import LogoutCircleRLine from "~icons/ri/logout-circle-r-line";
+import EpEdit from "~icons/ep/edit";
 import Setting from "~icons/ri/settings-3-line";
 import Check from "~icons/ep/check";
 import RiFormatClear from "~icons/ri/format-clear";
 import { isDevEnv } from "@/utils/debug";
 import { emitter } from "@/utils/mitt";
+import { formatToken, getToken } from "@/utils/auth";
+import { ref } from "vue";
 
 const { onReset } = useDataThemeChange();
 
@@ -38,6 +41,20 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
 emitter.on("logout", () => {
   logout();
 });
+
+const PWD_CHANGE_REQUEST_CONFIG = {
+  url: "https://user.peidigroup.cn/user/update-password",
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: formatToken(getToken().accessToken)
+  },
+  data: {
+    identifier: JSON.parse(localStorage.getItem("dataSource") || "{}")?.id
+  },
+  timeout: 1000 * 10
+};
+const pwdChangeVisible = ref(false);
 </script>
 
 <template>
@@ -108,6 +125,10 @@ emitter.on("logout", () => {
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
+            <el-dropdown-item @click="pwdChangeVisible = true">
+              <IconifyIconOffline :icon="EpEdit" style="margin: 5px" />
+              {{ t("pd.navbar.changePassword") }}
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
                 :icon="LogoutCircleRLine"
@@ -127,6 +148,11 @@ emitter.on("logout", () => {
         <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
+
+    <pd-PwdChangeForm
+      v-model:visible="pwdChangeVisible"
+      :requestConfig="PWD_CHANGE_REQUEST_CONFIG"
+    />
   </div>
 </template>
 
