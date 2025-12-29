@@ -116,7 +116,7 @@ const props = defineProps({
   }
 
   .peidi-bad-num {
-    color: oklch(55.% 0.25 30deg);
+    color: oklch(55% 0.25 30deg);
   }
 
   .peidi-svg :deep(svg) {
