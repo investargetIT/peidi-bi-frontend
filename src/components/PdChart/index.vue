@@ -46,7 +46,7 @@ onMounted(() => {
   if (!chartDom) return;
 
   myChart = echarts.init(chartDom);
-  props.option && myChart.setOption(props.option);
+  props.option && myChart.setOption(props.option, true);
 
   // 创建ResizeObserver监听容器尺寸变化
   resizeObserver = new ResizeObserver(entries => {
@@ -72,7 +72,7 @@ watch(
   () => props.option,
   newOption => {
     if (myChart && newOption) {
-      myChart.setOption(newOption);
+      myChart.setOption(newOption, true);
     }
   },
   { deep: true }

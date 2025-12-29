@@ -477,7 +477,7 @@ watch(
         />
       </el-col>
     </el-row>
-    <el-card style=" margin-top: 20px;border-radius: 10px">
+    <el-card style="margin-top: 20px; border-radius: 10px">
       <div class="text-[16px] font-bold text-[#09090B]">高频词云</div>
       <el-row :gutter="10">
         <el-col

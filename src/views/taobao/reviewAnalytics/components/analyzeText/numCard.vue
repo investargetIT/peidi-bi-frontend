@@ -93,7 +93,7 @@ const props = defineProps({
           </div>
         </div>
         <div
-          class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"
+          class="w-10 h-10 rounded-lg bg-[#E9EFFD] flex items-center justify-center flex-shrink-0"
         >
           <div class="text-primary" v-html="iconHTML" />
         </div>
