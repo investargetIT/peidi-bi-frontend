@@ -60,6 +60,7 @@ const handleClick = () => {
         v-for="tag in TAGS"
         :key="tag"
         class="peidi-taobao-reviewAnalytics-searchCard-tag text-[14px] text-[#0a0a0a]"
+        @click="searchInput = tag"
       >
         {{ tag }}
       </div>
@@ -87,7 +88,12 @@ const handleClick = () => {
 .peidi-taobao-reviewAnalytics-searchCard-tag {
   padding: 5px 12px;
   color: oklch(15% 0 0deg);
+  cursor: pointer;
   background-color: #f2f2f2;
   border-radius: 20px;
+
+  &:hover {
+    background-color: #e6e6e6;
+  }
 }
 </style>
