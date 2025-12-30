@@ -117,8 +117,13 @@ const fetchGoodsReviewQuestion = async (params: {
   getGoodsReviewQuestionPre(params)
     .then((res: any) => {
       if (res.code === 200) {
+        const expectedTime = res.data;
+        if (expectedTime <= 5) {
+          fetchGoodsReviewQuestionDetail();
+          return;
+        }
         ElMessageBox.confirm(
-          `检索预计耗时${res.data}分钟，是否继续？`,
+          `检索预计耗时${expectedTime.toFixed(0)}分钟，是否继续？`,
           "请确认",
           {
             confirmButtonText: "继续",

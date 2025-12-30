@@ -1,57 +1,67 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { inject, reactive } from "vue";
+
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    required: true
+  }
+});
+
+const fetchShuyunNickPage = inject<(searchStr: string) => void>(
+  "fetchShuyunNickPage"
+);
 
 const CONSTELLATION_OPTIONS = [
   {
-    label: "白羊座",
-    value: "白羊座"
-  },
-  {
-    label: "金牛座",
-    value: "金牛座"
-  },
-  {
-    label: "双子座",
-    value: "双子座"
-  },
-  {
-    label: "巨蟹座",
-    value: "巨蟹座"
-  },
-  {
-    label: "狮子座",
-    value: "狮子座"
-  },
-  {
-    label: "处女座",
-    value: "处女座"
-  },
-  {
-    label: "天秤座",
-    value: "天秤座"
-  },
-  {
-    label: "天蝎座",
-    value: "天蝎座"
-  },
-  {
-    label: "射手座",
-    value: "射手座"
-  },
-  {
-    label: "摩羯座",
-    value: "摩羯座"
-  },
-  {
-    label: "水瓶座",
+    label: "水瓶座(1.20-2.18)",
     value: "水瓶座"
   },
   {
-    label: "双鱼座",
+    label: "双鱼座(2.19-3.20)",
     value: "双鱼座"
+  },
+  {
+    label: "白羊座(3.21-4.19)",
+    value: "白羊座"
+  },
+  {
+    label: "金牛座(4.20-5.20)",
+    value: "金牛座"
+  },
+  {
+    label: "双子座(5.21-6.20)",
+    value: "双子座"
+  },
+  {
+    label: "巨蟹座(6.21-7.22)",
+    value: "巨蟹座"
+  },
+  {
+    label: "狮子座(7.23-8.22)",
+    value: "狮子座"
+  },
+  {
+    label: "处女座(8.23-9.22)",
+    value: "处女座"
+  },
+  {
+    label: "天秤座(9.23-10.22)",
+    value: "天秤座"
+  },
+  {
+    label: "天蝎座(10.23-11.21)",
+    value: "天蝎座"
+  },
+  {
+    label: "射手座(11.22-12.21)",
+    value: "射手座"
+  },
+  {
+    label: "摩羯座(12.22-1.19)",
+    value: "摩羯座"
   }
 ];
-
 const PET_BIRTH_MONTH_OPTIONS = [
   {
     label: "1月",
@@ -105,9 +115,50 @@ const PET_BIRTH_MONTH_OPTIONS = [
 
 const searchForm = reactive({
   nick: "",
-  pet_birth_month: "",
-  constellation: ""
+  pet_birth_month: ["12"],
+  constellation: []
 });
+
+const getSearchStr = () => {
+  const searchStrTemp = [];
+  if (searchForm.nick) {
+    searchStrTemp.push({
+      searchName: "nick",
+      searchType: "like",
+      searchValue: searchForm.nick
+    });
+  }
+  if (searchForm.pet_birth_month.length > 0) {
+    searchStrTemp.push({
+      searchName: "pet_birth_month",
+      searchType: "equals",
+      searchValue: searchForm.pet_birth_month.join("&#&")
+    });
+  }
+  if (searchForm.constellation.length > 0) {
+    searchStrTemp.push({
+      searchName: "constellation",
+      searchType: "equals",
+      searchValue: stringArrayFormat(searchForm.constellation)
+    });
+  }
+  function stringArrayFormat(strArray: string[]) {
+    return strArray.map(item => `"${item}"`).join("&#&");
+  }
+  return JSON.stringify(searchStrTemp);
+};
+
+const handleSearch = () => {
+  const searchStr = getSearchStr();
+  // console.log("searchStr:", searchStr);
+  fetchShuyunNickPage(searchStr);
+};
+
+const handleReset = () => {
+  searchForm.nick = "";
+  searchForm.pet_birth_month = ["12"];
+  searchForm.constellation = [];
+};
 </script>
 
 <template>
@@ -120,15 +171,18 @@ const searchForm = reactive({
       <el-form-item label="会员昵称">
         <el-input
           v-model="searchForm.nick"
-          placeholder="请输入会员昵称"
+          placeholder="请输入会员昵称(支持模糊搜索)"
           clearable
         />
       </el-form-item>
       <el-form-item label="生日月">
         <el-select
           v-model="searchForm.pet_birth_month"
-          placeholder="请选择生日月"
+          placeholder="请选择生日月(可多选)"
           clearable
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
         >
           <el-option
             v-for="item in PET_BIRTH_MONTH_OPTIONS"
@@ -141,8 +195,11 @@ const searchForm = reactive({
       <el-form-item label="星座">
         <el-select
           v-model="searchForm.constellation"
-          placeholder="请选择星座"
+          placeholder="请选择星座(可多选)"
           clearable
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
         >
           <el-option
             v-for="item in CONSTELLATION_OPTIONS"
@@ -151,6 +208,12 @@ const searchForm = reactive({
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" :loading="isLoading" @click="handleSearch"
+          >查询</el-button
+        >
       </el-form-item>
     </el-form>
   </el-card>
@@ -163,5 +226,9 @@ const searchForm = reactive({
 
 .peidi-oldBI-petProfiles-searchCard .el-select {
   --el-select-width: 220px;
+}
+
+:deep(.el-card__body) {
+  padding-bottom: 2px;
 }
 </style>
