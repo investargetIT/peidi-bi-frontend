@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { inject, reactive } from "vue";
+import dayjs from "dayjs";
+import { type FormInstance } from "element-plus";
+import { inject, reactive, ref } from "vue";
 
 const props = defineProps({
   isLoading: {
@@ -113,9 +115,10 @@ const PET_BIRTH_MONTH_OPTIONS = [
   }
 ];
 
+const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   nick: "",
-  pet_birth_month: ["12"],
+  pet_birth_month: [dayjs().month() + 1 + ""],
   constellation: []
 });
 
@@ -154,28 +157,28 @@ const handleSearch = () => {
   fetchShuyunNickPage(searchStr);
 };
 
-const handleReset = () => {
-  searchForm.nick = "";
-  searchForm.pet_birth_month = ["12"];
-  searchForm.constellation = [];
+const handleReset = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl?.resetFields();
 };
 </script>
 
 <template>
   <el-card shadow="never" style="border-radius: 10px">
     <el-form
+      ref="searchFormRef"
       :inline="true"
       :model="searchForm"
       class="peidi-oldBI-petProfiles-searchCard"
     >
-      <el-form-item label="会员昵称">
+      <el-form-item label="会员昵称" prop="nick">
         <el-input
           v-model="searchForm.nick"
           placeholder="请输入会员昵称(支持模糊搜索)"
           clearable
         />
       </el-form-item>
-      <el-form-item label="生日月">
+      <el-form-item label="生日月" prop="pet_birth_month">
         <el-select
           v-model="searchForm.pet_birth_month"
           placeholder="请选择生日月(可多选)"
@@ -192,7 +195,7 @@ const handleReset = () => {
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="星座">
+      <el-form-item label="星座" prop="constellation">
         <el-select
           v-model="searchForm.constellation"
           placeholder="请选择星座(可多选)"
@@ -210,7 +213,7 @@ const handleReset = () => {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button @click="handleReset(searchFormRef)">重置</el-button>
         <el-button type="primary" :loading="isLoading" @click="handleSearch"
           >查询</el-button
         >

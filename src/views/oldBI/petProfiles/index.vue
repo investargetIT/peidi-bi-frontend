@@ -61,7 +61,11 @@ const TABLE_COLUMNS_CONFIG = [
   {
     prop: "pet_picture",
     label: "宠物图片",
-    width: 100
+    width: 100,
+    hyperlink: {
+      url: (value: string) => `${value}`,
+      text: (value: string) => `${value}`
+    }
   }
 ];
 
