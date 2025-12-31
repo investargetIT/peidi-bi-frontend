@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 import { FormInstance, FormRules } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
 
+const NUMBER_REGEX = /^\d+(\.\d+)?$/;
+
 // props
 const props = defineProps({
   submit: {
@@ -30,20 +32,16 @@ interface RFMSearchForm {
   level?: string[];
   /** 二级城市名称 级联 */
   areaLevel2?: string[];
-  // /** 开始时间 - 查询时间范围的开始时间点 */
-  // startTime?: string;
-  // /** 结束时间 - 查询时间范围的结束时间点 */
-  // endTime?: string;
-  /** 时间范围 - 查询时间范围的时间范围 */
-  timeRange?: string[];
   /** 渠道类型 */
   channel?: string[];
   /** 最近消费时间 */
   lastOrderTime?: string;
   /** 累计消费金额 */
-  totalAmount?: string;
+  totalAmount1?: string;
+  totalAmount2?: string;
   /** 消费频率 */
-  totalOrders?: string;
+  totalOrders1?: string;
+  totalOrders2?: string;
 }
 
 const formRef = ref<FormInstance>(null);
@@ -51,31 +49,78 @@ const formRef = ref<FormInstance>(null);
 const form = reactive<RFMSearchForm>({
   level: [],
   areaLevel2: [],
-  // 默认两年内
-  timeRange: [
-    dayjs().subtract(2, "year").format("YYYY-MM-DD"),
-    dayjs().format("YYYY-MM-DD")
-  ],
   channel: [],
-  lastOrderTime: dayjs("2025/1/1").format("YYYY-MM-DD"),
-  totalAmount: "500",
-  totalOrders: "4"
+  lastOrderTime: dayjs().subtract(1, "year").format("YYYY"),
+  totalAmount1: "200",
+  totalAmount2: "500",
+  totalOrders1: "2",
+  totalOrders2: "4"
 });
 const rules = reactive<FormRules<RFMSearchForm>>({
   lastOrderTime: [
     { required: true, message: "请选择最近消费时间", trigger: "blur" }
   ],
-  totalAmount: [
-    { required: true, message: "请输入累计消费金额", trigger: "blur" }
+  totalAmount1: [
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback(new Error("请输入累计消费金额1"));
+        } else if (!NUMBER_REGEX.test(value)) {
+          callback(new Error("请输入数字"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur"
+    }
   ],
-  totalOrders: [{ required: true, message: "请输入消费频率", trigger: "blur" }]
+  totalAmount2: [
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback(new Error("请输入累计消费金额2"));
+        } else if (!NUMBER_REGEX.test(value)) {
+          callback(new Error("请输入数字"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur"
+    }
+  ],
+  totalOrders1: [
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback(new Error("请输入消费频率1"));
+        } else if (!NUMBER_REGEX.test(value)) {
+          callback(new Error("请输入数字"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur"
+    }
+  ],
+  totalOrders2: [
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (!value) {
+          callback(new Error("请输入消费频率2"));
+        } else if (!NUMBER_REGEX.test(value)) {
+          callback(new Error("请输入数字"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur"
+    }
+  ]
 });
 
 const areaLoading = ref<boolean>(false);
-const areaLevel2TreeSleectRef = ref<any>(null);
 // 因为存在上海市-上海市这种情况 我需要给一级城市添加一个标识 防止通过二级城市选中一级城市
 const AREA_LEVEL_1_FLAG = "areaLevel1";
-const areaLevel2AllData = ref<any>({});
 const areaLevel2Data = ref([
   // {
   //   label: "一线",
@@ -95,37 +140,6 @@ const areaLevel2Data = ref([
   // }
 ]);
 
-const timeRangeRef = ref<any>(null);
-const timeRangeShortcuts = [
-  {
-    text: "最近一周",
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-      return [start, end];
-    }
-  },
-  {
-    text: "最近一个月",
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-      return [start, end];
-    }
-  },
-  {
-    text: "最近三个月",
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-      return [start, end];
-    }
-  }
-];
-
 //#region 请求方法集合
 // 获取rfm模型城市级联
 const fetchAreaLevel2 = () => {
@@ -134,39 +148,6 @@ const fetchAreaLevel2 = () => {
     .then((res: any) => {
       if (res.code === 200) {
         // console.log("rfm模型城市级联", res.data);
-
-        // // 数据分类一次
-        // const temp = {
-        //   "1": [],
-        //   "2": [],
-        //   "3": [],
-        //   其他: []
-        // };
-        // res.data.forEach((item: any) => {
-        //   // temp[item.level] 数组里是否有value为item.areaLevel1的对象 有的话则加入到当前对象的children数组里 没有则创建
-        //   const index = temp[item.level].findIndex(
-        //     (obj: any) =>
-        //       AREA_LEVEL_1_FLAG + obj.value ===
-        //       AREA_LEVEL_1_FLAG + item.areaLevel1
-        //   );
-        //   if (index !== -1) {
-        //     temp[item.level][index].children.push({
-        //       label: item.areaLevel2,
-        //       value: item.areaLevel2
-        //     });
-        //   } else {
-        //     temp[item.level].push({
-        //       label: item.areaLevel1,
-        //       value: AREA_LEVEL_1_FLAG + item.areaLevel1,
-        //       children: [
-        //         {
-        //           label: item.areaLevel2,
-        //           value: item.areaLevel2
-        //         }
-        //       ]
-        //     });
-        //   }
-        // });
 
         // 数据分类一次
         const temp = [
@@ -220,7 +201,6 @@ const fetchAreaLevel2 = () => {
         });
 
         console.log("fetchAreaLevel2", temp);
-        // areaLevel2AllData.value = temp;
         areaLevel2Data.value = temp;
       } else {
         message(res.msg || "获取rfm模型城市级联失败", { type: "error" });
@@ -235,33 +215,6 @@ const fetchAreaLevel2 = () => {
 };
 //#endregion
 
-//#region 处理城市等级变化
-const handleLevelChange = (val: string[]) => {
-  // 清空二级城市选择器
-  form.areaLevel2 = [];
-  // console.log("城市等级变化", val);
-  // console.log("areaLevel2AllData", areaLevel2AllData.value);
-  // console.log("areaLevel2Data", areaLevel2Data.value);
-  // 合并所有选中的城市等级的二级城市数据
-  const temp = [];
-  val.forEach(item => {
-    areaLevel2AllData.value[item].forEach((obj: any) => {
-      // 如果temp中已经有obj.value 则加入到当前对象的children数组里 没有则创建
-      const index = temp.findIndex((item2: any) => item2.value === obj.value);
-      if (index !== -1) {
-        temp[index].children.push(...obj.children);
-      } else {
-        temp.push({
-          ...obj,
-          children: [...obj.children]
-        });
-      }
-    });
-  });
-  areaLevel2Data.value = temp;
-};
-//#endregion
-
 onMounted(() => {
   fetchAreaLevel2();
 });
@@ -269,8 +222,8 @@ onMounted(() => {
 // 重置表单
 const handleReset = () => {
   // console.log("form", form);
-
   formRef.value?.resetFields();
+
   // 调用重置数据方法
   props.reset();
 };
@@ -285,19 +238,19 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       // 整理参数
       const params: GetBiRfmParams = {
-        lastOrderTime: dayjs(form.lastOrderTime).format("YYYY-MM-DD"),
-        totalAmount: form.totalAmount,
-        totalOrders: form.totalOrders
+        totalAmount1: form.totalAmount1,
+        totalAmount2: form.totalAmount2,
+        totalOrders1: form.totalOrders1,
+        totalOrders2: form.totalOrders2,
+        year: dayjs(form.lastOrderTime).format("YYYY")
       };
-      if (form.level && form.level.length > 0) {
-        params.level = form.level.join(",");
-      }
       if (form.areaLevel2 && form.areaLevel2.length > 0) {
         // 先按拼音排个序，方便缓存
         params.areaLevel2 = [...form.areaLevel2]
           .sort((a: string, b: string) => {
             return a.localeCompare(b);
           })
+          .map(item => "'" + item + "'")
           .join(",");
       }
       if (form.channel && form.channel.length > 0) {
@@ -305,13 +258,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           .sort((a: string, b: string) => {
             return a.localeCompare(b);
           })
+          .map(item => "'" + item + "'")
           .join(",");
       }
-      if (form.timeRange && form.timeRange.length > 0) {
-        params.startTime = dayjs(form.timeRange[0]).format("YYYY-MM-DD");
-        params.endTime = dayjs(form.timeRange[1]).format("YYYY-MM-DD 23:59:59");
-      }
-
+      console.log("params:", params);
       props.submit(params);
     } else {
       console.log("error submit!", fields);
@@ -326,42 +276,46 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       ref="formRef"
       :model="form"
       :inline="true"
-      label-width="130px"
+      label-width="140px"
       :rules="rules"
     >
       <!-- RFM -->
       <div class="text-[16px] font-bold text-[#0a0a0a]">RFM</div>
-      <el-form-item label="R-最近消费时间" prop="lastOrderTime">
+      <el-form-item label="客户分类取值期间" prop="lastOrderTime">
         <el-date-picker
           v-model="form.lastOrderTime"
-          type="date"
+          type="year"
           placeholder="请选择"
+          :clearable="false"
+          :disabled-date="
+            (time: Date) =>
+              time.getFullYear() > dayjs().year() || time.getFullYear() < 2022
+          "
         />
       </el-form-item>
-      <el-form-item label="F-消费频率" prop="totalOrders">
-        <el-input v-model="form.totalOrders" placeholder="请输入" clearable />
+
+      <el-form-item label="消费频率1" prop="totalOrders1">
+        <el-input v-model="form.totalOrders1" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="M-累计消费金额" prop="totalAmount">
-        <el-input v-model="form.totalAmount" placeholder="请输入" clearable />
+
+      <el-form-item label="累计消费金额1" prop="totalAmount1">
+        <el-input v-model="form.totalAmount1" placeholder="请输入" />
+      </el-form-item>
+
+      <el-form-item label="消费频率2" prop="totalOrders2">
+        <el-input v-model="form.totalOrders2" placeholder="请输入" />
+      </el-form-item>
+
+      <el-form-item label="累计消费金额2" prop="totalAmount2">
+        <el-input v-model="form.totalAmount2" placeholder="请输入" />
       </el-form-item>
       <!-- 搜索条件 -->
       <div class="text-[16px] font-bold text-[#0a0a0a] mt-[20px]">搜索条件</div>
-      <el-form-item label="日期区间" prop="timeRange">
-        <el-date-picker
-          ref="timeRangeRef"
-          v-model="form.timeRange"
-          type="daterange"
-          unlink-panels
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :shortcuts="timeRangeShortcuts"
-        />
-      </el-form-item>
+
       <el-form-item label="渠道" prop="channel">
         <el-select
           v-model="form.channel"
-          placeholder="请选择"
+          placeholder="请选择（不选表示全部）"
           clearable
           multiple
           collapse-tags
@@ -374,22 +328,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           <el-option label="微盟" value="微盟" />
         </el-select>
       </el-form-item>
-      <!-- <el-form-item label="城市等级" prop="level">
-        <el-select
-          v-model="form.level"
-          placeholder="请选择"
-          clearable
-          multiple
-          collapse-tags
-          collapse-tags-tooltip
-          @change="handleLevelChange"
-        >
-          <el-option label="一线" value="1" />
-          <el-option label="二线" value="2" />
-          <el-option label="三线" value="3" />
-          <el-option label="其他" value="其他" />
-        </el-select>
-      </el-form-item> -->
+
       <el-form-item label="城市" prop="areaLevel2">
         <el-tree-select
           ref="areaLevel2TreeSelectRef"
@@ -403,18 +342,19 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           collapse-tags-tooltip
           clearable
           :loading="areaLoading"
+          placeholder="请选择（不选表示全部）"
         />
       </el-form-item>
 
       <div class="flex justify-end">
         <el-form-item>
+          <el-button :disabled="loading" @click="handleReset">重置</el-button>
           <el-button
             type="primary"
             :loading="loading"
             @click="submitForm(formRef)"
             >查询</el-button
           >
-          <el-button :disabled="loading" @click="handleReset">重置</el-button>
         </el-form-item>
       </div>
     </el-form>

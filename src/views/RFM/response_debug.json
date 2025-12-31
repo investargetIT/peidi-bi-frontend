@@ -2,246 +2,610 @@
   "code": 200,
   "msg": "success",
   "success": true,
-  "data": [
-    {
-      "channel": "京东",
-      "rfmType": "一般价值客户",
-      "cnt": 4023,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "一般保持客户",
-      "cnt": 2457,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "一般发展客户",
-      "cnt": 50196,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "一般挽留客户",
-      "cnt": 108087,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "重要价值客户",
-      "cnt": 1317,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "重要保持客户",
-      "cnt": 294,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "重要发展客户",
-      "cnt": 547,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "京东",
-      "rfmType": "重要挽留客户",
-      "cnt": 301,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "一般价值客户",
-      "cnt": 84,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "一般保持客户",
-      "cnt": 1,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "一般发展客户",
-      "cnt": 727,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "一般挽留客户",
-      "cnt": 199,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "重要价值客户",
-      "cnt": 43,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "微盟",
-      "rfmType": "重要发展客户",
-      "cnt": 7,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "一般价值客户",
-      "cnt": 30912,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "一般保持客户",
-      "cnt": 6947,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "一般发展客户",
-      "cnt": 248021,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "一般挽留客户",
-      "cnt": 244232,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "重要价值客户",
-      "cnt": 16203,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "重要保持客户",
-      "cnt": 1735,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "重要发展客户",
-      "cnt": 4688,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "抖音",
-      "rfmType": "重要挽留客户",
-      "cnt": 2296,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "一般价值客户",
-      "cnt": 32620,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "一般保持客户",
-      "cnt": 8050,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "一般发展客户",
-      "cnt": 353726,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "一般挽留客户",
-      "cnt": 376706,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "重要价值客户",
-      "cnt": 58920,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "重要保持客户",
-      "cnt": 4266,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "重要发展客户",
-      "cnt": 23028,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    },
-    {
-      "channel": "淘宝",
-      "rfmType": "重要挽留客户",
-      "cnt": 6998,
-      "areaLevel1": null,
-      "areaLevel2": null,
-      "level": null
-    }
-  ]
+  "data": {
+    "客户类别占比（客户数量）": [
+      {
+        "rfm_type": "核心客户",
+        "cnt": 23311
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "cnt": 59449
+      },
+      {
+        "rfm_type": "低价值客户",
+        "cnt": 83585
+      },
+      {
+        "rfm_type": "高价值客户",
+        "cnt": 50724
+      }
+    ],
+    "每月新客数量": [
+      {
+        "order_month": 1,
+        "new_customer_cnt": 43508
+      },
+      {
+        "order_month": 2,
+        "new_customer_cnt": 36337
+      },
+      {
+        "order_month": 3,
+        "new_customer_cnt": 51198
+      },
+      {
+        "order_month": 4,
+        "new_customer_cnt": 41650
+      },
+      {
+        "order_month": 5,
+        "new_customer_cnt": 65837
+      },
+      {
+        "order_month": 6,
+        "new_customer_cnt": 42885
+      },
+      {
+        "order_month": 7,
+        "new_customer_cnt": 40555
+      },
+      {
+        "order_month": 8,
+        "new_customer_cnt": 80454
+      },
+      {
+        "order_month": 9,
+        "new_customer_cnt": 48725
+      },
+      {
+        "order_month": 10,
+        "new_customer_cnt": 76194
+      },
+      {
+        "order_month": 11,
+        "new_customer_cnt": 41856
+      },
+      {
+        "order_month": 12,
+        "new_customer_cnt": 31217
+      }
+    ],
+    "每月挽回数量": [
+      {
+        "order_month": 1,
+        "back_customer_cnt": 4130
+      },
+      {
+        "order_month": 2,
+        "back_customer_cnt": 2082
+      },
+      {
+        "order_month": 3,
+        "back_customer_cnt": 3404
+      },
+      {
+        "order_month": 4,
+        "back_customer_cnt": 2107
+      },
+      {
+        "order_month": 5,
+        "back_customer_cnt": 4567
+      },
+      {
+        "order_month": 6,
+        "back_customer_cnt": 2152
+      },
+      {
+        "order_month": 7,
+        "back_customer_cnt": 1694
+      },
+      {
+        "order_month": 8,
+        "back_customer_cnt": 2852
+      },
+      {
+        "order_month": 9,
+        "back_customer_cnt": 1858
+      },
+      {
+        "order_month": 10,
+        "back_customer_cnt": 4527
+      },
+      {
+        "order_month": 11,
+        "back_customer_cnt": 1644
+      },
+      {
+        "order_month": 12,
+        "back_customer_cnt": 971
+      }
+    ],
+    "每类客户每月复购率": [
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 1,
+        "rebuy_customers": 12977,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 6.97
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 2,
+        "rebuy_customers": 9666,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 5.19
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 3,
+        "rebuy_customers": 12195,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 6.55
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 4,
+        "rebuy_customers": 9150,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 4.92
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 5,
+        "rebuy_customers": 14836,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 7.97
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 6,
+        "rebuy_customers": 8893,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 4.78
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 7,
+        "rebuy_customers": 7326,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 3.94
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 8,
+        "rebuy_customers": 10256,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 5.51
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 9,
+        "rebuy_customers": 8177,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 4.39
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 10,
+        "rebuy_customers": 13885,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 7.46
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 11,
+        "rebuy_customers": 6479,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 3.48
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "order_month": 12,
+        "rebuy_customers": 4982,
+        "total_customers": 186098,
+        "repurchase_rate_percent": 2.68
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 1,
+        "rebuy_customers": 15654,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 2.43
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 2,
+        "rebuy_customers": 10738,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.67
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 3,
+        "rebuy_customers": 14060,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 2.18
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 4,
+        "rebuy_customers": 9888,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.53
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 5,
+        "rebuy_customers": 16841,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 2.61
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 6,
+        "rebuy_customers": 9756,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.51
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 7,
+        "rebuy_customers": 8339,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.29
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 8,
+        "rebuy_customers": 12422,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.93
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 9,
+        "rebuy_customers": 9264,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.44
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 10,
+        "rebuy_customers": 16098,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 2.5
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 11,
+        "rebuy_customers": 7266,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 1.13
+      },
+      {
+        "rfm_type": "低价值客户",
+        "order_month": 12,
+        "rebuy_customers": 5815,
+        "total_customers": 644296,
+        "repurchase_rate_percent": 0.9
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 1,
+        "rebuy_customers": 9268,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 32.12
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 2,
+        "rebuy_customers": 6394,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 22.16
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 3,
+        "rebuy_customers": 9720,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 33.69
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 4,
+        "rebuy_customers": 6729,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 23.32
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 5,
+        "rebuy_customers": 10759,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 37.29
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 6,
+        "rebuy_customers": 5741,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 19.9
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 7,
+        "rebuy_customers": 5405,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 18.73
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 8,
+        "rebuy_customers": 7328,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 25.4
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 9,
+        "rebuy_customers": 5502,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 19.07
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 10,
+        "rebuy_customers": 10019,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 34.73
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 11,
+        "rebuy_customers": 4914,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 17.03
+      },
+      {
+        "rfm_type": "核心客户",
+        "order_month": 12,
+        "rebuy_customers": 4414,
+        "total_customers": 28851,
+        "repurchase_rate_percent": 15.3
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 1,
+        "rebuy_customers": 12722,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 14.11
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 2,
+        "rebuy_customers": 8231,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 9.13
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 3,
+        "rebuy_customers": 13104,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 14.53
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 4,
+        "rebuy_customers": 8437,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 9.36
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 5,
+        "rebuy_customers": 16724,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 18.55
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 6,
+        "rebuy_customers": 7880,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 8.74
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 7,
+        "rebuy_customers": 6763,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 7.5
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 8,
+        "rebuy_customers": 9687,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 10.74
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 9,
+        "rebuy_customers": 7396,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 8.2
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 10,
+        "rebuy_customers": 16788,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 18.62
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 11,
+        "rebuy_customers": 6534,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 7.25
+      },
+      {
+        "rfm_type": "高价值客户",
+        "order_month": 12,
+        "rebuy_customers": 5344,
+        "total_customers": 90156,
+        "repurchase_rate_percent": 5.93
+      }
+    ],
+    "客户渠道占比（客户数量）": [
+      {
+        "channel": "抖音",
+        "cnt": 66388
+      },
+      {
+        "channel": "京东",
+        "cnt": 10894
+      },
+      {
+        "channel": "微盟",
+        "cnt": 296
+      },
+      {
+        "channel": "淘宝",
+        "cnt": 142960
+      }
+    ],
+    "客户渠道占比（累计消费金额）": [
+      {
+        "channel": "抖音",
+        "total_amount": 13572995.2
+      },
+      {
+        "channel": "京东",
+        "total_amount": 2582187.63
+      },
+      {
+        "channel": "微盟",
+        "total_amount": 42834.63
+      },
+      {
+        "channel": "淘宝",
+        "total_amount": 51488148.11
+      }
+    ],
+    "客户城市等级占比（客户数量）": [
+      {
+        "level": "",
+        "cnt": 402
+      },
+      {
+        "level": "3",
+        "cnt": 21073
+      },
+      {
+        "level": "1",
+        "cnt": 50497
+      },
+      {
+        "level": "2",
+        "cnt": 76922
+      },
+      {
+        "level": "其他",
+        "cnt": 68175
+      }
+    ],
+    "客户类别占比（累计消费金额）": [
+      {
+        "rfm_type": "低价值客户",
+        "total_amount": 14020434.13
+      },
+      {
+        "rfm_type": "核心客户",
+        "total_amount": 20488706.48
+      },
+      {
+        "rfm_type": "一般价值客户",
+        "total_amount": 12779746.75
+      },
+      {
+        "rfm_type": "高价值客户",
+        "total_amount": 20397278.21
+      }
+    ],
+    "每月流失数量": [
+      {
+        "month": 1,
+        "lossing_customer_cnt": 784981
+      },
+      {
+        "month": 2,
+        "lossing_customer_cnt": 788553
+      },
+      {
+        "month": 3,
+        "lossing_customer_cnt": 795286
+      },
+      {
+        "month": 4,
+        "lossing_customer_cnt": 799846
+      },
+      {
+        "month": 5,
+        "lossing_customer_cnt": 811276
+      },
+      {
+        "month": 6,
+        "lossing_customer_cnt": 817059
+      },
+      {
+        "month": 7,
+        "lossing_customer_cnt": 821975
+      },
+      {
+        "month": 8,
+        "lossing_customer_cnt": 831168
+      },
+      {
+        "month": 9,
+        "lossing_customer_cnt": 838383
+      },
+      {
+        "month": 10,
+        "lossing_customer_cnt": 864966
+      },
+      {
+        "month": 11,
+        "lossing_customer_cnt": 876719
+      },
+      {
+        "month": 12,
+        "lossing_customer_cnt": 888222
+      }
+    ],
+    "客户城市等级占比（累计消费金额）": [
+      {
+        "level": "3",
+        "total_amount": 6765163.11
+      },
+      {
+        "level": "",
+        "total_amount": 39802.73
+      },
+      {
+        "level": "其他",
+        "total_amount": 20024858.84
+      },
+      {
+        "level": "2",
+        "total_amount": 23885214.21
+      },
+      {
+        "level": "1",
+        "total_amount": 16971126.68
+      }
+    ]
+  }
 }
