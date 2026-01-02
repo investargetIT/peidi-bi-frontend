@@ -191,4 +191,10 @@ provide("fetchShuyunNickPage", fetchShuyunNickPage);
 a {
   color: #007bff;
 }
+
+.el-image-viewer__close {
+  .el-icon svg {
+    background-color: red;
+  }
+}
 </style>

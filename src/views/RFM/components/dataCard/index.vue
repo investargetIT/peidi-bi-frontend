@@ -181,6 +181,14 @@ watch(
         ...newOrRetainOrLoseByMonthCards.value,
         option: {
           ...newOrRetainOrLoseByMonthCards.value.option,
+          legend: {
+            data: ["新客数量", "挽回数量", "流失数量"],
+            selected: {
+              新客数量: true,
+              挽回数量: false,
+              流失数量: false
+            }
+          },
           series: [
             {
               name: "新客数量",
