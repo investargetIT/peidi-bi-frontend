@@ -50,7 +50,7 @@ const form = reactive<RFMSearchForm>({
   level: [],
   areaLevel2: [],
   channel: [],
-  lastOrderTime: dayjs().subtract(1, "year").format("YYYY"),
+  lastOrderTime: dayjs("2024").format("YYYY"),
   totalAmount1: "200",
   totalAmount2: "500",
   totalOrders1: "2",

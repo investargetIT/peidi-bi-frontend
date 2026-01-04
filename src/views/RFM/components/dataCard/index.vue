@@ -2,6 +2,30 @@
 import { onMounted, ref, watch } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 
+const COLOR_CHANNEL_LIST = {
+  抖音: "#000", // 抖音标志性的粉红色
+  京东: "#E60012", // 京东经典的红色
+  微盟: "#00AEEF", // 微盟品牌蓝色
+  淘宝: "#FF4400" // 淘宝橙色
+};
+const COLOR_CITY_LIST = {
+  1: "#FF6B6B", // 一线城市 - 鲜艳的珊瑚红，代表最高级别
+  2: "#4ECDC4", // 二线城市 - 清新的青绿色，中等级别
+  3: "#45B7D1", // 三线城市 - 稳重的蓝色，基础级别
+  其他: "#95A5A6" // 其他城市 - 中性的灰色，低调但清晰
+};
+const COLOR_CUSTOMER_LEVEL_LIST = {
+  核心客户: "#FF6B35", // 一级客户 - 温暖的橙色，代表最高价值和活跃度
+  高价值客户: "#4A90E2", // 二级客户 - 专业的蓝色，代表稳定价值
+  一般价值客户: "#7ED321", // 三级客户 - 活力的绿色，代表成长潜力
+  低价值客户: "#8E8E93" // 其他客户 - 柔和的灰色，保持低调
+};
+const COLOR_BAR_LIST = {
+  NORMAL: "#5C7BD9",
+  GOOD: "#10B981", // 翠绿色，更柔和
+  BAD: "#EF4444" // 珊瑚红色，更温暖
+};
+
 // props
 const props = defineProps({
   dataList: {
@@ -20,10 +44,14 @@ watch(
     function initChannelDistributionByCustomerCountCards() {
       const temp = [];
       if (newVal["客户渠道占比（客户数量）"]) {
-        for (const item of newVal["客户渠道占比（客户数量）"]) {
+        for (const item of sortArrayByKey(
+          newVal["客户渠道占比（客户数量）"],
+          "channel"
+        )) {
           temp.push({
             value: item.cnt,
-            name: item.channel
+            name: item.channel,
+            itemStyle: { color: COLOR_CHANNEL_LIST[item.channel] }
           });
         }
       }
@@ -36,10 +64,14 @@ watch(
     function initChannelDistributionByTotalAmountCards() {
       const temp = [];
       if (newVal["客户渠道占比（累计消费金额）"]) {
-        for (const item of newVal["客户渠道占比（累计消费金额）"]) {
+        for (const item of sortArrayByKey(
+          newVal["客户渠道占比（累计消费金额）"],
+          "channel"
+        )) {
           temp.push({
             value: item.total_amount,
-            name: item.channel
+            name: item.channel,
+            itemStyle: { color: COLOR_CHANNEL_LIST[item.channel] }
           });
         }
       }
@@ -51,10 +83,17 @@ watch(
     function initCityLevelDistributionByCustomerCountCards() {
       const temp = [];
       if (newVal["客户城市等级占比（客户数量）"]) {
-        for (const item of newVal["客户城市等级占比（客户数量）"]) {
+        for (const item of sortArrayByKey(
+          newVal["客户城市等级占比（客户数量）"],
+          "level"
+        )) {
+          if (!item.level) {
+            continue;
+          }
           temp.push({
             value: item.cnt,
-            name: item.level
+            name: item.level,
+            itemStyle: { color: COLOR_CITY_LIST[item.level] }
           });
         }
       }
@@ -67,10 +106,17 @@ watch(
     function initCityLevelDistributionByTotalAmountCards() {
       const temp = [];
       if (newVal["客户城市等级占比（累计消费金额）"]) {
-        for (const item of newVal["客户城市等级占比（累计消费金额）"]) {
+        for (const item of sortArrayByKey(
+          newVal["客户城市等级占比（累计消费金额）"],
+          "level"
+        )) {
+          if (!item.level) {
+            continue;
+          }
           temp.push({
             value: item.total_amount,
-            name: item.level
+            name: item.level,
+            itemStyle: { color: COLOR_CITY_LIST[item.level] }
           });
         }
       }
@@ -81,13 +127,33 @@ watch(
     // 客户类别占比（客户数量）
     initCategoryDistributionByCustomerCountCards();
     function initCategoryDistributionByCustomerCountCards() {
-      const temp = [];
+      const temp = [
+        {
+          value: 0,
+          name: "核心客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["核心客户"] }
+        },
+        {
+          value: 0,
+          name: "高价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["高价值客户"] }
+        },
+        {
+          value: 0,
+          name: "一般价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["一般价值客户"] }
+        },
+        {
+          value: 0,
+          name: "低价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["低价值客户"] }
+        }
+      ];
       if (newVal["客户类别占比（客户数量）"]) {
         for (const item of newVal["客户类别占比（客户数量）"]) {
-          temp.push({
-            value: item.cnt,
-            name: item.rfm_type
-          });
+          if (item.rfm_type) {
+            temp.find(t => t.name === item.rfm_type).value = item.cnt;
+          }
         }
       }
       categoryDistributionByCustomerCountCards.value.option.series[0].data =
@@ -97,13 +163,33 @@ watch(
     // 客户类别占比（累计消费金额）
     initCategoryDistributionByTotalAmountCards();
     function initCategoryDistributionByTotalAmountCards() {
-      const temp = [];
+      const temp = [
+        {
+          value: 0,
+          name: "核心客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["核心客户"] }
+        },
+        {
+          value: 0,
+          name: "高价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["高价值客户"] }
+        },
+        {
+          value: 0,
+          name: "一般价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["一般价值客户"] }
+        },
+        {
+          value: 0,
+          name: "低价值客户",
+          itemStyle: { color: COLOR_CUSTOMER_LEVEL_LIST["低价值客户"] }
+        }
+      ];
       if (newVal["客户类别占比（累计消费金额）"]) {
         for (const item of newVal["客户类别占比（累计消费金额）"]) {
-          temp.push({
-            value: item.total_amount,
-            name: item.rfm_type
-          });
+          if (item.rfm_type) {
+            temp.find(t => t.name === item.rfm_type).value = item.total_amount;
+          }
         }
       }
       categoryDistributionByTotalAmountCards.value.option.series[0].data = temp;
@@ -220,12 +306,16 @@ const channelDistributionByCustomerCountCards = ref({
   title: "客户渠道占比（客户数量）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5, // 最小的扇区角度（0~360），用于防止某个值过小导致扇区太小影响交互
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -245,7 +335,11 @@ const channelDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          // alignTo: "edge", // 标签对齐到边缘，防止标签重叠
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -256,8 +350,8 @@ const channelDistributionByCustomerCountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -277,12 +371,16 @@ const channelDistributionByTotalAmountCards = ref({
   title: "客户渠道占比（累计消费金额）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5, // 最小的扇区角度（0~360），用于防止某个值过小导致扇区太小影响交互
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -302,7 +400,10 @@ const channelDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -313,8 +414,8 @@ const channelDistributionByTotalAmountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -335,12 +436,17 @@ const cityLevelDistributionByCustomerCountCards = ref({
   title: "客户城市等级占比（客户数量）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5,
+        avoidLabelOverlap: false,
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -360,7 +466,10 @@ const cityLevelDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -371,8 +480,8 @@ const cityLevelDistributionByCustomerCountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -392,12 +501,17 @@ const cityLevelDistributionByTotalAmountCards = ref({
   title: "客户城市等级占比（累计消费金额）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5,
+        avoidLabelOverlap: false,
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -417,7 +531,10 @@ const cityLevelDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -428,8 +545,8 @@ const cityLevelDistributionByTotalAmountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -450,12 +567,17 @@ const categoryDistributionByCustomerCountCards = ref({
   title: "客户类别占比（客户数量）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5,
+        avoidLabelOverlap: false,
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -475,7 +597,10 @@ const categoryDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -486,8 +611,8 @@ const categoryDistributionByCustomerCountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -507,12 +632,17 @@ const categoryDistributionByTotalAmountCards = ref({
   title: "客户类别占比（累计消费金额）",
   text: "",
   option: {
+    legend: {},
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} ({d}%)"
+      formatter: (params: any) => {
+        return `${params.name}: ${formatToWan(params.value)} (${params.percent}%)`;
+      }
     },
     series: [
       {
+        minAngle: 5,
+        avoidLabelOverlap: false,
         type: "pie",
         radius: ["35%", "60%"],
         itemStyle: {
@@ -532,7 +662,10 @@ const categoryDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          formatter: "{b|{b}}\n{c} ({d}%)",
+          position: "inner",
+          formatter: (params: any) => {
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+          },
           fontSize: 12,
           rich: {
             b: {
@@ -543,8 +676,8 @@ const categoryDistributionByTotalAmountCards = ref({
         labelLine: {
           smooth: true,
           minTurnAngle: 90,
-          length: 55, // 增加第一段线长度，让引导线垂直延伸更远
-          length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
+          // length: 55, // 增加第一段线长度，让引导线垂直延伸更远
+          // length2: 30, // 增加第二段线长度，控制弯曲后的水平距离
           lineStyle: {
             width: 1,
             type: "solid"
@@ -567,6 +700,7 @@ const repurchaseRateByMonthGeneralValueCards = ref({
   title: "客户每月复购率 一般价值客户",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL],
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -619,6 +753,7 @@ const repurchaseRateByMonthLowValueCards = ref({
   title: "客户每月复购率 低价值客户",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL],
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -671,6 +806,7 @@ const repurchaseRateByMonthCoreValueCards = ref({
   title: "客户每月复购率 核心客户",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL],
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -723,6 +859,7 @@ const repurchaseRateByMonthHighValueCards = ref({
   title: "客户每月复购率 高价值客户",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL],
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -776,6 +913,7 @@ const totalRepurchaseRateByMonthCards = ref({
   title: "总客户每月复购率",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL],
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -829,6 +967,7 @@ const newOrRetainOrLoseByMonthCards = ref({
   title: "每月新客/挽回/流失数量",
   text: "",
   option: {
+    color: [COLOR_BAR_LIST.NORMAL, COLOR_BAR_LIST.GOOD, COLOR_BAR_LIST.BAD],
     legend: {},
     tooltip: {
       trigger: "axis",
@@ -885,6 +1024,20 @@ const newOrRetainOrLoseByMonthCards = ref({
 });
 
 //#endregion
+
+// 格式化数字为万单位
+const formatToWan = (value: number) => {
+  if (value >= 10000) {
+    return (value / 10000).toFixed(1) + "万";
+  }
+  return value.toString();
+};
+// 将对象数组里的对象根据提供的key排序，支持中文排序
+const sortArrayByKey = (arr: any, key: string) => {
+  return arr.sort((a: any, b: any) => {
+    return a[key].localeCompare(b[key]);
+  });
+};
 </script>
 
 <template>
@@ -962,30 +1115,13 @@ const newOrRetainOrLoseByMonthCards = ref({
       <el-col :sm="24" :lg="6" class="mb-[20px]">
         <ChartCard
           class="mb-[20px]"
-          :name="repurchaseRateByMonthGeneralValueCards.name"
-          :title="repurchaseRateByMonthGeneralValueCards.title"
-          :text="repurchaseRateByMonthGeneralValueCards.text"
-          :option="repurchaseRateByMonthGeneralValueCards.option"
-          :style="repurchaseRateByMonthGeneralValueCards?.style"
-      /></el-col>
-      <el-col :sm="24" :lg="6" class="mb-[20px]">
-        <ChartCard
-          class="mb-[20px]"
-          :name="repurchaseRateByMonthLowValueCards.name"
-          :title="repurchaseRateByMonthLowValueCards.title"
-          :text="repurchaseRateByMonthLowValueCards.text"
-          :option="repurchaseRateByMonthLowValueCards.option"
-          :style="repurchaseRateByMonthLowValueCards?.style"
-      /></el-col>
-      <el-col :sm="24" :lg="6" class="mb-[20px]">
-        <ChartCard
-          class="mb-[20px]"
           :name="repurchaseRateByMonthCoreValueCards.name"
           :title="repurchaseRateByMonthCoreValueCards.title"
           :text="repurchaseRateByMonthCoreValueCards.text"
           :option="repurchaseRateByMonthCoreValueCards.option"
           :style="repurchaseRateByMonthCoreValueCards?.style"
-      /></el-col>
+        />
+      </el-col>
       <el-col :sm="24" :lg="6" class="mb-[20px]">
         <ChartCard
           class="mb-[20px]"
@@ -994,7 +1130,28 @@ const newOrRetainOrLoseByMonthCards = ref({
           :text="repurchaseRateByMonthHighValueCards.text"
           :option="repurchaseRateByMonthHighValueCards.option"
           :style="repurchaseRateByMonthHighValueCards?.style"
-      /></el-col>
+        />
+      </el-col>
+      <el-col :sm="24" :lg="6" class="mb-[20px]">
+        <ChartCard
+          class="mb-[20px]"
+          :name="repurchaseRateByMonthGeneralValueCards.name"
+          :title="repurchaseRateByMonthGeneralValueCards.title"
+          :text="repurchaseRateByMonthGeneralValueCards.text"
+          :option="repurchaseRateByMonthGeneralValueCards.option"
+          :style="repurchaseRateByMonthGeneralValueCards?.style"
+        />
+      </el-col>
+      <el-col :sm="24" :lg="6" class="mb-[20px]">
+        <ChartCard
+          class="mb-[20px]"
+          :name="repurchaseRateByMonthLowValueCards.name"
+          :title="repurchaseRateByMonthLowValueCards.title"
+          :text="repurchaseRateByMonthLowValueCards.text"
+          :option="repurchaseRateByMonthLowValueCards.option"
+          :style="repurchaseRateByMonthLowValueCards?.style"
+        />
+      </el-col>
     </el-row>
 
     <el-row :gutter="30">
