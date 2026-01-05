@@ -253,6 +253,34 @@ function initRouter() {
                 ]
               });
             }
+            // 判断宠物档案权限
+            if (hasPermission(userId, "petProfiles")) {
+              routesTemp.push({
+                path: "/oldBI",
+                name: "OldBILayout",
+                redirect: "/oldBI/petProfiles",
+                component: Layout,
+                meta: {
+                  icon: "vaadin/records",
+                  title: "老BI数据归集",
+                  showLink: true,
+                  rank: 14
+                },
+                children: [
+                  {
+                    path: "/oldBI/petProfiles",
+                    name: "OldBIPetProfiles",
+                    component: () =>
+                      import("@/views/oldBI/petProfiles/index.vue"),
+                    meta: {
+                      title: "宠物档案",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {
