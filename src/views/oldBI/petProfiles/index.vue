@@ -4,7 +4,6 @@ import { getShuyunNickPage } from "@/api/oldbi";
 import SearchCard from "./searchCard.vue";
 import { ElMessage } from "element-plus";
 import dayjs from "dayjs";
-import { da } from "element-plus/es/locale/index.mjs";
 
 const TABLE_COLUMNS_CONFIG = [
   {

@@ -232,12 +232,14 @@ watch(
       const total_customers_temp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       if (newVal["每类客户每月复购率"]) {
         for (const item of newVal["每类客户每月复购率"]) {
-          rebuy_customers_temp[item.order_month - 1] = item.rebuy_customers;
-          total_customers_temp[item.order_month - 1] = item.total_customers;
+          rebuy_customers_temp[item.order_month - 1] += item.rebuy_customers;
+          total_customers_temp[item.order_month - 1] += item.total_customers;
         }
       }
       const temp = rebuy_customers_temp.map((item, index) => {
-        return ((item / total_customers_temp[index]) * 100).toFixed(2);
+        // return ((item / total_customers_temp[index]) * 100).toFixed(2);
+        const total = total_customers_temp[index];
+        return total > 0 ? ((item / total) * 100).toFixed(2) : "0.00";
       });
       totalRepurchaseRateByMonthCards.value.option.series[0].data = temp;
     }
