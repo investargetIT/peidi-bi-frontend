@@ -18,7 +18,7 @@ const props = defineProps({
 const TAGS = ["质量问题", "物流速度", "好评趋势", "差评分析"];
 
 const searchInput = ref("");
-const searchInputRef = ref<HTMLInputElement>(null);
+const searchInputRef = ref<HTMLInputElement | null>(null);
 
 const handleClick = () => {
   if (!searchInput.value) {
@@ -38,7 +38,7 @@ const handleEnterKey = (e: KeyboardEvent) => {
 const handleClickTag = (tag: string) => {
   searchInput.value = tag;
   // 焦点到输入框
-  searchInputRef.value.focus();
+  searchInputRef.value?.focus();
 };
 </script>
 

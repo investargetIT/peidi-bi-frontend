@@ -11,7 +11,10 @@ const props = defineProps({
 });
 
 const fetchShuyunNickPage = inject<(searchStr: string) => void>(
-  "fetchShuyunNickPage"
+  "fetchShuyunNickPage",
+  () => {
+    console.error("fetchShuyunNickPage not provided");
+  }
 );
 
 const CONSTELLATION_OPTIONS = [

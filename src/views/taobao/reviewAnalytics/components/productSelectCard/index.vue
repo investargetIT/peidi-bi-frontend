@@ -18,12 +18,12 @@ const props = defineProps({
   },
   // 本产品评论时间范围
   productTimeRange: {
-    type: Array<string>,
+    type: Array as PropType<string[]>,
     required: true
   },
   // 竞品评论时间范围
   competitorTimeRange: {
-    type: Array<string>,
+    type: Array as PropType<string[]>,
     required: true
   },
   productOptions: {
