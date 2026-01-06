@@ -227,7 +227,7 @@ function initRouter() {
             // 处理成功逻辑 拿到id
             const userId = res?.data?.id;
             const routesTemp = [];
-            // 判断douyin权限
+            //#region 判断douyin权限
             if (hasPermission(userId, "douyin")) {
               routesTemp.push({
                 path: "/douyin",
@@ -253,7 +253,9 @@ function initRouter() {
                 ]
               });
             }
-            // 判断宠物档案权限
+            //#endregion
+
+            //#region 判断宠物档案权限
             if (hasPermission(userId, "petProfiles")) {
               routesTemp.push({
                 path: "/oldBI",
@@ -280,6 +282,36 @@ function initRouter() {
                 ]
               });
             }
+            //#endregion
+
+            //#region 判断产品控价权限
+            if (hasPermission(userId, "priceControl")) {
+              routesTemp.push({
+                path: "/priceControl",
+                name: "PriceControlLayout",
+                redirect: "/priceControl/yuanliBowl",
+                component: Layout,
+                meta: {
+                  icon: "solar/tag-price-outline",
+                  title: "产品控价",
+                  showLink: true,
+                  rank: 15
+                },
+                children: [
+                  {
+                    path: "/priceControl/yuanliBowl",
+                    name: "PriceControlYuanliBowl",
+                    component: () =>
+                      import("@/views/priceControl/yuanliBowl/index.vue"),
+                    meta: {
+                      title: "源力碗控价",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
 
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
