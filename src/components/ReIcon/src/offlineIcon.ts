@@ -19,6 +19,7 @@ import VaadinChart3d from "~icons/vaadin/chart-3d?raw";
 import RiTiktokLine from "~icons/ri/tiktok-line?raw";
 import GisSearchGlobe from "~icons/gis/search-globe?raw";
 import IconParkOutlineTaobao from "~icons/icon-park-outline/taobao?raw";
+import VaadinRecords from "~icons/vaadin/records?raw";
 
 const icons = [
   // Element Plus Icon: https://github.com/element-plus/element-plus-icons
@@ -36,7 +37,8 @@ const icons = [
   ["vaadin/chart-3d", VaadinChart3d],
   ["ri/tiktok-line", RiTiktokLine],
   ["gis/search-globe", GisSearchGlobe],
-  ["icon-park-outline/taobao", IconParkOutlineTaobao]
+  ["icon-park-outline/taobao", IconParkOutlineTaobao],
+  ["vaadin/records", VaadinRecords]
 ];
 
 // 本地菜单图标，后端在路由的 icon 中返回对应的图标字符串并且前端在此处使用 addIcon 添加即可渲染菜单图标

@@ -24,7 +24,7 @@ const statusClass = ref({
   bg: "bg-green-50",
   border: "border-green-200",
   title: "text-green-800",
-  icon: "text-green-600",
+  icon: "bg-green-600",
   content: "text-green-900"
 });
 
@@ -39,7 +39,7 @@ watch(
         icon: "bg-green-600",
         content: "text-green-900"
       };
-    } else if (props.status === "disadvantage") {
+    } else if (newStatus === "disadvantage") {
       statusClass.value = {
         bg: "bg-red-50",
         border: "border-red-200",
@@ -47,7 +47,7 @@ watch(
         icon: "bg-red-600",
         content: "text-red-900"
       };
-    } else if (props.status === "suggestion") {
+    } else if (newStatus === "suggestion") {
       statusClass.value = {
         bg: "bg-blue-50",
         border: "border-blue-200",
@@ -66,7 +66,7 @@ watch(
 <template>
   <div class="peidi-taobao-reviewAnalytics-textCard-container h-full">
     <el-card
-      style=" height: 100%;background-color: transparent; border-radius: 10px"
+      style="height: 100%; background-color: transparent; border-radius: 10px"
     >
       <div
         class="flex flex-col gap-6 rounded-xl border py-6 shadow-sm h-full"

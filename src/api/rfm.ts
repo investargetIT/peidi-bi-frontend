@@ -8,12 +8,11 @@ export const commonUrlApi = (url: string) =>
 export interface GetBiRfmParams {
   areaLevel2?: string;
   channel?: string;
-  endTime?: string;
-  lastOrderTime: string;
-  level?: string;
-  startTime?: string;
-  totalAmount: string;
-  totalOrders: string;
+  totalAmount1: number | string;
+  totalAmount2: number | string;
+  totalOrders1: number | string;
+  totalOrders2: number | string;
+  year: string;
 }
 /** 获取rfm模型 */
 export const getBiRfm = (data: GetBiRfmParams) => {

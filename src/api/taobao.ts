@@ -9,7 +9,23 @@ export interface GoodsReviewQuestion {
   question: string;
   product: string;
   compareProduct?: string;
+  compareProductReviewTime?: string; // 2025-11-01&&2025-11-31
+  productReviewTime?: string;
 }
+
+/** 获取商品评论问题预时间 */
+export const getGoodsReviewQuestionPre = (params: GoodsReviewQuestion) => {
+  return http.request(
+    "get",
+    commonUrlApi("/ai/goods-review/question-pre"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 15
+    }
+  );
+};
 
 /** 获取商品评论问题 */
 export const getGoodsReviewQuestion = (params: GoodsReviewQuestion) => {
@@ -20,7 +36,7 @@ export const getGoodsReviewQuestion = (params: GoodsReviewQuestion) => {
       params
     },
     {
-      timeout: 1000 * 60 * 15
+      timeout: 0
     }
   );
 };

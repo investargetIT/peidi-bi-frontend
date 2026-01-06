@@ -1,0 +1,247 @@
+{
+  "code": 200,
+  "msg": "success",
+  "success": true,
+  "data": [
+    {
+      "channel": "京东",
+      "rfmType": "一般价值客户",
+      "cnt": 4023,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "一般保持客户",
+      "cnt": 2457,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "一般发展客户",
+      "cnt": 50196,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "一般挽留客户",
+      "cnt": 108087,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "重要价值客户",
+      "cnt": 1317,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "重要保持客户",
+      "cnt": 294,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "重要发展客户",
+      "cnt": 547,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "京东",
+      "rfmType": "重要挽留客户",
+      "cnt": 301,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "一般价值客户",
+      "cnt": 84,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "一般保持客户",
+      "cnt": 1,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "一般发展客户",
+      "cnt": 727,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "一般挽留客户",
+      "cnt": 199,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "重要价值客户",
+      "cnt": 43,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "微盟",
+      "rfmType": "重要发展客户",
+      "cnt": 7,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "一般价值客户",
+      "cnt": 30912,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "一般保持客户",
+      "cnt": 6947,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "一般发展客户",
+      "cnt": 248021,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "一般挽留客户",
+      "cnt": 244232,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "重要价值客户",
+      "cnt": 16203,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "重要保持客户",
+      "cnt": 1735,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "重要发展客户",
+      "cnt": 4688,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "抖音",
+      "rfmType": "重要挽留客户",
+      "cnt": 2296,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "一般价值客户",
+      "cnt": 32620,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "一般保持客户",
+      "cnt": 8050,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "一般发展客户",
+      "cnt": 353726,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "一般挽留客户",
+      "cnt": 376706,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "重要价值客户",
+      "cnt": 58920,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "重要保持客户",
+      "cnt": 4266,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "重要发展客户",
+      "cnt": 23028,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    },
+    {
+      "channel": "淘宝",
+      "rfmType": "重要挽留客户",
+      "cnt": 6998,
+      "areaLevel1": null,
+      "areaLevel2": null,
+      "level": null
+    }
+  ]
+}

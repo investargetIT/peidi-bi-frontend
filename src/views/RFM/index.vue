@@ -5,18 +5,24 @@ import SearchBar from "@/views/RFM/components/searchBar/index.vue";
 import LoadingCard from "@/views/RFM/components/loadingCard/index.vue";
 import DataCard from "@/views/RFM/components/dataCard/index.vue";
 import { message } from "@/utils/message";
+// import response_debug from "./response_debug.json";
 
+const isFirstLoad = ref(true);
 const loading = ref(false);
-const dataList = ref([]);
+const dataList = ref<Record<string, any>>({});
 
 // 重置数据
 const resetData = () => {
-  dataList.value = [];
+  isFirstLoad.value = true;
+  dataList.value = {};
 };
 
 //#region 请求逻辑
 // 获取rfm模型
 const fetchBiRfm = (params: GetBiRfmParams) => {
+  isFirstLoad.value = false;
+  // dataList.value = response_debug.data;
+
   loading.value = true;
   getBiRfm(params)
     .then((res: any) => {
@@ -40,13 +46,21 @@ const fetchBiRfm = (params: GetBiRfmParams) => {
 <template>
   <div>
     <el-card shadow="never" style="border-radius: 10px">
+      <!-- 样本说明 -->
+      <el-alert
+        title="样本说明：订单数据来自数云系统，用户聚合也是通过数云系统"
+        type="info"
+        show-icon
+        :closable="false"
+        style="margin-bottom: 10px; color: #606266"
+      />
       <!-- 搜索栏 -->
       <SearchBar :submit="fetchBiRfm" :loading="loading" :reset="resetData" />
       <el-divider />
       <!-- 加载动效 -->
       <LoadingCard v-show="loading" />
       <!-- 图表区域 -->
-      <DataCard v-show="!loading && dataList.length > 0" :dataList="dataList" />
+      <DataCard v-show="!loading && !isFirstLoad" :dataList="dataList" />
     </el-card>
   </div>
 </template>

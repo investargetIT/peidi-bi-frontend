@@ -9,25 +9,25 @@ const props = defineProps({
       type: string;
       data: number[];
     }>,
-    require: true
+    required: true
   },
   commentTrendsChart: {
     type: Array<any>,
-    require: true
+    required: true
   },
   goodsWordCloud: {
     type: Array<{
       name: string;
       value: number;
     }>,
-    require: true
+    required: true
   },
   compareGoodsWordCloud: {
     type: Array<{
       name: string;
       value: number;
     }>,
-    require: true
+    required: true
   }
 });
 
@@ -220,7 +220,10 @@ const productKeywordsWordCloudCards = ref({
             const maxValue = 48.3; // 最大值
 
             // 计算颜色过渡比例 (0-1)
-            const ratio = (value - minValue) / (maxValue - minValue);
+            const ratio = Math.max(
+              0,
+              Math.min(1, (value - minValue) / (maxValue - minValue))
+            );
 
             // 定义颜色渐变范围：从蓝色到红色
             const startColor = { r: 54, g: 162, b: 235 }; // 蓝色
@@ -328,7 +331,10 @@ const competingProductKeywordsWordCloudCards = ref({
             const maxValue = 48.3; // 最大值
 
             // 计算颜色过渡比例 (0-1)
-            const ratio = (value - minValue) / (maxValue - minValue);
+            const ratio = Math.max(
+              0,
+              Math.min(1, (value - minValue) / (maxValue - minValue))
+            );
 
             // 定义颜色渐变范围：从蓝色到红色
             const startColor = { r: 54, g: 162, b: 235 }; // 蓝色
