@@ -285,6 +285,7 @@ const TABLE_COLUMNS_CONFIG = [
   }
 ];
 </script>
+
 <template>
   <div>
     <pd-DataTable
