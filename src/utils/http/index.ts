@@ -133,7 +133,8 @@ class PureHttp {
           // alert("登录过期，请重新登录");
           // return response.data;
           // 返回一个永远不会resolve的Promise，避免触发业务代码的catch
-          return new Promise(() => {});
+          // return new Promise(() => {});
+          return Promise.reject(new Error("登录过期，请重新登录"));
         }
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof $config.beforeResponseCallback === "function") {

@@ -320,8 +320,8 @@ function initRouter() {
             resolve(router);
           }
         })
-        .catch(() => {
-          message("获取用户信息失败", { type: "error" });
+        .catch(error => {
+          message("获取用户信息失败:" + error.message, { type: "error" });
           resolve(router);
         });
 
