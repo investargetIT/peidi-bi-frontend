@@ -1,0 +1,326 @@
+<script setup lang="ts">
+import { onMounted, ref, computed, reactive, watch } from "vue";
+import { getGoodsEvaluation } from "@/api/productReview";
+import { ElMessage, FormInstance } from "element-plus";
+
+// 商品评价类型定义
+export interface ProductEvaluation {
+  /** 评价ID */
+  id: number;
+  /** 评价日期 (格式: YYYY-MM-DD) */
+  date: string;
+  /** 渠道 (如: 天猫、京东等) */
+  channel: string;
+  /** 评价类型 (如: 【主评】、【追评】) */
+  evaluationType: string;
+  /** 评价内容 */
+  evaluationContent: string;
+  /** 评价时间 (ISO格式) */
+  evaluationTime: string;
+  /** 订单号 (可能为空) */
+  orderNo: string | null;
+  /** 商品ID */
+  productId: string;
+  /** 商品名称 */
+  productName: string;
+  /** 用户昵称 (脱敏) */
+  userNickname: string;
+  /** 评价图片URL */
+  imageUrls: string;
+  /** 更多评价内容 (可能为空) */
+  moreEvaluationContent: string | null;
+  /** 店铺名称 */
+  shopName: string;
+  /** 商品详情链接 */
+  productUrl: string;
+  /** 情感分析结果 */
+  sentiment: string;
+  /** 商品评价列表 */
+  goodsEvaluationList: unknown[] | null;
+}
+
+const evaluationData = ref<ProductEvaluation[]>([
+  {
+    id: 143,
+    date: "2026-01-02",
+    channel: "天猫",
+    evaluationType: "【主评】",
+    evaluationContent: "狗狗很喜欢吃 鸭肉冻干小狗的最爱",
+    evaluationTime: "2026-01-02T23:35:06",
+    orderNo: null,
+    productId: "781124272229",
+    productName: "【尝鲜】Meatyway爵宴风干犬粮营养鸭肉风干粮通用全价狗粮试吃",
+    userNickname: "e**",
+    imageUrls:
+      "https://img.alicdn.com/i2/O1CN01mLK3Yb2BG2QDhxd9y_!!4611686018427384502-0-rate.jpg",
+    moreEvaluationContent: null,
+    shopName: "佩蒂旗舰店",
+    productUrl: "https://detail.tmall.com/item.htm?id=781124272229",
+    sentiment: "商品整体满意",
+    goodsEvaluationList: null
+  }
+]);
+const pagination = ref({
+  pageNo: 1,
+  pageSize: 5,
+  pageTotal: 0
+});
+
+const searchFormRef = ref<FormInstance>();
+const searchForm = reactive({
+  productName: "",
+  channel: "",
+  shopName: ""
+});
+const formatSearchStr = () => {
+  const searchStr = [];
+  if (searchForm.productName) {
+    searchStr.push({
+      searchName: "productName",
+      searchType: "like",
+      searchValue: searchForm.productName
+    });
+  }
+  if (searchForm.channel) {
+    searchStr.push({
+      searchName: "channel",
+      searchType: "like",
+      searchValue: searchForm.channel
+    });
+  }
+  if (searchForm.shopName) {
+    searchStr.push({
+      searchName: "shopName",
+      searchType: "like",
+      searchValue: searchForm.shopName
+    });
+  }
+  return JSON.stringify(searchStr);
+};
+const handleReset = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl?.resetFields();
+  fetchGoodsEvaluation();
+};
+
+// 计算合并配置
+const spanMethod = computed(() => {
+  return ({ row, column, rowIndex, columnIndex }: any) => {
+    // 只在商品名称列进行合并
+    if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2) {
+      const data = evaluationData.value;
+      let rowspan = 1;
+      let colspan = 0;
+
+      // 查找相同商品名称的行数
+      if (
+        rowIndex > 0 &&
+        data[rowIndex].productName === data[rowIndex - 1].productName
+      ) {
+        // 如果与前一行相同，则隐藏当前行
+        rowspan = 0;
+        colspan = 0;
+      } else {
+        // 计算当前商品名称连续出现的次数
+        let count = 1;
+        for (let i = rowIndex + 1; i < data.length; i++) {
+          if (data[i].productName === row.productName) {
+            count++;
+          } else {
+            break;
+          }
+        }
+        rowspan = count;
+        colspan = 1;
+      }
+
+      return {
+        rowspan: rowspan,
+        colspan: colspan
+      };
+    }
+  };
+});
+
+// 获取商品评论
+const fetchGoodsEvaluation = () => {
+  getGoodsEvaluation({
+    pageNo: pagination.value.pageNo,
+    pageSize: pagination.value.pageSize,
+    searchStr: formatSearchStr()
+  })
+    .then((res: any) => {
+      // console.log("商品评价列表:", res.data);
+
+      if (res.code === 200) {
+        // 如果当前页大于总页数，重置为最后一页 排除总页数为0的情况
+        if (res.data?.current > res.data?.pages && res.data?.total !== 0) {
+          pagination.value.pageNo = res.data?.pages;
+          return;
+        }
+
+        // 更新总页数
+        pagination.value.pageTotal = res.data?.total || 0;
+
+        const evaluationDataTemp = [];
+        res.data.records.forEach((item: ProductEvaluation) => {
+          evaluationDataTemp.push(...(item.goodsEvaluationList || []));
+        });
+        evaluationData.value = evaluationDataTemp;
+      } else {
+        ElMessage.error("获取商品评价失败:" + res.msg);
+      }
+    })
+    .catch(error => {
+      ElMessage.error("获取商品评价失败:" + error.message);
+    });
+};
+
+watch(
+  () => [pagination.value.pageNo, pagination.value.pageSize],
+  () => {
+    fetchGoodsEvaluation();
+  },
+  {
+    immediate: true
+  }
+);
+</script>
+
+<template>
+  <div>
+    <el-card
+      shadow="never"
+      style=" margin-bottom: 12px;border-radius: 10px"
+      class="search-card"
+    >
+      <el-form
+        ref="searchFormRef"
+        :inline="true"
+        :model="searchForm"
+        class="demo-form-inline"
+      >
+        <el-form-item label="商品名称" prop="productName">
+          <el-input
+            v-model="searchForm.productName"
+            placeholder="请输入商品名称"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="渠道" prop="channel">
+          <el-input
+            v-model="searchForm.channel"
+            placeholder="请输入渠道"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="店铺名称" prop="shopName">
+          <el-input
+            v-model="searchForm.shopName"
+            placeholder="请输入店铺名称"
+            clearable
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button @click="handleReset(searchFormRef)">重置</el-button>
+          <el-button type="primary" @click="fetchGoodsEvaluation"
+            >查询</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card shadow="never" style="border-radius: 10px">
+      <el-table
+        :data="evaluationData"
+        style="width: 100%"
+        size="small"
+        :header-cell-style="{ color: '#0a0a0a' }"
+        :span-method="spanMethod"
+      >
+        <el-table-column prop="productName" label="商品名称" min-width="200" />
+        <el-table-column prop="productId" label="商品ID" width="120" />
+        <el-table-column prop="productUrl" label="商品链接" width="100">
+          <template #default="scope">
+            <el-link
+              v-if="scope.row.productUrl"
+              :href="scope.row.productUrl"
+              target="_blank"
+              type="primary"
+              style="font-size: 12px"
+            >
+              查看商品
+            </el-link>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="evaluationType" label="评价类型" width="100" />
+        <el-table-column
+          prop="evaluationContent"
+          label="评价内容"
+          min-width="200"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="moreEvaluationContent"
+          label="更多评价内容"
+          width="150"
+        >
+          <template #default="scope">
+            {{ scope.row.moreEvaluationContent || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="imageUrls" label="评价图片" width="120">
+          <template #default="scope">
+            <el-image
+              v-if="scope.row.imageUrls"
+              :src="scope.row.imageUrls"
+              :preview-src-list="[scope.row.imageUrls]"
+              style="width: 50px; height: 50px"
+              fit="cover"
+              preview-teleported
+            />
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sentiment" label="情感分析" width="120" />
+        <el-table-column prop="date" label="评价日期" width="100" />
+        <el-table-column prop="channel" label="渠道" width="80" />
+        <el-table-column prop="shopName" label="店铺名称" width="120" />
+        <el-table-column prop="orderNo" label="订单号" width="120">
+          <template #default="scope">
+            {{ scope.row.orderNo || "-" }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="userNickname" label="用户昵称" width="80" />
+      </el-table>
+
+      <div class="mt-[16px] flex justify-end">
+        <el-pagination
+          v-model:current-page="pagination.pageNo"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[5, 10, 20, 30]"
+          size="small"
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="pagination.pageTotal"
+        />
+      </div>
+    </el-card>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.demo-form-inline .el-input {
+  --el-input-width: 220px;
+}
+
+.demo-form-inline .el-select {
+  --el-select-width: 220px;
+}
+
+:deep(.search-card .el-card__body) {
+  padding-bottom: 0;
+}
+</style>

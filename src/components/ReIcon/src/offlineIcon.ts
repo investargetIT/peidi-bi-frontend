@@ -21,6 +21,7 @@ import GisSearchGlobe from "~icons/gis/search-globe?raw";
 import IconParkOutlineTaobao from "~icons/icon-park-outline/taobao?raw";
 import VaadinRecords from "~icons/vaadin/records?raw";
 import SolarTagPriceOutline from "~icons/solar/tag-price-outline?raw";
+import CarbonReview from "~icons/carbon/review?raw";
 
 const icons = [
   // Element Plus Icon: https://github.com/element-plus/element-plus-icons
@@ -40,7 +41,8 @@ const icons = [
   ["gis/search-globe", GisSearchGlobe],
   ["icon-park-outline/taobao", IconParkOutlineTaobao],
   ["vaadin/records", VaadinRecords],
-  ["solar/tag-price-outline", SolarTagPriceOutline]
+  ["solar/tag-price-outline", SolarTagPriceOutline],
+  ["carbon/review", CarbonReview]
 ];
 
 // 本地菜单图标，后端在路由的 icon 中返回对应的图标字符串并且前端在此处使用 addIcon 添加即可渲染菜单图标
