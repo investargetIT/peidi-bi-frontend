@@ -191,7 +191,7 @@ watch(
   <div>
     <el-card
       shadow="never"
-      style=" margin-bottom: 12px;border-radius: 10px"
+      style="margin-bottom: 12px; border-radius: 10px"
       class="search-card"
     >
       <el-form
@@ -264,7 +264,7 @@ watch(
         />
         <el-table-column
           prop="moreEvaluationContent"
-          label="更多评价内容"
+          label="追评内容"
           width="150"
         >
           <template #default="scope">
@@ -288,11 +288,6 @@ watch(
         <el-table-column prop="date" label="评价日期" width="100" />
         <el-table-column prop="channel" label="渠道" width="80" />
         <el-table-column prop="shopName" label="店铺名称" width="120" />
-        <el-table-column prop="orderNo" label="订单号" width="120">
-          <template #default="scope">
-            {{ scope.row.orderNo || "-" }}
-          </template>
-        </el-table-column>
         <el-table-column prop="userNickname" label="用户昵称" width="80" />
       </el-table>
 
