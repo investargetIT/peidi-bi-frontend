@@ -76,7 +76,7 @@ const searchForm = reactive({
   productId: "",
   channel: "",
   shopName: "",
-  evaluationTime: []
+  evaluationTime: null
 });
 const formatSearchStr = () => {
   const searchStr = [];
@@ -101,13 +101,14 @@ const formatSearchStr = () => {
       searchValue: searchForm.shopName
     });
   }
-  if (searchForm.evaluationTime.length === 2) {
+  if (searchForm.evaluationTime && searchForm.evaluationTime.length === 2) {
     searchStr.push({
       searchName: "evaluationTime",
       searchType: "betweenStr",
-      searchValue: searchForm.evaluationTime
-        .map(date => dayjs(date).format("YYYY-MM-DD"))
-        .join(",")
+      searchValue: [
+        dayjs(searchForm.evaluationTime[0]).format("YYYY-MM-DD 00:00:00"),
+        dayjs(searchForm.evaluationTime[1]).format("YYYY-MM-DD 23:59:59")
+      ].join(",")
     });
   }
   return JSON.stringify(searchStr);
@@ -294,7 +295,7 @@ const handleCopy = (text: string) => {
         :header-cell-style="{ color: '#0a0a0a' }"
         :span-method="spanMethod"
       >
-        <el-table-column prop="productName" label="商品名称" min-width="200" />
+        <el-table-column prop="productName" label="商品名称" min-width="150" />
         <el-table-column prop="productId" label="商品ID" width="120" />
         <el-table-column prop="productUrl" label="商品链接" width="100">
           <template #default="scope">
