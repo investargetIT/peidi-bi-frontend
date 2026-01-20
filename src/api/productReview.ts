@@ -11,14 +11,14 @@ export const getGoodsEvaluation = (params: {
   pageSize: number;
   searchStr?: string;
 }) => {
-  return http.request(
-    "get",
-    commonUrlApi("/oms/bi/goods-evaluation"),
-    {
-      params
-    },
-    {
-      timeout: 1000 * 60
-    }
-  );
+  return http.request("get", commonUrlApi("/oms/bi/goods-evaluation"), {
+    params
+  });
+};
+
+/** 生成ai回复 */
+export const postGenerateAiEvaluation = (data: { id: number | string }) => {
+  return http.request("post", commonUrlApi("/ai/evaluation/new"), {
+    data
+  });
 };

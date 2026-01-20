@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, reactive, watch } from "vue";
-import { getGoodsEvaluation } from "@/api/productReview";
+import {
+  getGoodsEvaluation,
+  postGenerateAiEvaluation
+} from "@/api/productReview";
 import { ElMessage, FormInstance } from "element-plus";
+import dayjs from "dayjs";
+import { useClipboard } from "@vueuse/core";
 
 // 商品评价类型定义
 export interface ProductEvaluation {
   /** 评价ID */
   id: number;
-  /** 评价日期 (格式: YYYY-MM-DD) */
+  /** 抓取日期 (格式: YYYY-MM-DD) */
   date: string;
   /** 渠道 (如: 天猫、京东等) */
   channel: string;
@@ -68,17 +73,18 @@ const pagination = ref({
 
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
-  productName: "",
+  productId: "",
   channel: "",
-  shopName: ""
+  shopName: "",
+  evaluationTime: []
 });
 const formatSearchStr = () => {
   const searchStr = [];
-  if (searchForm.productName) {
+  if (searchForm.productId) {
     searchStr.push({
-      searchName: "productName",
-      searchType: "like",
-      searchValue: searchForm.productName
+      searchName: "productId",
+      searchType: "equals",
+      searchValue: `${searchForm.productId}`
     });
   }
   if (searchForm.channel) {
@@ -93,6 +99,15 @@ const formatSearchStr = () => {
       searchName: "shopName",
       searchType: "like",
       searchValue: searchForm.shopName
+    });
+  }
+  if (searchForm.evaluationTime.length === 2) {
+    searchStr.push({
+      searchName: "evaluationTime",
+      searchType: "betweenStr",
+      searchValue: searchForm.evaluationTime
+        .map(date => dayjs(date).format("YYYY-MM-DD"))
+        .join(",")
     });
   }
   return JSON.stringify(searchStr);
@@ -164,7 +179,8 @@ const fetchGoodsEvaluation = () => {
 
         const evaluationDataTemp = [];
         res.data.records.forEach((item: ProductEvaluation) => {
-          evaluationDataTemp.push(...(item.goodsEvaluationList || []));
+          const itemReverse = [...item.goodsEvaluationList].reverse();
+          evaluationDataTemp.push(...(itemReverse || []));
         });
         evaluationData.value = evaluationDataTemp;
       } else {
@@ -185,6 +201,36 @@ watch(
     immediate: true
   }
 );
+
+const commitLoading = ref({});
+
+const handleClickCommit = (row: any) => {
+  // console.log("点击评论:", row);
+  commitLoading.value[row.id] = true;
+  fetchGenerateAiEvaluation(row);
+};
+
+// 生成ai回复
+const fetchGenerateAiEvaluation = (row: any) => {
+  postGenerateAiEvaluation({ id: row.id })
+    .then((res: any) => {
+      if (res.code === 200) {
+        fetchGoodsEvaluation();
+        commitLoading.value[row.id] = false;
+      } else {
+        ElMessage.error("生成ai回复失败:" + res.msg);
+      }
+    })
+    .catch(error => {
+      ElMessage.error("生成ai回复失败:" + error.message);
+    });
+};
+
+const { copy } = useClipboard();
+const handleCopy = (text: string) => {
+  copy(text);
+  ElMessage.success("复制成功");
+};
 </script>
 
 <template>
@@ -200,10 +246,10 @@ watch(
         :model="searchForm"
         class="demo-form-inline"
       >
-        <el-form-item label="商品名称" prop="productName">
+        <el-form-item label="商品ID" prop="productId">
           <el-input
-            v-model="searchForm.productName"
-            placeholder="请输入商品名称"
+            v-model="searchForm.productId"
+            placeholder="请输入商品ID"
             clearable
           />
         </el-form-item>
@@ -219,6 +265,15 @@ watch(
             v-model="searchForm.shopName"
             placeholder="请输入店铺名称"
             clearable
+          />
+        </el-form-item>
+        <el-form-item label="评价日期" prop="evaluationTime">
+          <el-date-picker
+            v-model="searchForm.evaluationTime"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </el-form-item>
 
@@ -260,15 +315,26 @@ watch(
           prop="evaluationContent"
           label="评价内容"
           min-width="200"
-          show-overflow-tooltip
-        />
+        >
+          <template #default="scope">
+            <el-scrollbar max-height="100px">
+              <div>
+                {{ scope.row.evaluationContent }}
+              </div>
+            </el-scrollbar>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="moreEvaluationContent"
           label="追评内容"
           width="150"
         >
           <template #default="scope">
-            {{ scope.row.moreEvaluationContent || "-" }}
+            <el-scrollbar max-height="100px">
+              <div>
+                {{ scope.row.moreEvaluationContent || "-" }}
+              </div>
+            </el-scrollbar>
           </template>
         </el-table-column>
         <el-table-column prop="imageUrls" label="评价图片" width="120">
@@ -285,10 +351,43 @@ watch(
           </template>
         </el-table-column>
         <el-table-column prop="sentiment" label="情感分析" width="120" />
-        <el-table-column prop="date" label="评价日期" width="100" />
+        <el-table-column prop="evaluationTime" label="评价日期" width="100">
+          <template #default="scope">
+            {{
+              scope.row.evaluationTime
+                ? dayjs(scope.row.evaluationTime).format("YYYY-MM-DD")
+                : "-"
+            }}
+          </template>
+        </el-table-column>
         <el-table-column prop="channel" label="渠道" width="80" />
         <el-table-column prop="shopName" label="店铺名称" width="120" />
         <el-table-column prop="userNickname" label="用户昵称" width="80" />
+
+        <el-table-column
+          prop="aiEvaluationContent"
+          label="AI回复（点击复制）"
+          width="200"
+          fixed="right"
+        >
+          <template #default="scope">
+            <el-button
+              v-if="!scope.row.aiEvaluationContent"
+              type="primary"
+              size="small"
+              style="font-size: 12px"
+              :loading="commitLoading[scope.row.id]"
+              @click="handleClickCommit(scope.row)"
+            >
+              点击生成
+            </el-button>
+            <el-scrollbar v-else max-height="100px">
+              <div @click="handleCopy(scope.row.aiEvaluationContent)">
+                {{ scope.row.aiEvaluationContent }}
+              </div>
+            </el-scrollbar>
+          </template>
+        </el-table-column>
       </el-table>
 
       <div class="mt-[16px] flex justify-end">
