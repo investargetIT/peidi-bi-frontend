@@ -7,6 +7,7 @@ import {
 import { ElMessage, FormInstance } from "element-plus";
 import dayjs from "dayjs";
 import { useClipboard } from "@vueuse/core";
+import TdesignLink from "~icons/tdesign/link";
 
 // 商品评价类型定义
 export interface ProductEvaluation {
@@ -74,7 +75,7 @@ const pagination = ref({
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   productId: "",
-  channel: "",
+  orderNo: "",
   shopName: "",
   evaluationTime: null
 });
@@ -87,11 +88,11 @@ const formatSearchStr = () => {
       searchValue: `${searchForm.productId}`
     });
   }
-  if (searchForm.channel) {
+  if (searchForm.orderNo) {
     searchStr.push({
-      searchName: "channel",
-      searchType: "like",
-      searchValue: searchForm.channel
+      searchName: "orderNo",
+      searchType: "equals",
+      searchValue: `${searchForm.orderNo}`
     });
   }
   if (searchForm.shopName) {
@@ -123,7 +124,7 @@ const handleReset = (formEl: FormInstance | undefined) => {
 const spanMethod = computed(() => {
   return ({ row, column, rowIndex, columnIndex }: any) => {
     // 只在商品名称列进行合并
-    if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2) {
+    if (columnIndex === 0 || columnIndex === 1) {
       const data = evaluationData.value;
       let rowspan = 1;
       let colspan = 0;
@@ -254,10 +255,10 @@ const handleCopy = (text: string) => {
             clearable
           />
         </el-form-item>
-        <el-form-item label="渠道" prop="channel">
+        <el-form-item label="订单号" prop="orderNo">
           <el-input
-            v-model="searchForm.channel"
-            placeholder="请输入渠道"
+            v-model="searchForm.orderNo"
+            placeholder="请输入订单号"
             clearable
           />
         </el-form-item>
@@ -295,23 +296,29 @@ const handleCopy = (text: string) => {
         :header-cell-style="{ color: '#0a0a0a' }"
         :span-method="spanMethod"
       >
-        <el-table-column prop="productName" label="商品名称" min-width="150" />
-        <el-table-column prop="productId" label="商品ID" width="120" />
-        <el-table-column prop="productUrl" label="商品链接" width="100">
+        <el-table-column prop="productName" label="商品名称" min-width="150">
           <template #default="scope">
+            <span>{{ scope.row.productName }}</span>
             <el-link
               v-if="scope.row.productUrl"
               :href="scope.row.productUrl"
               target="_blank"
               type="primary"
-              style="font-size: 12px"
+              style=" margin-left: 5px;font-size: 14px"
             >
-              查看商品
+              <el-tooltip
+                effect="dark"
+                content="点击查看商品详情"
+                placement="top-start"
+              >
+                <TdesignLink />
+              </el-tooltip>
             </el-link>
-            <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="evaluationType" label="评价类型" width="100" />
+        <el-table-column prop="productId" label="商品ID" width="120" />
+        <el-table-column prop="orderNo" label="订单号" width="150" />
+        <el-table-column prop="evaluationType" label="评价类型" width="80" />
         <el-table-column
           prop="evaluationContent"
           label="评价内容"
@@ -338,7 +345,7 @@ const handleCopy = (text: string) => {
             </el-scrollbar>
           </template>
         </el-table-column>
-        <el-table-column prop="imageUrls" label="评价图片" width="120">
+        <el-table-column prop="imageUrls" label="评价图片" width="80">
           <template #default="scope">
             <el-image
               v-if="scope.row.imageUrls"
@@ -352,7 +359,7 @@ const handleCopy = (text: string) => {
           </template>
         </el-table-column>
         <el-table-column prop="sentiment" label="情感分析" width="120" />
-        <el-table-column prop="evaluationTime" label="评价日期" width="100">
+        <el-table-column prop="evaluationTime" label="评价日期" width="90">
           <template #default="scope">
             {{
               scope.row.evaluationTime
@@ -361,7 +368,7 @@ const handleCopy = (text: string) => {
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="channel" label="渠道" width="80" />
+        <el-table-column prop="channel" label="渠道" width="70" />
         <el-table-column prop="shopName" label="店铺名称" width="120" />
         <el-table-column prop="userNickname" label="用户昵称" width="80" />
 
