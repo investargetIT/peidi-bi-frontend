@@ -313,6 +313,34 @@ function initRouter() {
             }
             //#endregion
 
+            //#region 判断产品评价数据系统权限
+            if (hasPermission(userId, "productReview")) {
+              routesTemp.push({
+                path: "/productReview",
+                name: "ProductReviewLayout",
+                redirect: "/productReview/index",
+                component: Layout,
+                meta: {
+                  icon: "carbon/review",
+                  title: "产品评答数据系统",
+                  showLink: true,
+                  rank: 16
+                },
+                children: [
+                  {
+                    path: "/productReview/index",
+                    name: "ProductReviewIndex",
+                    component: () => import("@/views/productReview/index.vue"),
+                    meta: {
+                      title: "产品评答数据系统",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {
@@ -320,8 +348,8 @@ function initRouter() {
             resolve(router);
           }
         })
-        .catch(() => {
-          message("获取用户信息失败", { type: "error" });
+        .catch(error => {
+          message("获取用户信息失败:" + error.message, { type: "error" });
           resolve(router);
         });
 

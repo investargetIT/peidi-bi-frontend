@@ -189,10 +189,12 @@ const handleExportExcel = (searchForm: any) => {
         });
       } else {
         ElMessage.error(res.msg || "获取市场大盘失败");
+        exportLoading.value = false;
       }
     })
     .catch((err: any) => {
       ElMessage.error(err.message || "导出市场大盘失败");
+      exportLoading.value = false;
     });
 };
 
@@ -283,6 +285,7 @@ const TABLE_COLUMNS_CONFIG = [
   }
 ];
 </script>
+
 <template>
   <div>
     <pd-DataTable

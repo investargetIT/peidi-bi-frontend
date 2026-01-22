@@ -1,4 +1,4 @@
-# peidi-vdb-frontend
+# peidi-bi-frontend
 
 基于 Pure Admin Thin 的 Vue 3 前端数据分析系统。
 
