@@ -322,7 +322,7 @@ function initRouter() {
                 component: Layout,
                 meta: {
                   icon: "carbon/review",
-                  title: "产品评价数据系统",
+                  title: "产品评答数据系统",
                   showLink: true,
                   rank: 16
                 },
@@ -332,7 +332,7 @@ function initRouter() {
                     name: "ProductReviewIndex",
                     component: () => import("@/views/productReview/index.vue"),
                     meta: {
-                      title: "产品评价数据系统",
+                      title: "产品评答数据系统",
                       showLink: true
                     }
                   }

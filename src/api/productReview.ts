@@ -22,3 +22,14 @@ export const postGenerateAiEvaluation = (data: { id: number | string }) => {
     data
   });
 };
+
+/** 获取淘宝问答 */
+export const getTaobaoAnswers = (params: {
+  pageNo: number;
+  pageSize: number;
+  searchStr?: string;
+}) => {
+  return http.request("get", commonUrlApi("/oms/bi/taobao-answers"), {
+    params
+  });
+};

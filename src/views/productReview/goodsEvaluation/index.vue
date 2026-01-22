@@ -233,6 +233,10 @@ const handleCopy = (text: string) => {
   copy(text);
   ElMessage.success("复制成功");
 };
+
+defineExpose({
+  fetchGoodsEvaluation
+});
 </script>
 
 <template>
@@ -304,7 +308,7 @@ const handleCopy = (text: string) => {
               :href="scope.row.productUrl"
               target="_blank"
               type="primary"
-              style=" margin-left: 5px;font-size: 14px"
+              style="margin-left: 5px; font-size: 14px"
             >
               <el-tooltip
                 effect="dark"
