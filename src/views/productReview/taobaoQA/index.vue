@@ -225,10 +225,6 @@ const fetchTaobaoAnswers = async () => {
     });
 };
 
-onMounted(() => {
-  fetchTaobaoAnswers();
-});
-
 watch(
   () => [pagination.value.pageNo, pagination.value.pageSize],
   () => {

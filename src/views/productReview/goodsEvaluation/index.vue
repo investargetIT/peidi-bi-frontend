@@ -45,27 +45,7 @@ export interface ProductEvaluation {
   goodsEvaluationList: unknown[] | null;
 }
 
-const evaluationData = ref<ProductEvaluation[]>([
-  {
-    id: 143,
-    date: "2026-01-02",
-    channel: "天猫",
-    evaluationType: "【主评】",
-    evaluationContent: "狗狗很喜欢吃 鸭肉冻干小狗的最爱",
-    evaluationTime: "2026-01-02T23:35:06",
-    orderNo: null,
-    productId: "781124272229",
-    productName: "【尝鲜】Meatyway爵宴风干犬粮营养鸭肉风干粮通用全价狗粮试吃",
-    userNickname: "e**",
-    imageUrls:
-      "https://img.alicdn.com/i2/O1CN01mLK3Yb2BG2QDhxd9y_!!4611686018427384502-0-rate.jpg",
-    moreEvaluationContent: null,
-    shopName: "佩蒂旗舰店",
-    productUrl: "https://detail.tmall.com/item.htm?id=781124272229",
-    sentiment: "商品整体满意",
-    goodsEvaluationList: null
-  }
-]);
+const evaluationData = ref<ProductEvaluation[]>([]);
 const pagination = ref({
   pageNo: 1,
   pageSize: 5,
@@ -181,8 +161,10 @@ const fetchGoodsEvaluation = () => {
 
         const evaluationDataTemp = [];
         res.data.records.forEach((item: ProductEvaluation) => {
-          const itemReverse = [...item.goodsEvaluationList].reverse();
-          evaluationDataTemp.push(...(itemReverse || []));
+          if (item.goodsEvaluationList) {
+            const itemReverse = [...item.goodsEvaluationList].reverse();
+            evaluationDataTemp.push(...(itemReverse || []));
+          }
         });
         evaluationData.value = evaluationDataTemp;
       } else {
@@ -221,10 +203,12 @@ const fetchGenerateAiEvaluation = (row: any) => {
         commitLoading.value[row.id] = false;
       } else {
         ElMessage.error("生成ai回复失败:" + res.msg);
+        commitLoading.value[row.id] = false;
       }
     })
     .catch(error => {
       ElMessage.error("生成ai回复失败:" + error.message);
+      commitLoading.value[row.id] = false;
     });
 };
 
