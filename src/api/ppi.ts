@@ -90,3 +90,15 @@ export const getAiIntelligenceReviews = (params: { id: string | number }) => {
     params
   });
 };
+
+/** 查询chewy列表 */
+export const getChewyList = (params: {
+  function: string;
+  keyword: string;
+  redFlag: boolean;
+  score: boolean;
+}) => {
+  return http.request("get", commonUrlApi("/ai/chewy/list"), {
+    params
+  });
+};
