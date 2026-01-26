@@ -319,7 +319,10 @@ const channelDistributionByCustomerCountCards = ref({
       {
         minAngle: 5, // 最小的扇区角度（0~360），用于防止某个值过小导致扇区太小影响交互
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -337,10 +340,10 @@ const channelDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           // alignTo: "edge", // 标签对齐到边缘，防止标签重叠
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
@@ -384,7 +387,10 @@ const channelDistributionByTotalAmountCards = ref({
       {
         minAngle: 5, // 最小的扇区角度（0~360），用于防止某个值过小导致扇区太小影响交互
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -402,9 +408,9 @@ const channelDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
@@ -450,7 +456,10 @@ const cityLevelDistributionByCustomerCountCards = ref({
         minAngle: 5,
         avoidLabelOverlap: false,
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -468,9 +477,9 @@ const cityLevelDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
@@ -515,7 +524,10 @@ const cityLevelDistributionByTotalAmountCards = ref({
         minAngle: 5,
         avoidLabelOverlap: false,
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -533,9 +545,9 @@ const cityLevelDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
@@ -581,7 +593,10 @@ const categoryDistributionByCustomerCountCards = ref({
         minAngle: 5,
         avoidLabelOverlap: false,
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -599,9 +614,9 @@ const categoryDistributionByCustomerCountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
@@ -646,7 +661,10 @@ const categoryDistributionByTotalAmountCards = ref({
         minAngle: 5,
         avoidLabelOverlap: false,
         type: "pie",
-        radius: ["35%", "60%"],
+        radius: ["40%", "70%"],
+        center: ["50%", "70%"],
+        startAngle: 180,
+        endAngle: 360,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
@@ -664,9 +682,9 @@ const categoryDistributionByTotalAmountCards = ref({
           }
         },
         label: {
-          position: "inner",
+          position: "outside",
           formatter: (params: any) => {
-            return `${params.name}\n${formatToWan(params.value)} (${params.percent}%)`;
+            return `${params.name}\n${formatToWan(params.value)} (${params.percent.toFixed(0)}%)`;
           },
           fontSize: 12,
           rich: {
