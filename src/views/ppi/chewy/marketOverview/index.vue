@@ -186,20 +186,29 @@ const marketOverviewCards = ref({
 const handleClickProduct = item => {
   // console.log("handleClickProduct:", item);
   if (activeBlock.value === item.name) {
-    activeBlock.value = null;
-    activeBlockDetail.value = {
-      name: "",
-      count: 0,
-      score: 0,
-      avg: "0"
-    };
-    props.changeFilteredProduct(null);
+    initActiveBlock();
     return;
   }
   activeBlock.value = item.name;
   activeBlockDetail.value = item;
   props.changeFilteredProduct(item.name);
 };
+
+// 初始化选择项
+const initActiveBlock = () => {
+  activeBlock.value = null;
+  activeBlockDetail.value = {
+    name: "",
+    count: 0,
+    score: 0,
+    avg: "0"
+  };
+  props.changeFilteredProduct(null);
+};
+
+defineExpose({
+  initActiveBlock
+});
 </script>
 
 <template>

@@ -111,15 +111,15 @@ watch(
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="p-4 bg-blue-50 rounded-lg">
           <h5 class="font-semibold text-blue-800 mb-1">Top Protein</h5>
-          <p class="text-blue-700">Chicken dominates across all forms</p>
+          <p class="text-blue-700">--</p>
         </div>
         <div class="p-4 bg-purple-50 rounded-lg">
           <h5 class="font-semibold text-purple-800 mb-1">Emerging Trend</h5>
-          <p class="text-purple-700">Duck &amp; Rabbit growing in Jerky</p>
+          <p class="text-purple-700">--</p>
         </div>
         <div class="p-4 bg-amber-50 rounded-lg">
           <h5 class="font-semibold text-amber-800 mb-1">Opportunity</h5>
-          <p class="text-amber-700">Novel proteins in Soft Chews</p>
+          <p class="text-amber-700">--</p>
         </div>
       </div>
     </div>

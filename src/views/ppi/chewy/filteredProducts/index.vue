@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import NumCard from "../common/numCard.vue";
-import { bg } from "element-plus/es/locale/index.mjs";
 
 const props = defineProps({
-  sourceData: {
+  tableData: {
     type: Array,
     required: true
   },
@@ -14,19 +13,7 @@ const props = defineProps({
   }
 });
 
-const tableData = ref([]);
-
-watch(
-  () => [props.filteredProduct, props.sourceData],
-  (newVal, oldVal) => {
-    if (newVal[0] !== oldVal[0] || newVal[1] !== oldVal[1]) {
-      tableData.value = props.sourceData.filter(
-        (item: any) => item?.primary_function === newVal[0]
-      );
-    }
-    // console.log("tableData:", tableData.value);
-  }
-);
+// const tableData = ref([]);
 
 const getHealthScoreColor = (healthScore: number | string) => {
   if (typeof healthScore === "string") {
@@ -56,10 +43,10 @@ const getHealthScoreColor = (healthScore: number | string) => {
   <NumCard
     :title="`Filtered Products(${props.filteredProduct})`"
     num=""
-    :desc="tableData.length + ' products match your criteria'"
+    :desc="props.tableData.length + ' products match your criteria'"
   >
     <el-table
-      :data="tableData"
+      :data="props.tableData"
       style="width: 100%"
       :header-row-style="{ color: '#09090b' }"
       empty-text="No filtered products found"

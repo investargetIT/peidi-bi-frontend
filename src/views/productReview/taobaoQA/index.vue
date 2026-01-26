@@ -52,6 +52,7 @@ const pagination = ref({
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   productId: "",
+  questionContent: "",
   shopName: "",
   askTime: null
 });
@@ -62,6 +63,13 @@ const formatSearchStr = () => {
       searchName: "productId",
       searchType: "equals",
       searchValue: `${searchForm.productId}`
+    });
+  }
+  if (searchForm.questionContent) {
+    searchStr.push({
+      searchName: "questionContent",
+      searchType: "like",
+      searchValue: searchForm.questionContent
     });
   }
   if (searchForm.shopName) {
@@ -257,6 +265,13 @@ defineExpose({
           <el-input
             v-model="searchForm.productId"
             placeholder="请输入商品ID"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="问题内容" prop="questionContent">
+          <el-input
+            v-model="searchForm.questionContent"
+            placeholder="请输入问题内容"
             clearable
           />
         </el-form-item>

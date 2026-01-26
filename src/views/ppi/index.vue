@@ -14,14 +14,14 @@ const analyticsRef = ref<typeof Analytics>(null);
 
 const handleTabClick = (tab: any) => {
   // console.log("点击了", tab);
-  if (tab.props.label === activeTab.value) return;
-  activeTab.value = tab.props.label;
+  if (tab.props.name === activeTab.value) return;
+  activeTab.value = tab.props.name;
 
-  if (tab.props.label === "Dashboard") {
+  if (tab.props.name === "Dashboard") {
     dashboardRef.value?.initComponent();
-  } else if (tab.props.label === "Products") {
+  } else if (tab.props.name === "Products") {
     productsRef.value?.initComponent();
-  } else if (tab.props.label === "Analytics") {
+  } else if (tab.props.name === "Analytics") {
     analyticsRef.value?.initComponent();
   }
 };

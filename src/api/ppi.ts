@@ -99,6 +99,7 @@ export const getChewyList = (params: {
   score: boolean;
 }) => {
   return http.request("get", commonUrlApi("/ai/chewy/list"), {
-    params
+    params,
+    timeout: 1000 * 60 * 30
   });
 };

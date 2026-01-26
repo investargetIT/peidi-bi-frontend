@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import MarketOverview from "./marketOverview/index.vue";
 import HealthScoreAndIngredient from "./healthScoreAndIngredient/index.vue";
 import BadIngredient from "./badIngredient/index.vue";
@@ -7,13 +7,38 @@ import FormFactor from "./formFactor/index.vue";
 import FilteredProducts from "./filteredProducts/index.vue";
 import DEBUG_DATA from "./debug/response_1769149160652.json";
 import { getChewyList } from "@/api/ppi";
-import { ElMessage } from "element-plus";
+import { ElMessage, FormInstance } from "element-plus";
 
+const SCENARIO_LIST = [
+  "All Functions",
+  "Skin & Coat",
+  "Training/Reward",
+  "Joint/Mobility",
+  "General Treat",
+  "Digestion",
+  "Long-lasting Chew",
+  "Dental",
+  "Calming",
+  "Topper"
+];
+
+const firstLoad = ref(true);
+const loading = ref(false);
+
+const overview_info = ref([0, 0]);
+
+const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   brand: "",
-  scenario: "all_functions",
+  scenario: "All Functions",
   quality: []
 });
+
+const marketOverviewRef = ref();
+const resetFilters = () => {
+  searchFormRef.value?.resetFields();
+  marketOverviewRef.value?.initActiveBlock();
+};
 
 const marketOverviewData = ref({});
 const healthScoreData = ref([0, 0, 0, 0, 0]);
@@ -21,18 +46,24 @@ const ingredientData = ref({});
 const formFactorData = ref({ data: {}, y: [], x: [] });
 const badIngredientData = ref({});
 const filteredProduct = ref<string | null>(null);
-const filteredProductsData = ref([]);
+const filteredProductsData = ref<any>([]);
+
+const selectedFilteredProductsData = ref([]);
 
 const fetchChewyList = () => {
+  firstLoad.value = false;
+  loading.value = true;
   getChewyList({
-    function: "",
-    keyword: "",
-    redFlag: false,
-    score: false
+    function:
+      searchForm.scenario === "All Functions" ? "" : searchForm.scenario,
+    keyword: searchForm.brand,
+    redFlag: searchForm.quality.includes("hide_red_flags"),
+    score: searchForm.quality.includes("clean_label")
   })
     .then((res: any) => {
       // console.log("chewy list:", res.data);
       if (res.code === 200) {
+        overview_info.value = [res.data.data.length, res.data.cnt];
         handleDataTreating(res.data.data);
       } else {
         ElMessage.error("获取Chewy列表失败:" + res.msg);
@@ -40,12 +71,15 @@ const fetchChewyList = () => {
     })
     .catch(error => {
       ElMessage.error("获取Chewy列表失败:" + error.message);
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
 // 数据处理函数
 const handleDataTreating = data => {
-  console.log("数据处理函数:", data);
+  // console.log("数据处理函数:", data);
 
   const marketOverviewDataTemp = {};
 
@@ -157,13 +191,27 @@ const handleDataTreating = data => {
 
 onMounted(() => {
   // fetchChewyList();
-
-  handleDataTreating(DEBUG_DATA.data.data);
+  // handleDataTreating(DEBUG_DATA.data.data);
 });
 
 const changeFilteredProduct = product => {
   filteredProduct.value = product;
 };
+
+watch(
+  () => [filteredProduct.value, filteredProductsData.value],
+  (newVal, oldVal) => {
+    if (newVal[0] !== oldVal[0] || newVal[1] !== oldVal[1]) {
+      if (newVal[0] === null) {
+        selectedFilteredProductsData.value = newVal[1];
+        return;
+      }
+      selectedFilteredProductsData.value = filteredProductsData.value.filter(
+        (item: any) => item?.primary_function === newVal[0]
+      );
+    }
+  }
+);
 </script>
 
 <template>
@@ -198,6 +246,7 @@ const changeFilteredProduct = product => {
       </div>
 
       <el-form
+        ref="searchFormRef"
         :inline="true"
         :model="searchForm"
         class="demo-form-inline"
@@ -212,9 +261,12 @@ const changeFilteredProduct = product => {
 
         <el-form-item label="Function Scenario" prop="scenario">
           <el-select v-model="searchForm.scenario">
-            <el-option label="All Functions" value="all_functions" />
-            <el-option label="Joint Health" value="joint_health" />
-            <el-option label="Skin & Coat" value="skin_coat" />
+            <el-option
+              v-for="item in SCENARIO_LIST"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </el-form-item>
 
@@ -232,47 +284,63 @@ const changeFilteredProduct = product => {
         <el-form-item label="Active Filters">
           <div class="flex flex-col gap-2">
             <p class="text-sm text-muted-foreground text-[#71717a]">
-              Showing <span class="font-semibold text-primary">3</span> of
-              {{ DEBUG_DATA.data.data.length }}
+              Showing
+              <span class="font-semibold text-primary">{{
+                selectedFilteredProductsData.length
+              }}</span>
+              of
+              {{ overview_info[0] }}
               products
             </p>
-            <el-button
-              ><span class="font-semibold text-[#0a0a0a]"
-                >Reset All Filters</span
-              ></el-button
-            >
+            <div>
+              <el-button
+                type="primary"
+                :loading="loading"
+                @click="fetchChewyList"
+              >
+                <span class="font-semibold text-[#ffffff]"> Search </span>
+              </el-button>
+              <el-button :disabled="loading" @click="resetFilters">
+                <span class="font-semibold text-[#0a0a0a]">
+                  Reset All Filters
+                </span>
+              </el-button>
+            </div>
           </div>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <!-- 1 -->
-    <MarketOverview
-      class="mt-[20px]"
-      :marketOverviewData="marketOverviewData"
-      :changeFilteredProduct="changeFilteredProduct"
-    />
+    <div v-show="!loading && !firstLoad">
+      <!-- 1 -->
+      <MarketOverview
+        ref="marketOverviewRef"
+        class="mt-[20px]"
+        :marketOverviewData="marketOverviewData"
+        :changeFilteredProduct="changeFilteredProduct"
+      />
 
-    <!-- 2 -->
-    <HealthScoreAndIngredient
-      class="mt-[20px]"
-      :healthScoreData="healthScoreData"
-      :ingredientData="ingredientData"
-    />
+      <!-- 2 -->
+      <HealthScoreAndIngredient
+        class="mt-[20px]"
+        :healthScoreData="healthScoreData"
+        :ingredientData="ingredientData"
+      />
 
-    <!-- 3 -->
-    <BadIngredient class="mt-[20px]" :badIngredientData="badIngredientData" />
+      <!-- 3 -->
+      <BadIngredient class="mt-[20px]" :badIngredientData="badIngredientData" />
 
-    <!-- 4 -->
-    <FormFactor class="mt-[20px]" :formFactorData="formFactorData" />
+      <!-- 4 -->
+      <FormFactor class="mt-[20px]" :formFactorData="formFactorData" />
 
-    <!-- 5 -->
-    <FilteredProducts
-      v-show="filteredProduct"
-      class="mt-[20px]"
-      :sourceData="filteredProductsData"
-      :filteredProduct="filteredProduct"
-    />
+      <!-- 5 -->
+      <FilteredProducts
+        v-show="filteredProduct"
+        class="mt-[20px]"
+        :tableData="selectedFilteredProductsData"
+        :filteredProduct="filteredProduct"
+      />
+    </div>
   </div>
 </template>
 
