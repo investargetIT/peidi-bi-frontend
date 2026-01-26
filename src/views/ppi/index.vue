@@ -6,7 +6,7 @@ import Analytics from "./analytics/index.vue";
 import Reddit from "./reddit/index.vue";
 import Chewy from "./chewy/index.vue";
 
-const activeTab = ref("Chewy");
+const activeTab = ref("Dashboard");
 
 const dashboardRef = ref<typeof Dashboard>(null);
 const productsRef = ref<typeof Products>(null);
@@ -46,7 +46,7 @@ const handleTabClick = (tab: any) => {
     <el-tab-pane label="Reddit Insights" name="Reddit" lazy>
       <Reddit />
     </el-tab-pane>
-    <el-tab-pane label="Chewy" name="Chewy" lazy>
+    <el-tab-pane label="Chewy Market" name="Chewy" lazy>
       <Chewy />
     </el-tab-pane>
   </el-tabs>

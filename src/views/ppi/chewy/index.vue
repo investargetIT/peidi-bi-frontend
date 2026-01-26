@@ -7,6 +7,7 @@ import FormFactor from "./formFactor/index.vue";
 import FilteredProducts from "./filteredProducts/index.vue";
 import DEBUG_DATA from "./debug/response_1769149160652.json";
 import { getChewyList } from "@/api/ppi";
+import { ElMessage } from "element-plus";
 
 const searchForm = reactive({
   brand: "",
@@ -19,6 +20,7 @@ const healthScoreData = ref([0, 0, 0, 0, 0]);
 const ingredientData = ref({});
 const formFactorData = ref({ data: {}, y: [], x: [] });
 const badIngredientData = ref({});
+const filteredProduct = ref<string | null>(null);
 const filteredProductsData = ref([]);
 
 const fetchChewyList = () => {
@@ -27,15 +29,23 @@ const fetchChewyList = () => {
     keyword: "",
     redFlag: false,
     score: false
-  }).then((res: any) => {
-    console.log("chewy list:", res.data);
-  });
+  })
+    .then((res: any) => {
+      // console.log("chewy list:", res.data);
+      if (res.code === 200) {
+        handleDataTreating(res.data.data);
+      } else {
+        ElMessage.error("获取Chewy列表失败:" + res.msg);
+      }
+    })
+    .catch(error => {
+      ElMessage.error("获取Chewy列表失败:" + error.message);
+    });
 };
 
-onMounted(() => {
-  // fetchChewyList();
-
-  console.log("DEBUG_DATA:", DEBUG_DATA.data.data);
+// 数据处理函数
+const handleDataTreating = data => {
+  console.log("数据处理函数:", data);
 
   const marketOverviewDataTemp = {};
 
@@ -48,7 +58,7 @@ onMounted(() => {
 
   const filteredProductsDataTemp = [];
 
-  DEBUG_DATA.data.data.forEach((item: any) => {
+  data.forEach((item: any) => {
     const analysis = item.analysis;
     const brand = item.brand;
 
@@ -101,11 +111,12 @@ onMounted(() => {
       form_factor: form_factor,
       primary_protein_source: primary_protein_source,
       health_score: health_score,
-      red_flags: red_flags
+      red_flags: red_flags,
+      primary_function: primary_function
     });
   });
 
-  [...DEBUG_DATA.data.data]
+  [...data]
     .sort((a, b) => {
       return (
         b.analysis.layer_2_quality.health_score -
@@ -142,7 +153,17 @@ onMounted(() => {
   };
   badIngredientData.value = badIngredientDataTemp;
   filteredProductsData.value = filteredProductsDataTemp;
+};
+
+onMounted(() => {
+  // fetchChewyList();
+
+  handleDataTreating(DEBUG_DATA.data.data);
 });
+
+const changeFilteredProduct = product => {
+  filteredProduct.value = product;
+};
 </script>
 
 <template>
@@ -229,6 +250,7 @@ onMounted(() => {
     <MarketOverview
       class="mt-[20px]"
       :marketOverviewData="marketOverviewData"
+      :changeFilteredProduct="changeFilteredProduct"
     />
 
     <!-- 2 -->
@@ -245,7 +267,12 @@ onMounted(() => {
     <FormFactor class="mt-[20px]" :formFactorData="formFactorData" />
 
     <!-- 5 -->
-    <FilteredProducts class="mt-[20px]" :tableData="filteredProductsData" />
+    <FilteredProducts
+      v-show="filteredProduct"
+      class="mt-[20px]"
+      :sourceData="filteredProductsData"
+      :filteredProduct="filteredProduct"
+    />
   </div>
 </template>
 
