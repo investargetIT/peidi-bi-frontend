@@ -197,6 +197,31 @@ watch(
     //#endregion
 
     //#region 柱状图模块
+    const annual_repeat_purchase_rate = handleAnnualRepeatRepurchaseRate();
+    // 数据处理
+    function handleAnnualRepeatRepurchaseRate() {
+      const result = {};
+      newVal["每类客户年度复购率"]?.forEach(item => {
+        result[item.rfm_type] = item.repurchase_rate_percent;
+      });
+      // 计算总客户的年度复购率
+      const totalRebuyCustomers =
+        newVal["每类客户年度复购率"]?.reduce(
+          (sum, item) => sum + item.rebuy_customers,
+          0
+        ) || 0;
+      const totalTotalCustomers =
+        newVal["每类客户年度复购率"]?.reduce(
+          (sum, item) => sum + item.total_customers,
+          0
+        ) || 0;
+      result["总客户"] =
+        totalTotalCustomers > 0
+          ? ((totalRebuyCustomers / totalTotalCustomers) * 100).toFixed(2)
+          : "0.00";
+      return result;
+    }
+
     // 每类客户每月复购率
     initRepurchaseRateByMonth();
     function initRepurchaseRateByMonth() {
@@ -217,13 +242,58 @@ watch(
           }
         }
       }
-      repurchaseRateByMonthGeneralValueCards.value.option.series[0].data =
-        generalTemp;
-      repurchaseRateByMonthLowValueCards.value.option.series[0].data = lowTemp;
-      repurchaseRateByMonthCoreValueCards.value.option.series[0].data =
-        coreTemp;
-      repurchaseRateByMonthHighValueCards.value.option.series[0].data =
-        hightTemp;
+      repurchaseRateByMonthGeneralValueCards.value = {
+        ...repurchaseRateByMonthGeneralValueCards.value,
+        text: "年度复购率 " + annual_repeat_purchase_rate["一般价值客户"] + "%",
+        option: {
+          ...repurchaseRateByMonthGeneralValueCards.value.option,
+          series: [
+            {
+              ...repurchaseRateByMonthGeneralValueCards.value.option.series[0],
+              data: generalTemp
+            }
+          ]
+        }
+      };
+      repurchaseRateByMonthLowValueCards.value = {
+        ...repurchaseRateByMonthLowValueCards.value,
+        text: "年度复购率 " + annual_repeat_purchase_rate["低价值客户"] + "%",
+        option: {
+          ...repurchaseRateByMonthLowValueCards.value.option,
+          series: [
+            {
+              ...repurchaseRateByMonthLowValueCards.value.option.series[0],
+              data: lowTemp
+            }
+          ]
+        }
+      };
+      repurchaseRateByMonthCoreValueCards.value = {
+        ...repurchaseRateByMonthCoreValueCards.value,
+        text: "年度复购率 " + annual_repeat_purchase_rate["核心客户"] + "%",
+        option: {
+          ...repurchaseRateByMonthCoreValueCards.value.option,
+          series: [
+            {
+              ...repurchaseRateByMonthCoreValueCards.value.option.series[0],
+              data: coreTemp
+            }
+          ]
+        }
+      };
+      repurchaseRateByMonthHighValueCards.value = {
+        ...repurchaseRateByMonthHighValueCards.value,
+        text: "年度复购率 " + annual_repeat_purchase_rate["高价值客户"] + "%",
+        option: {
+          ...repurchaseRateByMonthHighValueCards.value.option,
+          series: [
+            {
+              ...repurchaseRateByMonthHighValueCards.value.option.series[0],
+              data: hightTemp
+            }
+          ]
+        }
+      };
     }
     // 总客户复购率每月复购率
     initTotalRepurchaseRateByMonth();
@@ -241,7 +311,19 @@ watch(
         const total = total_customers_temp[index];
         return total > 0 ? ((item / total) * 100).toFixed(2) : "0.00";
       });
-      totalRepurchaseRateByMonthCards.value.option.series[0].data = temp;
+      totalRepurchaseRateByMonthCards.value = {
+        ...totalRepurchaseRateByMonthCards.value,
+        text: "年度复购率 " + annual_repeat_purchase_rate["总客户"] + "%",
+        option: {
+          ...totalRepurchaseRateByMonthCards.value.option,
+          series: [
+            {
+              ...totalRepurchaseRateByMonthCards.value.option.series[0],
+              data: temp
+            }
+          ]
+        }
+      };
     }
 
     // 每月新客/挽回/流失数量
@@ -985,7 +1067,7 @@ const totalRepurchaseRateByMonthCards = ref({
 const newOrRetainOrLoseByMonthCards = ref({
   name: "newOrRetainOrLoseByMonthCards",
   title: "每月新客/挽回/流失数量",
-  text: "",
+  text: "点击图例切换数据",
   option: {
     color: [COLOR_BAR_LIST.NORMAL, COLOR_BAR_LIST.GOOD, COLOR_BAR_LIST.BAD],
     legend: {},
