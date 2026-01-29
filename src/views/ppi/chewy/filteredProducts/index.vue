@@ -79,7 +79,11 @@ const getHealthScoreColor = (healthScore: number | string) => {
               color: getHealthScoreColor(row.health_score).color
             }"
           >
-            {{ row.health_score ? row.health_score.toFixed(1) : "N/A" }}
+            {{
+              row.health_score != null && row.health_score !== 0
+                ? row.health_score.toFixed(1)
+                : "N/A"
+            }}
           </span>
         </template>
       </el-table-column>
