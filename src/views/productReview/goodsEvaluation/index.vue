@@ -57,7 +57,8 @@ const searchForm = reactive({
   productId: "",
   orderNo: "",
   shopName: "",
-  evaluationTime: null
+  evaluationTime: null,
+  hasImageUrls: "all"
 });
 const formatSearchStr = () => {
   const searchStr = [];
@@ -91,6 +92,21 @@ const formatSearchStr = () => {
         dayjs(searchForm.evaluationTime[1]).format("YYYY-MM-DD 23:59:59")
       ].join(",")
     });
+  }
+  if (searchForm.hasImageUrls !== "all") {
+    if (searchForm.hasImageUrls === "1") {
+      searchStr.push({
+        searchName: "imageUrls",
+        searchType: "like",
+        searchValue: "."
+      });
+    } else {
+      searchStr.push({
+        searchName: "imageUrls",
+        searchType: "equals",
+        searchValue: "''"
+      });
+    }
   }
   return JSON.stringify(searchStr);
 };
@@ -265,6 +281,16 @@ defineExpose({
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
+        </el-form-item>
+        <el-form-item label="评价图片" prop="hasImageUrls">
+          <el-select
+            v-model="searchForm.hasImageUrls"
+            placeholder="请选择是否有评价图片"
+          >
+            <el-option label="全部" value="all" />
+            <el-option label="有" value="1" />
+            <el-option label="无" value="0" />
+          </el-select>
         </el-form-item>
 
         <el-form-item>
