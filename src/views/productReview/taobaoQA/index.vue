@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, FormInstance } from "element-plus";
 import { getTaobaoAnswers } from "@/api/productReview";
 import dayjs from "dayjs";
 import TdesignLink from "~icons/tdesign/link";
+import EpDownload from "~icons/ep/download";
 
 export interface TaobaoAnswerItem {
   /** 回答内容 */
@@ -52,6 +53,7 @@ const pagination = ref({
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   productId: "",
+  questionContent: "",
   shopName: "",
   askTime: null
 });
@@ -62,6 +64,13 @@ const formatSearchStr = () => {
       searchName: "productId",
       searchType: "equals",
       searchValue: `${searchForm.productId}`
+    });
+  }
+  if (searchForm.questionContent) {
+    searchStr.push({
+      searchName: "questionContent",
+      searchType: "like",
+      searchValue: searchForm.questionContent
     });
   }
   if (searchForm.shopName) {
@@ -186,32 +195,7 @@ const fetchTaobaoAnswers = async () => {
         const taobaoQADataTemp = [];
 
         if (res.data?.records && res.data.records.length > 0) {
-          for (const productRecord of res.data.records) {
-            if (
-              productRecord.answersList &&
-              productRecord.answersList.length > 0
-            ) {
-              for (const questionRecord of productRecord.answersList) {
-                if (
-                  questionRecord.answersList &&
-                  questionRecord.answersList.length > 0
-                ) {
-                  // console.log(
-                  //   "questionRecord.answersList",
-                  //   questionRecord.answersList
-                  // );
-                  for (const answerRecord of [
-                    ...questionRecord.answersList
-                  ].sort(
-                    (a, b) =>
-                      dayjs(b.answerTime).unix() - dayjs(a.answerTime).unix()
-                  )) {
-                    taobaoQADataTemp.push(answerRecord);
-                  }
-                }
-              }
-            }
-          }
+          taobaoQADataTemp.push(...formatTaobaoAnswers(res.data.records));
         }
 
         // console.log("taobaoQADataTemp", taobaoQADataTemp);
@@ -224,10 +208,30 @@ const fetchTaobaoAnswers = async () => {
       ElMessage.error(err.message || "获取淘宝问答失败");
     });
 };
-
-onMounted(() => {
-  fetchTaobaoAnswers();
-});
+function formatTaobaoAnswers(records: any) {
+  const result = [];
+  for (const productRecord of records) {
+    if (productRecord.answersList && productRecord.answersList.length > 0) {
+      for (const questionRecord of productRecord.answersList) {
+        if (
+          questionRecord.answersList &&
+          questionRecord.answersList.length > 0
+        ) {
+          // console.log(
+          //   "questionRecord.answersList",
+          //   questionRecord.answersList
+          // );
+          for (const answerRecord of [...questionRecord.answersList].sort(
+            (a, b) => dayjs(b.answerTime).unix() - dayjs(a.answerTime).unix()
+          )) {
+            result.push(answerRecord);
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
 
 watch(
   () => [pagination.value.pageNo, pagination.value.pageSize],
@@ -242,6 +246,130 @@ watch(
 defineExpose({
   fetchTaobaoAnswers
 });
+
+//#region 导出相关逻辑
+const TABLE_COLUMNS_CONFIG = [
+  {
+    prop: "id",
+    label: "ID",
+    width: 8
+  },
+  {
+    prop: "date",
+    label: "日期",
+    width: 13,
+    format: value => dayjs(value).format("YYYY-MM-DD")
+  },
+  {
+    prop: "productName",
+    label: "商品名称",
+    width: 60
+  },
+  {
+    prop: "productId",
+    label: "商品ID",
+    width: 14
+  },
+  {
+    prop: "questionContent",
+    label: "问题内容",
+    width: 60
+  },
+  {
+    prop: "userNickname",
+    label: "提问用户",
+    width: 15
+  },
+  {
+    prop: "askTime",
+    label: "提问时间",
+    width: 19,
+    format: value => dayjs(value).format("YYYY-MM-DD")
+  },
+  {
+    prop: "answerContent",
+    label: "回答内容",
+    width: 60
+  },
+  {
+    prop: "answerUserName",
+    label: "回答用户",
+    width: 15
+  },
+  {
+    prop: "answerTime",
+    label: "回答时间",
+    width: 19,
+    format: value => dayjs(value).format("YYYY-MM-DD")
+  },
+  {
+    prop: "answerCount",
+    label: "回答数量",
+    width: 13
+  },
+  {
+    prop: "channel",
+    label: "渠道",
+    width: 10
+  },
+  {
+    prop: "shopName",
+    label: "店铺名称",
+    width: 15
+  },
+  {
+    prop: "productUrl",
+    label: "商品链接",
+    width: 50,
+    hyperlink: {
+      url: (value: string) => `${value}`,
+      text: (value: string) => `${value}`
+    }
+  }
+];
+
+const exportLoading = ref(false);
+const exportTableData = ref([]);
+const excelExportRef = ref();
+const handleExportExcel = () => {
+  exportLoading.value = true;
+  getTaobaoAnswers({
+    pageNo: 1,
+    pageSize: 10000
+  })
+    .then((res: any) => {
+      if (res.code === 200) {
+        // console.log("产品明细:", res.data);
+        const exportTableDataTemp = [];
+        if (res.data?.records && res.data.records.length > 0) {
+          exportTableDataTemp.push(...formatTaobaoAnswers(res.data.records));
+        }
+        exportTableData.value = exportTableDataTemp;
+
+        nextTick(() => {
+          triggerButtonClick();
+        });
+      } else {
+        ElMessage.error(res.msg || "获取淘宝问答失败");
+        exportLoading.value = false;
+      }
+    })
+    .catch((err: any) => {
+      ElMessage.error(err.message || "导出淘宝问答失败");
+      exportLoading.value = false;
+    });
+};
+const triggerButtonClick = () => {
+  if (excelExportRef.value) {
+    excelExportRef.value?.triggerButtonClick({
+      onFinally: () => {
+        // console.log("导出完成后执行");
+        exportLoading.value = false;
+      }
+    });
+  }
+};
+//#endregion
 </script>
 
 <template>
@@ -261,6 +389,13 @@ defineExpose({
           <el-input
             v-model="searchForm.productId"
             placeholder="请输入商品ID"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="问题内容" prop="questionContent">
+          <el-input
+            v-model="searchForm.questionContent"
+            placeholder="请输入问题内容"
             clearable
           />
         </el-form-item>
@@ -289,6 +424,20 @@ defineExpose({
     </el-card>
 
     <el-card shadow="never" style="border-radius: 10px">
+      <div class="flex justify-end">
+        <el-button
+          :loading="exportLoading"
+          type="primary"
+          :icon="EpDownload"
+          color="#217346"
+          @click="handleExportExcel()"
+        >
+          <div class="flex items-center">
+            <div>导出Excel</div>
+          </div>
+        </el-button>
+      </div>
+
       <el-table
         :data="taobaoQAData"
         style="width: 100%"
@@ -373,6 +522,15 @@ defineExpose({
         />
       </div>
     </el-card>
+
+    <pd-ExcelExport
+      v-show="false"
+      ref="excelExportRef"
+      title="导出数据"
+      :data="exportTableData"
+      :columnsConfig="TABLE_COLUMNS_CONFIG"
+      :fileName="'淘宝问答数据'"
+    />
   </div>
 </template>
 

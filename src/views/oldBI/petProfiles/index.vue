@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, provide, ref } from "vue";
+import { onMounted, provide, ref, nextTick, watch, onUnmounted } from "vue";
 import { getShuyunNickPage } from "@/api/oldbi";
 import SearchCard from "./searchCard.vue";
+import OnlineImg from "./components/onlineImg.vue";
 import { ElMessage } from "element-plus";
 import dayjs from "dayjs";
 
@@ -89,7 +90,9 @@ export interface PetProfile {
   age: number; // 宠物年龄
 }
 
+const tableRef = ref();
 const tableData = ref<PetProfile[]>([]);
+const tableSourceData = ref<PetProfile[]>([]);
 
 //#region 请求相关
 const fetchShuyunNickPage = (searchStr: string) => {
@@ -102,7 +105,14 @@ const fetchShuyunNickPage = (searchStr: string) => {
     .then((res: any) => {
       // console.log("fetchShuyunNickPage:", res);
       if (res.code === 200) {
-        tableData.value = res.data.records;
+        tableSourceData.value = res.data.records;
+
+        tableData.value = [];
+        currentLoadedIndex.value = 0;
+        isAllDataLoaded.value = false;
+        scrollToTop();
+
+        assignTableData();
       } else {
         ElMessage.error(res.msg || "获取数据失败");
       }
@@ -117,6 +127,165 @@ const fetchShuyunNickPage = (searchStr: string) => {
 };
 provide("fetchShuyunNickPage", fetchShuyunNickPage);
 //#endregion
+
+//#region 表格滚动相关逻辑
+const scrollLoading = ref(false);
+// 添加分页相关变量
+const currentLoadedIndex = ref(0); // 当前已加载的数据索引
+const batchSize = 50; // 每次加载的数据量
+const isAllDataLoaded = ref(false); // 是否所有数据都已加载
+// 滚动赋值函数
+const assignTableData = () => {
+  if (isAllDataLoaded.value) {
+    return;
+  }
+
+  const remainingData = tableSourceData.value.length - currentLoadedIndex.value;
+
+  if (remainingData <= 0) {
+    isAllDataLoaded.value = true;
+    return;
+  }
+
+  scrollLoading.value = true;
+  const loadCount = Math.min(batchSize, remainingData);
+  const newData = tableSourceData.value.slice(
+    currentLoadedIndex.value,
+    currentLoadedIndex.value + loadCount
+  );
+
+  // 将新数据添加到tableData中
+  tableData.value = [...tableData.value, ...newData];
+  currentLoadedIndex.value += loadCount;
+  scrollLoading.value = false;
+
+  if (currentLoadedIndex.value >= tableSourceData.value.length) {
+    isAllDataLoaded.value = true;
+  }
+};
+
+// 添加滚动相关变量
+const isScrollingToBottom = ref(false);
+const scrollEventBound = ref(false);
+
+// 滚动条到顶部
+const scrollToTop = () => {
+  if (!tableRef.value) return;
+
+  const scrollWrapper =
+    tableRef.value.$refs.bodyWrapper?.getElementsByClassName(
+      "el-scrollbar__wrap"
+    )[0];
+
+  if (scrollWrapper) {
+    scrollWrapper.scrollTop = 0;
+  }
+};
+
+const bindScrollEvent = () => {
+  if (scrollEventBound.value) return;
+
+  if (!tableRef.value) {
+    setTimeout(bindScrollEvent, 500);
+    return;
+  }
+
+  // 获取表格的滚动容器
+  const scrollWrapper =
+    tableRef.value.$refs.bodyWrapper?.getElementsByClassName(
+      "el-scrollbar__wrap"
+    )[0];
+
+  if (!scrollWrapper) {
+    setTimeout(bindScrollEvent, 500);
+    return;
+  }
+
+  // 移除可能已存在的事件监听器
+  scrollWrapper.removeEventListener("scroll", handleTableScroll);
+
+  // 添加新的事件监听器
+  scrollWrapper.addEventListener("scroll", handleTableScroll, {
+    passive: true
+  });
+  scrollEventBound.value = true;
+};
+
+const handleTableScroll = (event: Event) => {
+  const target = event.target as HTMLElement;
+  const scrollDistance =
+    target.scrollHeight - target.scrollTop - target.clientHeight;
+
+  // console.log("滚动信息:", {
+  //   scrollHeight: target.scrollHeight,
+  //   scrollTop: target.scrollTop,
+  //   clientHeight: target.clientHeight,
+  //   distance: scrollDistance
+  // });
+
+  // 判断是否接近底部
+  if (scrollDistance <= 1000) {
+    if (!isScrollingToBottom.value) {
+      isScrollingToBottom.value = true;
+      // console.log("触发底部加载");
+
+      assignTableData();
+    }
+  } else {
+    isScrollingToBottom.value = false;
+  }
+};
+
+// 清理滚动事件的函数
+const cleanupScrollEvent = () => {
+  if (!tableRef.value || !scrollEventBound.value) return;
+
+  try {
+    const scrollWrapper =
+      tableRef.value.$refs.bodyWrapper?.getElementsByClassName(
+        "el-scrollbar__wrap"
+      )[0];
+
+    if (scrollWrapper) {
+      scrollWrapper.removeEventListener("scroll", handleTableScroll);
+      // console.log("滚动事件监听器已移除");
+    }
+  } catch (error) {
+    console.warn("清理滚动事件时出错:", error);
+  } finally {
+    scrollEventBound.value = false;
+  }
+};
+//#endregion
+
+onMounted(() => {
+  // 等待表格渲染完成
+  nextTick(() => {
+    setTimeout(() => {
+      bindScrollEvent();
+    }, 300);
+  });
+
+  // 监听数据变化，数据加载完成后再绑定
+  watch(
+    tableData,
+    newData => {
+      if (newData.length > 0 && !scrollEventBound.value) {
+        // console.log("数据已加载，重新绑定滚动事件");
+        nextTick(() => {
+          setTimeout(() => {
+            bindScrollEvent();
+          }, 300);
+        });
+      }
+    },
+    { immediate: true }
+  );
+});
+
+onUnmounted(() => {
+  cleanupScrollEvent();
+});
 </script>
 
 <template>
@@ -126,12 +295,12 @@ provide("fetchShuyunNickPage", fetchShuyunNickPage);
     <el-card shadow="never" style="border-radius: 10px" class="mt-[20px]">
       <div class="flex justify-between items-center mb-[10px]">
         <div>
-          宠物档案<span>({{ tableData.length }})</span>
+          宠物档案<span>({{ tableSourceData.length }})</span>
         </div>
         <div>
           <pd-ExcelExport
             title="导出数据"
-            :data="tableData"
+            :data="tableSourceData"
             :columnsConfig="TABLE_COLUMNS_CONFIG"
             :fileName="'宠物档案数据'"
           />
@@ -139,11 +308,16 @@ provide("fetchShuyunNickPage", fetchShuyunNickPage);
       </div>
 
       <el-table
+        ref="tableRef"
         :data="tableData"
         style="width: 100%"
         :header-cell-style="{ color: '#0a0a0a' }"
         size="small"
+        height="650"
+        v-loading="scrollLoading"
+        :row-key="row => row.customer_id + row.pet_birth"
       >
+        <el-table-column type="index" width="50" />
         <el-table-column prop="nick" label="会员昵称" />
         <el-table-column prop="customer_level" label="会员等级" />
         <el-table-column prop="pet_type" label="宠物体型" />
@@ -157,7 +331,7 @@ provide("fetchShuyunNickPage", fetchShuyunNickPage);
         </el-table-column>
         <el-table-column prop="age" label="宠物年龄">
           <template #default="scope">
-            {{ scope.row.age.toFixed(0) }}
+            {{ scope.row.age ? scope.row.age.toFixed(0) : "N/A" }}
           </template>
         </el-table-column>
         <el-table-column prop="pet_birth_month" label="生日月" />
@@ -176,6 +350,11 @@ provide("fetchShuyunNickPage", fetchShuyunNickPage);
               preview-teleported
               :style="{ width: '60px', height: '60px' }"
             />
+            <!-- <OnlineImg
+              v-if="scope.row.pet_picture.indexOf('.heic') === -1"
+              :url="scope.row.pet_picture"
+              :size="'60px'"
+            /> -->
             <a v-else :href="scope.row.pet_picture" target="_blank">
               {{ scope.row.pet_picture }}
             </a>
