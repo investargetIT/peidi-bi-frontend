@@ -137,11 +137,11 @@ const fetchProductPageReviewCntTop10 = () => {
           rate: item.star
         }));
       } else {
-        message("获取产品列表Top10失败", { type: "error" });
+        message("获取产品列表Top10失败:" + res?.msg, { type: "error" });
       }
     })
-    .catch(() => {
-      message("获取产品列表Top10失败", { type: "error" });
+    .catch(error => {
+      message("获取产品列表Top10失败:" + error.message, { type: "error" });
     });
 };
 //#endregion
