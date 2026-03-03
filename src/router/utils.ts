@@ -341,6 +341,33 @@ function initRouter() {
             }
             //#endregion
 
+            //#region
+            if (hasPermission(userId, "sitePromotion")) {
+              routesTemp.push({
+                path: "/sitePromotion",
+                name: "SitePromotionLayout",
+                redirect: "/sitePromotion/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-ultimate/shop-sale-1",
+                  title: "站内推广效能看板",
+                  showLink: false,
+                  rank: 17
+                },
+                children: [
+                  {
+                    path: "/sitePromotion/index",
+                    name: "SitePromotionIndex",
+                    component: () => import("@/views/sitePromotion/index.vue"),
+                    meta: {
+                      title: "站内推广效能看板",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {

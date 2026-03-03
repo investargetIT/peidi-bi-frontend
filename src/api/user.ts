@@ -86,3 +86,29 @@ export const getUserCheck = params => {
 export const refreshTokenApi = (data?: object) => {
   return http.request<RefreshTokenResult>("post", "/refresh-token", { data });
 };
+
+/** newbi-session 获取登录凭证 */
+export const getNewbiSession = (params: {
+  username: string;
+  password: string;
+}) => {
+  return http.request("get", commonUrlApi("/transpond/newbi-session"), {
+    params
+  });
+};
+
+/** newbi-user 自动创建用户 */
+export const createNewbiUser = (data: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}) => {
+  const { email, firstName, lastName, password } = data;
+  return http.request(
+    "post",
+    commonUrlApi(
+      `/transpond/newbi-user?email=${email}&firstName=${firstName}&lastName=${lastName}&password=${password}`
+    )
+  );
+};
