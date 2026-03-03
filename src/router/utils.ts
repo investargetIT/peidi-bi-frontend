@@ -351,7 +351,7 @@ function initRouter() {
                 meta: {
                   icon: "streamline-ultimate/shop-sale-1",
                   title: "站内推广效能看板",
-                  showLink: false,
+                  showLink: true,
                   rank: 17
                 },
                 children: [
