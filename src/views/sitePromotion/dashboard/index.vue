@@ -119,7 +119,7 @@ const calculateFeeRatio = (
   if (refundSales === 0) {
     return "0%";
   } else {
-    return ((Number(costAmount) / refundSales) * 100).toFixed(2) + "%";
+    return (Number(costAmount) / refundSales).toFixed(2);
   }
 };
 
