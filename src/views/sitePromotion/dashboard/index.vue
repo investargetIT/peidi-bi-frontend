@@ -117,7 +117,7 @@ const calculateFeeRatio = (
   const refundSales = calculateRefundSales(payAmount, refundAmount);
   // 除数为0时，返回0
   if (refundSales === 0) {
-    return "0%";
+    return "0";
   } else {
     return (Number(costAmount) / refundSales).toFixed(2);
   }
