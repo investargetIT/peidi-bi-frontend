@@ -15,6 +15,47 @@ const pagination = ref({
   pageTotal: 0
 });
 
+//#region 排序相关
+// 请求的排序参数
+const sortStr = ref<{ sortName: string; sortType: string }[]>([
+  {
+    sortName: "costAmount",
+    sortType: "desc"
+  }
+]);
+// 处理排序事件
+function handleSortChange(column: any) {
+  // console.log("column", column);
+  // 处理排序逻辑
+  if (column.column.sortable === "custom") {
+    // 自定义排序逻辑
+    // 这里可以根据 column.prop 来判断是哪个列在排序
+    // 并根据 column.order 来判断排序方向（ascending 或 descending）
+    // 最后更新表格数据即可
+    if (!column.order) {
+      sortStr.value = [];
+    }
+    if (column.order === "descending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "desc"
+        }
+      ];
+    }
+    if (column.order === "ascending") {
+      sortStr.value = [
+        {
+          sortName: column.prop,
+          sortType: "asc"
+        }
+      ];
+    }
+    fetchAdsProductPromotionDaily();
+  }
+}
+//#endregion
+
 //#region 搜索相关
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
@@ -78,7 +119,8 @@ const fetchAdsProductPromotionDaily = () => {
   getBiAdsProductPromotionDaily({
     pageNo: pagination.value.pageNo,
     pageSize: pagination.value.pageSize,
-    searchStr: formatSearchStr()
+    searchStr: formatSearchStr(),
+    sortStr: JSON.stringify(sortStr.value)
   })
     .then((res: any) => {
       if (res.code === 200) {
@@ -262,6 +304,7 @@ onMounted(() => {
           size="small"
           :header-cell-style="{ color: '#0a0a0a' }"
           border
+          @sort-change="handleSortChange"
         >
           <el-table-column
             prop="date"
@@ -323,6 +366,7 @@ onMounted(() => {
             label="站内消耗"
             width=""
             :resizable="false"
+            sortable="custom"
           />
           <el-table-column
             prop="impressions"
