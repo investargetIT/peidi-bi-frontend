@@ -67,3 +67,16 @@ export const postBiMidProductMappingDelete = (data: {
     }
   );
 };
+
+/** 获取ads-product-promotion-dail汇总数据 */
+export const getAdsProductPromotionDailSummary = (params: {
+  searchStr?: string;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/bi/ads-product-promotion-dail/sum"),
+    {
+      params
+    }
+  );
+};

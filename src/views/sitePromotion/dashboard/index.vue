@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
-import { getBiAdsProductPromotionDaily } from "@/api/sitePromotion";
+import {
+  getBiAdsProductPromotionDaily,
+  getAdsProductPromotionDailSummary
+} from "@/api/sitePromotion";
 import { dayjs, ElMessage, FormInstance } from "element-plus";
+import SummaryCard from "./summaryCard.vue";
 
+const summaryTableData = ref([]);
 const tableData = ref([]);
 const pagination = ref({
   pageNo: 1,
@@ -59,11 +64,16 @@ const formatSearchStr = () => {
 const handleReset = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl?.resetFields();
-  fetchAdsProductPromotionDaily();
+  handleSearch();
 };
 
+const handleSearch = () => {
+  fetchAdsProductPromotionDaily();
+  fetchAdsProductPromotionDailySummary();
+};
 //#endregion
 
+//#region 请求相关
 const fetchAdsProductPromotionDaily = () => {
   getBiAdsProductPromotionDaily({
     pageNo: pagination.value.pageNo,
@@ -92,6 +102,23 @@ const fetchAdsProductPromotionDaily = () => {
       ElMessage.error("获取广告商品推广数据失败:" + error.message);
     });
 };
+const fetchAdsProductPromotionDailySummary = () => {
+  getAdsProductPromotionDailSummary({
+    searchStr: formatSearchStr()
+  })
+    .then((res: any) => {
+      if (res.code === 200) {
+        // console.log("获取广告商品推广数据汇总:", res.data);
+        summaryTableData.value = res.data || [];
+      } else {
+        ElMessage.error("获取广告商品推广数据汇总失败:" + res?.msg);
+      }
+    })
+    .catch(error => {
+      ElMessage.error("获取广告商品推广数据汇总失败:" + error.message);
+    });
+};
+//#endregion
 
 //#region 计算方法
 // 生参去退款销售额 计算方法
@@ -157,6 +184,10 @@ watch(
     immediate: true
   }
 );
+
+onMounted(() => {
+  fetchAdsProductPromotionDailySummary();
+});
 </script>
 
 <template>
@@ -207,16 +238,24 @@ watch(
 
           <el-form-item>
             <el-button @click="handleReset(searchFormRef)">重置</el-button>
-            <el-button type="primary" @click="fetchAdsProductPromotionDaily"
-              >查询</el-button
-            >
+            <el-button type="primary" @click="handleSearch">查询</el-button>
           </el-form-item>
         </el-form>
       </el-card>
     </div>
 
     <div>
+      <SummaryCard
+        :tableData="summaryTableData"
+        :calculateDivision="calculateDivision"
+        :calculateRefundSales="calculateRefundSales"
+        :calculateFeeRatio="calculateFeeRatio"
+      />
+    </div>
+
+    <div class="mt-[12px]">
       <el-card shadow="never" style="border-radius: 10px">
+        <div class="text-[#0a0a0a] text-[14px] mb-[6px]">详细数据表</div>
         <el-table
           :data="tableData"
           style="width: 100%"
@@ -422,14 +461,16 @@ watch(
           >
             <template #default="scope">
               <a
+                v-if="scope.row.productUrl"
                 :href="scope.row.productUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 style="color: #1890ff; text-decoration: underline"
                 @click.stop
               >
-                {{ scope.row.productUrl ? "查看链接" : "无链接" }}
+                查看链接
               </a>
+              <span v-else style="color: #999">无链接</span>
             </template>
           </el-table-column>
         </el-table>

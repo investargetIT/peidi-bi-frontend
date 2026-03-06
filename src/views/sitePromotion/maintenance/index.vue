@@ -157,6 +157,7 @@ const handleDeleteProduct = (row: MidProductInfo) => {
         :data="filteredMidProductMappingList"
         size="small"
         :header-cell-style="{ color: '#0a0a0a' }"
+        :height="650"
       >
         <el-table-column prop="productId" label="产品ID" width="" />
         <el-table-column prop="productLine" label="产品线" width="" />
