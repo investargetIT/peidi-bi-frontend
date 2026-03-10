@@ -24,6 +24,7 @@ import SolarTagPriceOutline from "~icons/solar/tag-price-outline?raw";
 import CarbonReview from "~icons/carbon/review?raw";
 import StreamlineUltimateShopSale1 from "~icons/streamline-ultimate/shop-sale-1?raw";
 import SimpleIconsMetabase from "~icons/simple-icons/metabase?raw";
+import StreamlineFreehandMoneyCoinCash from "~icons/streamline-freehand/money-coin-cash?raw";
 
 const icons = [
   // Element Plus Icon: https://github.com/element-plus/element-plus-icons
@@ -46,7 +47,8 @@ const icons = [
   ["solar/tag-price-outline", SolarTagPriceOutline],
   ["carbon/review", CarbonReview],
   ["streamline-ultimate/shop-sale-1", StreamlineUltimateShopSale1],
-  ["simple-icons/metabase", SimpleIconsMetabase]
+  ["simple-icons/metabase", SimpleIconsMetabase],
+  ["streamline-freehand/money-coin-cash", StreamlineFreehandMoneyCoinCash],
 ];
 
 // 本地菜单图标，后端在路由的 icon 中返回对应的图标字符串并且前端在此处使用 addIcon 添加即可渲染菜单图标

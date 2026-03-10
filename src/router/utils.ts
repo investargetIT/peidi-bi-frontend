@@ -397,6 +397,34 @@ function initRouter() {
             }
             //#endregion
 
+            //#region 判断业绩实时监控权限
+            if (hasPermission(userId, "income")) {
+              routesTemp.push({
+                path: "/income",
+                name: "IncomeLayout",
+                redirect: "/income/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-freehand/money-coin-cash",
+                  title: "业绩实时监控",
+                  showLink: true,
+                  rank: 19
+                },
+                children: [
+                  {
+                    path: "/income/index",
+                    name: "IncomeIndex",
+                    component: () => import("@/views/income/index.vue"),
+                    meta: {
+                      title: "业绩实时监控",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {
