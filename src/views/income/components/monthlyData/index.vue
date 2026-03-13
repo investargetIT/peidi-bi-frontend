@@ -1,14 +1,37 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import SelectCard from "../selectCard/index.vue";
+import _ from "lodash";
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  },
+  dataList: {
+    type: Array,
+    required: true
+  },
+  yearOverYearGrowthList: {
+    type: Array,
+    required: true
+  },
+  monthOverMonthGrowthList: {
+    type: Array,
+    required: true
+  }
+});
 
 // 月度数据
 const monthlyDataCards = ref({
-  name: "monthlyDataCards",
+  name: "monthlyDataCards" + props.id,
   title: "",
   text: "",
   option: {
+    textStyle: {
+      fontFamily: "NotoSansSC, Geist"
+    },
     tooltip: {
       trigger: "axis",
       axisPointer: {
@@ -44,8 +67,7 @@ const monthlyDataCards = ref({
           "9月",
           "10月",
           "11月",
-          "12月",
-          "1月"
+          "12月"
         ],
         axisPointer: {
           type: "shadow"
@@ -56,7 +78,7 @@ const monthlyDataCards = ref({
       {
         type: "value",
         name: "本年",
-        min: 0,
+        // min: 0,
         // max: 250,
         // interval: 50,
         axisLabel: {
@@ -65,8 +87,8 @@ const monthlyDataCards = ref({
       },
       {
         type: "value",
-        name: "比例",
-        min: 0,
+        name: "比例（%）",
+        // min: 0,
         // max: 25,
         // interval: 5,
         axisLabel: {
@@ -79,7 +101,15 @@ const monthlyDataCards = ref({
         name: "本年",
         type: "bar",
         itemStyle: {
-          color: "#4472C4"
+          color: params => {
+            const seriesData = monthlyDataCards.value.option.series[0].data;
+            const maxVal = Math.max(...seriesData);
+            const currentValue = params.value;
+            if (currentValue === maxVal) {
+              return "#20C6DF";
+            }
+            return "#3B82F6";
+          }
         },
         label: {
           show: true,
@@ -138,32 +168,72 @@ const monthlyDataCards = ref({
     ]
   },
   style: {
-    width: "100%"
+    width: "100%",
+    height: "300"
   }
 });
+
+watch(
+  () => [
+    props.dataList,
+    props.yearOverYearGrowthList,
+    props.monthOverMonthGrowthList
+  ],
+  ([dataList, yearOverYearGrowthList, monthOverMonthGrowthList]) => {
+    if (
+      !dataList.length ||
+      !yearOverYearGrowthList.length ||
+      !monthOverMonthGrowthList.length
+    )
+      return;
+    console.log(
+      "图表数据:",
+      dataList,
+      yearOverYearGrowthList,
+      monthOverMonthGrowthList
+    );
+
+    const barData = dataList.map((item: any) => _.floor(item.income));
+    const maxBarDataVal = Math.max(...barData);
+    monthlyDataCards.value = {
+      ...monthlyDataCards.value,
+      option: {
+        ...monthlyDataCards.value.option,
+        series: [
+          {
+            ...monthlyDataCards.value.option.series[0],
+            data: barData
+          },
+          {
+            ...monthlyDataCards.value.option.series[1],
+            data: yearOverYearGrowthList.map((item: any) =>
+              _.floor(item.growthRate)
+            )
+          },
+          {
+            ...monthlyDataCards.value.option.series[2],
+            data: monthOverMonthGrowthList.map((item: any) =>
+              _.floor(item.growthRate)
+            )
+          }
+        ]
+      }
+    };
+  },
+  {
+    immediate: true
+  }
+);
 </script>
 
 <template>
   <div>
-    <el-card shadow="never" style="border-radius: 10px">
-      <div class="flex justify-between items-center mb-4 flex-wrap">
-        <div
-          class="text-base font-bold uppercase tracking-widest text-[#0a0a0a]"
-        >
-          月度数据
-        </div>
-        <div>
-          <SelectCard />
-        </div>
-      </div>
-      <ChartCard
-        :name="monthlyDataCards.name"
-        :title="monthlyDataCards.title"
-        :text="monthlyDataCards.text"
-        :option="monthlyDataCards.option"
-        :style="monthlyDataCards?.style"
-        :showCard="false"
-      />
-    </el-card>
+    <ChartCard
+      :name="monthlyDataCards.name"
+      :title="monthlyDataCards.title"
+      :text="monthlyDataCards.text"
+      :option="monthlyDataCards.option"
+      :style="monthlyDataCards?.style"
+    />
   </div>
 </template>

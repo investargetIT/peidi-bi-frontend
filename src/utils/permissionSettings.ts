@@ -99,7 +99,11 @@ export const permissionSettings = {
     // 李胤
     "1871107779173351425"
   ],
-  income: [...DEV_USER_IDS]
+  income: [
+    ...DEV_USER_IDS,
+    // 王琳
+    "1874011001523318785"
+  ]
 };
 
 /**
