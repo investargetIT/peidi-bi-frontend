@@ -9,7 +9,6 @@ import {
 } from "@/views/income/utils/calc";
 import dayjs from "dayjs";
 import _ from "lodash";
-import { all } from "axios";
 
 const props = defineProps({
   timeType: {
@@ -36,24 +35,21 @@ const dataList: any = ref([
     status: "success",
     income: 0,
     target: 0,
-    expect: 0,
-    allIncome: 0
+    expect: 0
   },
   {
     name: "线上",
     status: "success",
     income: 0,
     target: 0,
-    expect: 0,
-    allIncome: 0
+    expect: 0
   },
   {
     name: "线下",
     status: "success",
     income: 0,
     target: 0,
-    expect: 0,
-    allIncome: 0
+    expect: 0
   }
 ]);
 
@@ -65,114 +61,99 @@ watch(
     props.timeType
   ],
   ([incomeTargetData, incomeMonthData, incomeWeekData, timeType]) => {
-    if (
-      !incomeTargetData?.length ||
-      !incomeMonthData?.length ||
-      !incomeWeekData?.length
-    )
-      return;
-
     const temp = [
       {
         name: "全渠道",
         status: "success",
         income: 0,
         target: 0,
-        expect: 0,
-        allIncome: 0
+        expect: 0
       },
       {
         name: "线上",
         status: "success",
         income: 0,
         target: 0,
-        expect: 0,
-        allIncome: 0
+        expect: 0
       },
       {
         name: "线下",
         status: "success",
         income: 0,
         target: 0,
-        expect: 0,
-        allIncome: 0
+        expect: 0
       }
     ];
 
-    // console.log(getWeekOfMonth());
-    if (timeType === "month") {
-      temp.forEach(item => {
-        // expect 在周数据里去找到该周的期望值
-        const expect = incomeWeekData.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
-        )?.monthExpectation;
-        item.expect = Number((expect * 100).toFixed(0));
+    if (
+      incomeTargetData?.length &&
+      incomeMonthData?.length &&
+      incomeWeekData?.length
+    ) {
+      // console.log("当前月的周数:", getWeekOfMonth());
 
-        // target
-        const target = incomeTargetData.find(
-          data =>
-            data.month === dayjs().month() + 1 && data.channel === item.name
-        )?.target;
-        item.target = Number(target || 0);
+      if (timeType === "month") {
+        temp.forEach(item => {
+          // expect 在周数据里去找到该周的期望值
+          const expect = incomeWeekData.find(
+            data => data.week === getWeekOfMonth() && data.channel === item.name
+          )?.monthExpectation;
+          item.expect = Number((expect * 100).toFixed(0));
 
-        // income 本月 取前一周的数据 如果是第一周 就为0
-        if (getWeekOfMonth() === 1) {
-          item.income = 0;
-        } else {
-          const income = incomeWeekData.find(
+          // target
+          const target = incomeTargetData.find(
             data =>
-              data.week === getWeekOfMonth() - 1 && data.channel === item.name
-          )?.income;
+              data.month === dayjs().month() + 1 && data.channel === item.name
+          )?.target;
+          item.target = Number(target || 0);
+
+          // income incomeWeekData全部income加起来
+          const income = incomeWeekData
+            .filter(data => data.channel === item.name)
+            .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
           item.income = Number(income || 0);
-        }
+        });
+      }
 
-        // allIncome incomeWeekData全部income加起来
-        item.allIncome = incomeWeekData
-          .filter(data => data.channel === item.name)
-          .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
-      });
-    }
-    if (timeType === "year") {
+      if (timeType === "year") {
+        temp.forEach(item => {
+          // expect 在周数据里去找到该周的期望值
+          const expect = incomeWeekData.find(
+            data => data.week === getWeekOfMonth() && data.channel === item.name
+          )?.yearExpectation;
+          item.expect = Number((expect * 100).toFixed(0));
+
+          // target 算总和
+          const target = incomeTargetData
+            .filter(data => data.channel === item.name)
+            .reduce((acc, cur) => acc + Number(cur.target || 0), 0);
+          item.target = Number(target || 0);
+
+          // income 如果是本年的，就把本周 和月数据 加起来
+          let income = 0;
+          incomeWeekData.forEach(data => {
+            if (data.channel === item.name) {
+              income += Number(data.income || 0);
+            }
+          });
+          incomeMonthData.forEach(data => {
+            // 月数据没有全渠道，只有线上线下
+            if (data.channelGroup === item.name) {
+              income += Number(data.income || 0);
+            }
+            if (item.name === "全渠道") {
+              income += Number(data.income || 0);
+            }
+          });
+          item.income = Number(income || 0);
+        });
+      }
+
       temp.forEach(item => {
-        // expect 在周数据里去找到该周的期望值
-        const expect = incomeWeekData.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
-        )?.yearExpectation;
-        item.expect = Number((expect * 100).toFixed(0));
-
-        // target 算总和
-        const target = incomeTargetData
-          .filter(data => data.channel === item.name)
-          .reduce((acc, cur) => acc + Number(cur.target || 0), 0);
-        item.target = Number(target || 0);
-
-        // income 如果是本年的，就把本周 和月数据 加起来
-        let income = 0;
-        incomeWeekData.forEach(data => {
-          if (data.channel === item.name) {
-            income += Number(data.income || 0);
-          }
-        });
-        incomeMonthData.forEach(data => {
-          // 月数据没有全渠道，只有线上线下
-          if (data.channelGroup === item.name) {
-            income += Number(data.income || 0);
-          }
-          if (item.name === "全渠道") {
-            income += Number(data.income || 0);
-          }
-        });
-        item.income = Number(income || 0);
-
-        // allIncome
-        item.allIncome = income;
+        const progress = divide(item.income, item.target) * 100;
+        item.status = getWarningLightStatus(progress, item.expect);
       });
     }
-
-    temp.forEach(item => {
-      const progress = divide(item.allIncome, item.target) * 100;
-      item.status = getWarningLightStatus(progress, item.expect);
-    });
 
     // console.log("进度:", temp);
     dataList.value = temp;
@@ -201,7 +182,7 @@ watch(
         </div>
         <div class="text-sm text-[var(--dash-text-dim)]">
           <span class="font-semibold text-[var(--dash-blue)]">{{
-            _.floor(divide(item.allIncome, item.target) * 100) + "%"
+            _.floor(divide(item.income, item.target) * 100) + "%"
           }}</span>
           <span class="ml-2">{{ item.target.toLocaleString() }}</span>
         </div>
@@ -211,12 +192,9 @@ watch(
         <Progress
           :segments="[
             {
-              percentage: Math.min(
-                divide(item.allIncome, item.target) * 100,
-                100
-              ),
+              percentage: Math.min(divide(item.income, item.target) * 100, 100),
               status: 'primary',
-              text: item.allIncome.toLocaleString()
+              text: _.floor(item.income).toLocaleString()
             }
           ]"
           height="25px"

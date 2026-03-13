@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import SelectCard from "../selectCard/index.vue";
 import _ from "lodash";
+import dayjs from "dayjs";
 
 const props = defineProps({
   id: {
@@ -83,6 +84,9 @@ const monthlyDataCards = ref({
         // interval: 50,
         axisLabel: {
           formatter: "{value}"
+        },
+        splitLine: {
+          show: false
         }
       },
       {
@@ -93,6 +97,9 @@ const monthlyDataCards = ref({
         // interval: 5,
         axisLabel: {
           formatter: "{value}"
+        },
+        splitLine: {
+          show: false
         }
       }
     ],
@@ -121,7 +128,9 @@ const monthlyDataCards = ref({
             return value;
           }
         },
-        data: [25, 30, 20, 15, 10, 5, 0, 25, 30, 20, 15, 10, 5]
+        data: [
+          // 25, 30, 20, 15, 10, 5, 0, 25, 30, 20, 15, 10, 5
+        ]
       },
       {
         name: "同比(去年)",
@@ -140,8 +149,21 @@ const monthlyDataCards = ref({
             return value;
           }
         },
+        markLine: {
+          symbol: "none",
+          lineStyle: {
+            color: "#ccc",
+            width: 1,
+            type: "dashed"
+          },
+          data: [
+            {
+              yAxis: 0
+            }
+          ]
+        },
         data: [
-          2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2, 2.0
+          // 2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2, 2.0
         ]
       },
       {
@@ -162,7 +184,7 @@ const monthlyDataCards = ref({
           }
         },
         data: [
-          3.0, 2.6, 2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0
+          // 3.0, 2.6, 2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0
         ]
       }
     ]
@@ -186,15 +208,16 @@ watch(
       !monthOverMonthGrowthList.length
     )
       return;
-    console.log(
-      "图表数据:",
-      dataList,
-      yearOverYearGrowthList,
-      monthOverMonthGrowthList
-    );
+    // console.log(
+    //   "图表数据:",
+    //   dataList,
+    //   yearOverYearGrowthList,
+    //   monthOverMonthGrowthList
+    // );
 
+    // 当前月份 当前月份之后的数据截取掉不展示
+    const currentMonth = dayjs().month() + 1;
     const barData = dataList.map((item: any) => _.floor(item.income));
-    const maxBarDataVal = Math.max(...barData);
     monthlyDataCards.value = {
       ...monthlyDataCards.value,
       option: {
@@ -202,19 +225,19 @@ watch(
         series: [
           {
             ...monthlyDataCards.value.option.series[0],
-            data: barData
+            data: barData.slice(0, currentMonth)
           },
           {
             ...monthlyDataCards.value.option.series[1],
-            data: yearOverYearGrowthList.map((item: any) =>
-              _.floor(item.growthRate)
-            )
+            data: yearOverYearGrowthList
+              .map((item: any) => _.floor(item.growthRate))
+              .slice(0, currentMonth)
           },
           {
             ...monthlyDataCards.value.option.series[2],
-            data: monthOverMonthGrowthList.map((item: any) =>
-              _.floor(item.growthRate)
-            )
+            data: monthOverMonthGrowthList
+              .map((item: any) => _.floor(item.growthRate))
+              .slice(0, currentMonth)
           }
         ]
       }

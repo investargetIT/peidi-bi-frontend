@@ -24,7 +24,7 @@ const salesCards = ref({
   text: "",
   option: {
     title: {
-      text: "本月累计销售额",
+      text: "",
       left: "center",
       top: "20",
       textStyle: {
@@ -42,17 +42,44 @@ const salesCards = ref({
     },
     graphic: [
       {
-        type: "text",
+        type: "group",
         left: "center",
         top: "center",
-        style: {
-          text: "0 万",
-          textAlign: "center",
-          textVerticalAlign: "middle",
-          fontSize: 32,
-          fontWeight: "bold",
-          fill: "#333"
-        }
+        children: [
+          {
+            type: "text",
+            left: "center",
+            top: "center",
+            style: {
+              text: "0 万",
+              textAlign: "center",
+              textVerticalAlign: "middle",
+              fontSize: 32,
+              fontWeight: "bold",
+              fill: "#333"
+            }
+          }
+        ],
+        keyframeAnimation: [
+          {
+            duration: 3000,
+            loop: true,
+            keyframes: [
+              {
+                percent: 0.5,
+                easing: "sinusoidalInOut",
+                scaleX: 0.97,
+                scaleY: 0.97
+              },
+              {
+                percent: 1,
+                easing: "sinusoidalInOut",
+                scaleX: 1,
+                scaleY: 1
+              }
+            ]
+          }
+        ]
       }
     ],
     series: [
@@ -79,14 +106,22 @@ const salesCards = ref({
         emphasis: {
           label: {
             show: false
+          },
+          scale: true,
+          scaleSize: 10,
+          itemStyle: {
+            shadowBlur: 20,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowColor: "rgba(0, 0, 0, 0.3)"
           }
         },
         labelLine: {
           show: false
         },
         data: [
-          { value: 1048, name: "线上", itemStyle: { color: "#3b82f6" } },
-          { value: 735, name: "线下", itemStyle: { color: "#f97316" } }
+          // { value: 1048, name: "线上", itemStyle: { color: "#3b82f6" } },
+          // { value: 735, name: "线下", itemStyle: { color: "#f97316" } }
         ]
       }
     ]
@@ -96,49 +131,46 @@ const salesCards = ref({
   }
 });
 
-// watch监听timeType和incomeMonthData的变化
+// watch 监听 timeType 和 incomeMonthData 的变化
 watch(
   () => [props.timeType, props.incomeWeekData, props.incomeMonthData],
   ([timeType, incomeWeekData, incomeMonthData]) => {
-    if (!incomeMonthData?.length || !incomeWeekData?.length) return;
-
     const temp = {
-      title: "",
+      title: timeType === "month" ? "本月累计销售额" : "年累计销售额",
       online: 0,
       offline: 0
     };
 
-    if (timeType === "month") {
-      temp.title = "本月累计销售额";
-      // 本月的话 取incomeWeekData 的线上和线下数据
-      incomeWeekData.forEach((item: any) => {
-        if (item.channel === "线上") {
-          temp.online += Number(item.income);
-        }
-        if (item.channel === "线下") {
-          temp.offline += Number(item.income);
-        }
-      });
-    }
-    if (timeType === "year") {
-      temp.title = "年累计销售额";
-      incomeWeekData.forEach((item: any) => {
-        if (item.channel === "线上") {
-          temp.online += Number(item.income);
-        }
-        if (item.channel === "线下") {
-          temp.offline += Number(item.income);
-        }
-      });
-      // 本年再算incomeMonthData 的线上和线下数据
-      incomeMonthData.forEach((item: any) => {
-        if (item.channelGroup === "线上") {
-          temp.online += Number(item.income);
-        }
-        if (item.channelGroup === "线下") {
-          temp.offline += Number(item.income);
-        }
-      });
+    if (incomeMonthData?.length && incomeWeekData?.length) {
+      if (timeType === "month") {
+        incomeWeekData.forEach((item: any) => {
+          if (item.channel === "线上") {
+            temp.online += Number(item.income);
+          }
+          if (item.channel === "线下") {
+            temp.offline += Number(item.income);
+          }
+        });
+      }
+
+      if (timeType === "year") {
+        incomeWeekData.forEach((item: any) => {
+          if (item.channel === "线上") {
+            temp.online += Number(item.income);
+          }
+          if (item.channel === "线下") {
+            temp.offline += Number(item.income);
+          }
+        });
+        incomeMonthData.forEach((item: any) => {
+          if (item.channelGroup === "线上") {
+            temp.online += Number(item.income);
+          }
+          if (item.channelGroup === "线下") {
+            temp.offline += Number(item.income);
+          }
+        });
+      }
     }
 
     salesCards.value = {
@@ -152,10 +184,15 @@ watch(
         graphic: [
           {
             ...salesCards.value.option.graphic[0],
-            style: {
-              ...salesCards.value.option.graphic[0].style,
-              text: `${((temp.online + temp.offline) / 10000).toFixed(0)} 万`
-            }
+            children: [
+              {
+                ...salesCards.value.option.graphic[0].children[0],
+                style: {
+                  ...salesCards.value.option.graphic[0].children[0].style,
+                  text: `${((temp.online + temp.offline) / 10000).toFixed(0)} 万`
+                }
+              }
+            ]
           }
         ],
         series: [

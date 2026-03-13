@@ -19,6 +19,14 @@ const props = withDefaults(
   }
 );
 
+const hasProgress = computed(() => {
+  return props.segments.some(segment => segment.percentage > 0);
+});
+
+const isSingleSegmentNotFull = computed(() => {
+  return props.segments.length === 1 && props.segments[0].percentage < 100;
+});
+
 const displaySegments = computed(() => {
   return props.segments.map((segment, index) => {
     const prevPercentage = props.segments
@@ -74,21 +82,27 @@ const getBackground = (status: string) => {
 
 <template>
   <div class="peidi-progress-bar" :style="{ height, borderRadius }">
-    <div
-      v-for="(segment, index) in displaySegments"
-      :key="index"
-      class="peidi-progress-segment"
-      :style="{
-        left: segment.left,
-        width: segment.width,
-        background: getBackground(segment.status),
-        borderRadius: getSegmentBorderRadius(index, displaySegments.length)
-      }"
-    >
-      <span v-if="segment.text" class="peidi-segment-text">{{
-        segment.text
-      }}</span>
-    </div>
+    <template v-if="hasProgress">
+      <div
+        v-for="(segment, index) in displaySegments"
+        :key="index"
+        class="peidi-progress-segment"
+        :class="{ 'is-single-not-full': isSingleSegmentNotFull }"
+        :style="{
+          left: segment.left,
+          width: segment.width,
+          background: getBackground(segment.status),
+          borderRadius: getSegmentBorderRadius(index, displaySegments.length)
+        }"
+      >
+        <span v-if="segment.text" class="peidi-segment-text">{{
+          segment.text
+        }}</span>
+      </div>
+    </template>
+    <template v-else>
+      <span class="no-data-text">暂无进度</span>
+    </template>
   </div>
 </template>
 
@@ -99,6 +113,9 @@ const getBackground = (status: string) => {
   background-color: #f0f0f0;
   overflow: hidden;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .peidi-progress-segment {
@@ -114,6 +131,27 @@ const getBackground = (status: string) => {
     filter: brightness(1.1);
   }
 
+  &.is-single-not-full {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+  }
+
   .peidi-segment-text {
     font-size: 11px;
     font-weight: 700;
@@ -125,5 +163,20 @@ const getBackground = (status: string) => {
     padding: 0 4px;
     max-width: 100%;
   }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.no-data-text {
+  font-size: 14px;
+  color: #909399;
+  font-weight: 500;
 }
 </style>
