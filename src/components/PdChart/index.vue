@@ -34,6 +34,10 @@ const props = defineProps({
   showCard: {
     type: Boolean,
     default: true
+  },
+  clacHeight: {
+    type: Number,
+    default: 100
   }
 });
 
@@ -100,7 +104,9 @@ onUnmounted(() => {
 // 计算属性 来计算图表的最低高度
 const chartMinHeight = computed(() => {
   if (!props.style.height) return "450px";
-  return props.style.height.replace("px", "") - 100 + "px" || "450px";
+  return (
+    props.style.height.replace("px", "") - props.clacHeight + "px" || "450px"
+  );
 });
 </script>
 
@@ -118,6 +124,8 @@ const chartMinHeight = computed(() => {
         minHeight: chartMinHeight
       }"
     />
+    <!-- 自定义内容插槽 -->
+    <slot name="custom-content-bottom" />
   </el-card>
 
   <div v-else :style="style">
@@ -132,5 +140,7 @@ const chartMinHeight = computed(() => {
         minHeight: chartMinHeight
       }"
     />
+    <!-- 自定义内容插槽 -->
+    <slot name="custom-content-bottom" />
   </div>
 </template>
