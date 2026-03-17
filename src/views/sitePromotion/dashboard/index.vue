@@ -7,6 +7,17 @@ import {
 import { dayjs, ElMessage, FormInstance } from "element-plus";
 import SummaryCard from "./summaryCard.vue";
 
+const CHANNEL_TYPE_OPTIONS = [
+  {
+    label: "品专",
+    value: "品专"
+  },
+  {
+    label: "超级直播",
+    value: "超级直播"
+  }
+];
+
 const summaryTableData = ref([]);
 const tableData = ref([]);
 const pagination = ref({
@@ -57,9 +68,11 @@ function handleSortChange(column: any) {
 //#endregion
 
 //#region 搜索相关
+const selectedChannelType = ref("");
 const searchFormRef = ref<FormInstance>();
 const searchForm = reactive({
   date: null,
+  channelType: "",
   productLine: "",
   productShortName: "",
   productId: ""
@@ -76,6 +89,13 @@ const formatSearchStr = () => {
         dayjs(searchForm.date[0]).format("YYYY-MM-DD 00:00:00"),
         dayjs(searchForm.date[1]).format("YYYY-MM-DD 23:59:59")
       ].join(",")
+    });
+  }
+  if (searchForm.channelType) {
+    searchStr.push({
+      searchName: "channelType",
+      searchType: "equals",
+      searchValue: `\"${searchForm.channelType}\"`
     });
   }
   if (searchForm.productLine) {
@@ -145,6 +165,7 @@ const fetchAdsProductPromotionDaily = () => {
     });
 };
 const fetchAdsProductPromotionDailySummary = () => {
+  selectedChannelType.value = searchForm.channelType;
   getAdsProductPromotionDailSummary({
     searchStr: formatSearchStr()
   })
@@ -256,6 +277,20 @@ onMounted(() => {
               clearable
             />
           </el-form-item>
+          <el-form-item label="渠道" prop="channelType">
+            <el-select
+              v-model="searchForm.channelType"
+              placeholder="请选择渠道"
+              clearable
+            >
+              <el-option
+                v-for="item in CHANNEL_TYPE_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
           <el-form-item label="产品线" prop="productLine">
             <el-input
               v-model="searchForm.productLine"
@@ -292,6 +327,7 @@ onMounted(() => {
         :calculateDivision="calculateDivision"
         :calculateRefundSales="calculateRefundSales"
         :calculateFeeRatio="calculateFeeRatio"
+        :selectedChannelType="selectedChannelType"
       />
     </div>
 

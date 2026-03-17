@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed, watch } from "vue";
+
 const props = defineProps({
   tableData: {
     type: Array,
@@ -15,7 +17,21 @@ const props = defineProps({
   calculateFeeRatio: {
     type: Function,
     required: true
+  },
+  selectedChannelType: {
+    type: String,
+    required: true
   }
+});
+
+// 计算属性 -计算全店销售额
+const totalSalesAmount = computed(() => {
+  // 遍历props.tableData item.payAmount
+  // props.calculateRefundSales(item.payAmount, item.refundAmount) 之和
+  const totalSales = props.tableData.reduce((acc, item: any) => {
+    return acc + props.calculateRefundSales(item.payAmount, item.refundAmount);
+  }, 0);
+  return totalSales;
 });
 </script>
 
@@ -31,6 +47,11 @@ const props = defineProps({
         border
       >
         <el-table-column prop="date" label="日期" width="" :resizable="false" />
+        <el-table-column prop="" label="渠道" width="" :resizable="false">
+          <template #default="scope">
+            {{ props.selectedChannelType }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="productLine"
           label="产品线"
@@ -66,6 +87,25 @@ const props = defineProps({
         </el-table-column>
         <el-table-column
           prop=""
+          label="生参销售占比"
+          width=""
+          :resizable="false"
+        >
+          <template #default="scope">
+            <span v-if="selectedChannelType">
+              {{
+                (
+                  calculateRefundSales(
+                    scope.row?.payAmount,
+                    scope.row?.refundAmount
+                  ) / Number(totalSalesAmount)
+                ).toFixed(2)
+              }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop=""
           label="费比(退款后)"
           width=""
           :resizable="false"
@@ -85,7 +125,37 @@ const props = defineProps({
           label="站内消耗"
           width=""
           :resizable="false"
-        />
+        >
+          <template #default="scope">
+            <span v-if="selectedChannelType === '品专'">
+              {{
+                (
+                  2534 /
+                  (calculateRefundSales(
+                    scope.row?.payAmount,
+                    scope.row?.refundAmount
+                  ) /
+                    Number(totalSalesAmount))
+                ).toFixed(2)
+              }}
+            </span>
+            <span v-else-if="selectedChannelType === '超级直播'">
+              {{
+                (
+                  scope.row?.costAmount /
+                  (calculateRefundSales(
+                    scope.row?.payAmount,
+                    scope.row?.refundAmount
+                  ) /
+                    Number(totalSalesAmount))
+                ).toFixed(2)
+              }}
+            </span>
+            <span v-else>
+              {{ scope.row?.costAmount }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="impressions"
           label="展现量"

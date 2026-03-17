@@ -135,7 +135,7 @@ const monthlyDataCards = ref({
         },
         tooltip: {
           valueFormatter: function (value) {
-            return value;
+            return value + "%";
           }
         },
         markLine: {
@@ -169,7 +169,7 @@ const monthlyDataCards = ref({
         },
         tooltip: {
           valueFormatter: function (value) {
-            return value;
+            return value + "%";
           }
         },
         data: [
