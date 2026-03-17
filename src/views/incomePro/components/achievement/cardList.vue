@@ -50,13 +50,13 @@ const DATA_TYPE_INFO = ["目标达成", "进度", "对比信息"];
 const cardList: any = ref([]);
 
 // 获取数据
-const incomeData = inject<any>("incomeData");
+const incomeData = inject<any>("incomeData", ref(null));
 // 监听赋值
 watch(
-  () => incomeData.value,
+  () => incomeData?.value,
   () => {
     if (
-      incomeData.value &&
+      incomeData?.value &&
       incomeData.value.projectProgressDataDetail &&
       incomeData.value.projectProgressDataDetail.length === 2
     ) {
@@ -186,7 +186,7 @@ defineExpose({ updateAnchorPosition });
                         status: 'primary',
                         text: _.floor(
                           getDataForCardList(channelItem.name, timerangeIndex)
-                            ?.income
+                            ?.income ?? 0
                         ).toLocaleString()
                       }
                     ]"

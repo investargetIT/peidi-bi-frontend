@@ -220,13 +220,13 @@ watch(
             ...monthlyDataCards.value.option.series[1],
             data: yearOverYearGrowthList
               .map((item: any) => _.floor(item.growthRate))
-              .slice(0, currentMonth)
+              .slice(0, currentMonth - 1)
           },
           {
             ...monthlyDataCards.value.option.series[2],
             data: monthOverMonthGrowthList
               .map((item: any) => _.floor(item.growthRate))
-              .slice(0, currentMonth)
+              .slice(0, currentMonth - 1)
           }
         ]
       }

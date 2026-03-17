@@ -5,6 +5,7 @@ import Progress from "../common/progress/index.vue";
 import MonthlyData from "../achievement/monthlyData.vue";
 import _ from "lodash";
 import { divide } from "../../utils/calc";
+import { el } from "element-plus/es/locale/index.mjs";
 
 const DATA_TYPE_CHANNEL = [
   {
@@ -50,6 +51,7 @@ const DATA_TYPE_INFO = ["目标达成", "进度", "对比信息"];
 const showStatus = ref(false);
 const detailCardRef = ref<HTMLElement | null>(null);
 
+const dataTypeChannelType = ref("");
 const dataTypeChannel = ref([]);
 
 const cardList: any = ref([]);
@@ -83,6 +85,7 @@ const getDataForCardList = (channel: string, timerange: number) => {
 };
 
 const initDetailCard = (type: string) => {
+  dataTypeChannelType.value = type;
   if (type === "全渠道") {
     dataTypeChannel.value = DATA_TYPE_CHANNEL;
   } else if (type === "线上") {
@@ -114,7 +117,9 @@ defineExpose({
 <template>
   <div ref="detailCardRef">
     <el-card v-if="showStatus" shadow="never" style="border-radius: 10px">
-      <div class="text-[#0a0a0a] text-sm px-4 mb-2">全渠道</div>
+      <div class="text-[#0a0a0a] text-sm px-4 mb-2">
+        {{ dataTypeChannelType }}
+      </div>
 
       <el-collapse>
         <el-collapse-item
@@ -153,8 +158,10 @@ defineExpose({
                 </div>
               </div>
 
+              <!-- ### 需求：本月没有对比信息 ### -->
               <div v-for="info in DATA_TYPE_INFO" :key="info" class="mb-2">
                 <div
+                  v-if="!(info === '对比信息' && timerange === '本月')"
                   class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
                 >
                   {{ info }}
@@ -198,13 +205,11 @@ defineExpose({
                               )?.income
                             ) * 100,
                           status: 'week_' + item.week,
-                          text:
-                            item.week +
-                            '周： ' +
-                            _.floor(item.income).toLocaleString()
+                          text: item.week + '周',
+                          value: _.floor(item.income).toLocaleString()
                         }))
                       "
-                      height="25px"
+                      height="40px"
                     />
                   </div>
                 </div>
@@ -274,11 +279,14 @@ defineExpose({
                 </div>
 
                 <!-- 对比 -->
-                <div v-if="info === '对比信息'" class="ml-2">
+                <div
+                  v-if="info === '对比信息' && timerange === '年度'"
+                  class="ml-2"
+                >
                   <div
                     class="flex items-center text-sm font-medium text-[var(--dash-text-secondary)]"
                   >
-                    <div v-if="timerange === '本月'" class="mr-2">
+                    <div>
                       <span>同比：</span>
                       <span
                         :class="
@@ -294,7 +302,7 @@ defineExpose({
                         }}%</span
                       >
                     </div>
-                    <div>
+                    <div v-if="false">
                       <span>环比：</span>
                       <span
                         :class="

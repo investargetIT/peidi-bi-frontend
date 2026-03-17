@@ -337,7 +337,7 @@ const handleIncomeData = () => {
           yearTarget: 0, // 本月专用
           yearIncome: 0, // 本月专用
 
-          yearOverYearGrowth: 0, // 同比 本月专用
+          yearOverYearGrowth: 0, // 同比
           monthOverMonthGrowth: 0, // 环比
 
           yearOverYearGrowthList: [], // 同比曲线 本月专用
@@ -414,7 +414,7 @@ const handleIncomeData = () => {
         item.yearIncome = Number(yearIncome || 0);
         //#endregion
 
-        //#region yearOverYearGrowth 本月专用 同比
+        //#region yearOverYearGrowth 同比
         function getYearOverYearGrowth() {
           const lastYearIncome = incomeLastYearData.value.find(
             data =>
@@ -606,7 +606,7 @@ const handleIncomeData = () => {
           yearTarget: 0, // 本月专用
           yearIncome: 0, // 本月专用
 
-          yearOverYearGrowth: 0, // 同比 本月专用
+          yearOverYearGrowth: 0, // 同比
           monthOverMonthGrowth: 0, // 环比
 
           yearOverYearGrowthList: [], // 同比曲线 本月专用
@@ -643,12 +643,18 @@ const handleIncomeData = () => {
         item.income = Number(income || 0);
         //#endregion
 
-        //#region monthOverMonthGrowth 环比
-        function getMonthOverMonthGrowth() {
-          // 去年数据里面找到当前name的所有数据，并且income求和
+        //#region yearOverYearGrowth 同比
+        function getYearOverYearGrowth() {
+          // 获取当前月份
+          const currentMonth = dayjs().month() + 1;
+
+          // 在去年数据里面找到当前name的本月之前的所有数据（不包括本月），并且 income 求和
           const lastYearIncome = incomeLastYearData.value
-            .filter(data => data.channel === item.name)
+            .filter(
+              data => data.channel === item.name && data.month < currentMonth
+            )
             .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
+
           return _.floor(
             divide(
               Number(item.income) - Number(lastYearIncome),
@@ -656,7 +662,23 @@ const handleIncomeData = () => {
             ) * 100
           );
         }
-        item.monthOverMonthGrowth = getMonthOverMonthGrowth();
+        item.yearOverYearGrowth = getYearOverYearGrowth();
+        //#endregion
+
+        //#region monthOverMonthGrowth 环比
+        // function getMonthOverMonthGrowth() {
+        //   // 去年数据里面找到当前name的所有数据，并且income求和
+        //   const lastYearIncome = incomeLastYearData.value
+        //     .filter(data => data.channel === item.name)
+        //     .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
+        //   return _.floor(
+        //     divide(
+        //       Number(item.income) - Number(lastYearIncome),
+        //       lastYearIncome
+        //     ) * 100
+        //   );
+        // }
+        // item.monthOverMonthGrowth = getMonthOverMonthGrowth();
         //#endregion
       });
       temp.forEach(item => {

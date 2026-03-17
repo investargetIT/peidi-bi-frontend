@@ -74,18 +74,27 @@ const initUploadDialog = (row: MidProductInfo) => {
 
 // 处理保存
 const handleSave = async () => {
-  await ruleFormRef.value?.validate();
-  loading.value = true;
+  // await ruleFormRef.value?.validate();
+  // loading.value = true;
 
-  if (dialogType.value === "add") {
-    await props.addFn(ruleForm, () => {
-      closeUploadDialog();
-    });
-  }
-  if (dialogType.value === "edit") {
-    await props.updateFn(ruleForm, () => {
-      closeUploadDialog();
-    });
+  // if (dialogType.value === "add") {
+  //   await props.addFn(ruleForm, () => {
+  //     closeUploadDialog();
+  //   });
+  // }
+  // if (dialogType.value === "edit") {
+  //   await props.updateFn(ruleForm, () => {
+  //     closeUploadDialog();
+  //   });
+  // }
+  try {
+    await ruleFormRef.value?.validate();
+    loading.value = true;
+
+    const submit = dialogType.value === "add" ? props.addFn : props.updateFn;
+    await submit(ruleForm, closeUploadDialog);
+  } finally {
+    if (dialogVisible.value) loading.value = false;
   }
 };
 

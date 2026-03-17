@@ -75,8 +75,8 @@ const fetchNewbiSession = (
         fetchCreateNewbiUser(
           {
             email: username,
-            firstName: DD_USER_INFO?.name.charAt(0),
-            lastName: DD_USER_INFO?.name.slice(1),
+            firstName: DD_USER_INFO?.name?.charAt(0) ?? "",
+            lastName: DD_USER_INFO?.name?.slice(1) ?? "",
             password
           },
           () => {

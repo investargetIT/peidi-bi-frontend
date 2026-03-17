@@ -5,6 +5,7 @@ interface ProgressSegment {
   percentage: number;
   status?: string;
   text?: string;
+  value?: number | string;
 }
 
 const props = withDefaults(
@@ -95,6 +96,12 @@ const getBackground = (status: string) => {
           borderRadius: getSegmentBorderRadius(index, displaySegments.length)
         }"
       >
+        <div
+          v-if="segment.value !== undefined && segment.value !== null"
+          class="peidi-segment-value"
+        >
+          {{ segment.value }}
+        </div>
         <span v-if="segment.text" class="peidi-segment-text">{{
           segment.text
         }}</span>
@@ -114,13 +121,14 @@ const getBackground = (status: string) => {
   justify-content: center;
   width: 100%;
   overflow: hidden;
-  background-color: #f0f0f0;
+  background: linear-gradient(to right, #777, #e8e8e8);
   box-shadow: inset 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .peidi-progress-segment {
   position: absolute;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-width: 0;
@@ -149,11 +157,24 @@ const getBackground = (status: string) => {
     }
   }
 
+  .peidi-segment-value {
+    z-index: 999;
+    // overflow: hidden;
+    // text-overflow: ellipsis;
+    max-width: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
+  }
+
   .peidi-segment-text {
+    z-index: 999;
     max-width: 100%;
     padding: 0 4px;
     overflow: visible;
-    text-overflow: clip;
+    // text-overflow: clip;
     font-size: 11px;
     font-weight: 700;
     color: #fff;
@@ -175,6 +196,6 @@ const getBackground = (status: string) => {
 .no-data-text {
   font-size: 14px;
   font-weight: 500;
-  color: #909399;
+  color: #fff;
 }
 </style>

@@ -3,7 +3,7 @@ const props = defineProps<{
   status: "success" | "danger" | null | undefined;
 }>();
 
-const getStatusClass = (status: "success" | "danger") => {
+const getStatusClass = (status: "success" | "danger" | null | undefined) => {
   if (status === "success") {
     return "peidi-incomePro-lightCircle-status-green";
   } else if (status === "danger") {
