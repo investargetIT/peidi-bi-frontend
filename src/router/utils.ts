@@ -341,6 +341,115 @@ function initRouter() {
             }
             //#endregion
 
+            //#region 判断站内推广效能看板权限
+            if (hasPermission(userId, "sitePromotion")) {
+              routesTemp.push({
+                path: "/sitePromotion",
+                name: "SitePromotionLayout",
+                redirect: "/sitePromotion/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-ultimate/shop-sale-1",
+                  title: "站内推广效能看板",
+                  showLink: true,
+                  rank: 17
+                },
+                children: [
+                  {
+                    path: "/sitePromotion/index",
+                    name: "SitePromotionIndex",
+                    component: () => import("@/views/sitePromotion/index.vue"),
+                    meta: {
+                      title: "站内推广效能看板",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
+            //#region 判断Metabase权限
+            if (hasPermission(userId, "metabase")) {
+              routesTemp.push({
+                path: "/metabase",
+                name: "MetabaseLayout",
+                redirect: "/metabase/index",
+                component: Layout,
+                meta: {
+                  icon: "simple-icons/metabase",
+                  title: "Metabase",
+                  showLink: true,
+                  rank: 18
+                },
+                children: [
+                  {
+                    path: "/metabase/index",
+                    name: "MetabaseIndex",
+                    component: () => import("@/views/metabase/index.vue"),
+                    meta: {
+                      title: "Metabase",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
+            //#region 判断业绩实时监控权限
+            if (hasPermission(userId, "income")) {
+              routesTemp.push(
+                {
+                  path: "/income",
+                  name: "IncomeLayout",
+                  redirect: "/income/index",
+                  component: Layout,
+                  meta: {
+                    icon: "streamline-freehand/money-coin-cash",
+                    title: "业绩实时监控",
+                    showLink: false,
+                    rank: 19
+                  },
+                  children: [
+                    {
+                      path: "/income/index",
+                      name: "IncomeIndex",
+                      component: () => import("@/views/income/index.vue"),
+                      meta: {
+                        title: "业绩实时监控",
+                        showLink: true
+                      }
+                    }
+                  ]
+                },
+                {
+                  path: "/incomePro",
+                  name: "IncomeProLayout",
+                  redirect: "/incomePro/index",
+                  component: Layout,
+                  meta: {
+                    icon: "streamline-freehand/money-coin-cash",
+                    title: "业绩实时监控",
+                    showLink: true,
+                    rank: 20
+                  },
+                  children: [
+                    {
+                      path: "/incomePro/index",
+                      name: "IncomeProIndex",
+                      component: () => import("@/views/incomePro/index.vue"),
+                      meta: {
+                        title: "业绩实时监控",
+                        showLink: true
+                      }
+                    }
+                  ]
+                }
+              );
+            }
+            //#endregion
+
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {

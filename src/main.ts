@@ -28,6 +28,9 @@ import "./style/pd-el-tabs.scss";
 
 import pdGlobalComponent from "pd-ui-package";
 
+// 引入配置好的 dayjs（会自动执行插件注册）
+import "./utils/day.ts";
+
 class PdLocale {
   static getLocale() {
     // 适配当前项目的中英文参数 zh / en

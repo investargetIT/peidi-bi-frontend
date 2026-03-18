@@ -107,7 +107,7 @@ watch(
       :option="formFactorCards.option"
       :style="formFactorCards?.style"
     />
-    <div>
+    <!-- <div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="p-4 bg-blue-50 rounded-lg">
           <h5 class="font-semibold text-blue-800 mb-1">Top Protein</h5>
@@ -122,6 +122,6 @@ watch(
           <p class="text-amber-700">--</p>
         </div>
       </div>
-    </div>
+    </div> -->
   </NumCard>
 </template>

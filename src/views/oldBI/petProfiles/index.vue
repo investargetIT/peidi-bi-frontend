@@ -309,12 +309,12 @@ onUnmounted(() => {
 
       <el-table
         ref="tableRef"
+        v-loading="scrollLoading"
         :data="tableData"
         style="width: 100%"
         :header-cell-style="{ color: '#0a0a0a' }"
         size="small"
         height="650"
-        v-loading="scrollLoading"
         :row-key="row => row.customer_id + row.pet_birth"
       >
         <el-table-column type="index" width="50" />
@@ -331,7 +331,11 @@ onUnmounted(() => {
         </el-table-column>
         <el-table-column prop="age" label="宠物年龄">
           <template #default="scope">
-            {{ scope.row.age ? scope.row.age.toFixed(0) : "N/A" }}
+            {{
+              scope.row.age != null && scope.row.age !== 0
+                ? scope.row.age.toFixed(0)
+                : "N/A"
+            }}
           </template>
         </el-table-column>
         <el-table-column prop="pet_birth_month" label="生日月" />

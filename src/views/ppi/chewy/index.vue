@@ -36,6 +36,10 @@ const searchForm = reactive({
 
 const marketOverviewRef = ref();
 const resetFilters = () => {
+  selectedFilteredProductsData.value = [];
+  overview_info.value = [0, 0];
+  firstLoad.value = true;
+
   searchFormRef.value?.resetFields();
   marketOverviewRef.value?.initActiveBlock();
 };
@@ -49,10 +53,13 @@ const filteredProduct = ref<string | null>(null);
 const filteredProductsData = ref<any>([]);
 
 const selectedFilteredProductsData = ref([]);
+const primaryFunctionIndex = ref<Record<string, any[]>>({});
 
 const fetchChewyList = () => {
+  overview_info.value = [0, 0];
   firstLoad.value = false;
   loading.value = true;
+
   getChewyList({
     function:
       searchForm.scenario === "All Functions" ? "" : searchForm.scenario,
@@ -91,6 +98,8 @@ const handleDataTreating = data => {
   const badIngredientDataTemp = {};
 
   const filteredProductsDataTemp = [];
+
+  const indexTemp: Record<string, any[]> = {};
 
   data.forEach((item: any) => {
     const analysis = item.analysis;
@@ -148,6 +157,19 @@ const handleDataTreating = data => {
       red_flags: red_flags,
       primary_function: primary_function
     });
+
+    if (!indexTemp[primary_function]) {
+      indexTemp[primary_function] = [];
+    }
+    indexTemp[primary_function].push({
+      product_name: analysis.product_name,
+      brand: brand,
+      form_factor: form_factor,
+      primary_protein_source: primary_protein_source,
+      health_score: health_score,
+      red_flags: red_flags,
+      primary_function: primary_function
+    });
   });
 
   [...data]
@@ -187,6 +209,7 @@ const handleDataTreating = data => {
   };
   badIngredientData.value = badIngredientDataTemp;
   filteredProductsData.value = filteredProductsDataTemp;
+  primaryFunctionIndex.value = indexTemp;
 };
 
 onMounted(() => {
@@ -195,6 +218,7 @@ onMounted(() => {
 });
 
 const changeFilteredProduct = product => {
+  // console.log("changeFilteredProduct:", product);
   filteredProduct.value = product;
 };
 
@@ -203,12 +227,20 @@ watch(
   (newVal, oldVal) => {
     if (newVal[0] !== oldVal[0] || newVal[1] !== oldVal[1]) {
       if (newVal[0] === null) {
-        selectedFilteredProductsData.value = newVal[1];
+        selectedFilteredProductsData.value = [];
         return;
       }
-      selectedFilteredProductsData.value = filteredProductsData.value.filter(
-        (item: any) => item?.primary_function === newVal[0]
-      );
+      // selectedFilteredProductsData.value = filteredProductsData.value.filter(
+      //   (item: any) => item?.primary_function === newVal[0]
+      // );
+      // 利用预处理好的索引快速查找
+      selectedFilteredProductsData.value =
+        primaryFunctionIndex.value[newVal[0]] || [];
+
+      // console.log(
+      //   "selectedFilteredProductsData.value",
+      //   selectedFilteredProductsData.value
+      // );
     }
   }
 );

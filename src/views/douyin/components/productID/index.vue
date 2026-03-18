@@ -7,7 +7,6 @@ import { computed, onMounted, ref } from "vue";
 import EpPlus from "~icons/ep/plus";
 import EpSearch from "~icons/ep/search";
 import DetailDialog from "./detailDialog.vue";
-import { log } from "console";
 import { ElMessage } from "element-plus";
 
 // 商品信息类型定义
