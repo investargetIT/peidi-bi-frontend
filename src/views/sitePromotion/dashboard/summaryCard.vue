@@ -48,7 +48,7 @@ const totalSalesAmount = computed(() => {
       >
         <el-table-column prop="date" label="日期" width="" :resizable="false" />
         <el-table-column prop="" label="渠道" width="" :resizable="false">
-          <template #default="scope">
+          <template>
             {{ props.selectedChannelType }}
           </template>
         </el-table-column>
