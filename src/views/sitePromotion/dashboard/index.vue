@@ -339,6 +339,12 @@ onMounted(() => {
             :resizable="false"
           />
           <el-table-column
+            prop="channelType"
+            label="渠道"
+            width=""
+            :resizable="false"
+          />
+          <el-table-column
             prop="productLine"
             label="产品线"
             width=""
