@@ -408,7 +408,7 @@ function initRouter() {
                   meta: {
                     icon: "streamline-freehand/money-coin-cash",
                     title: "业绩实时监控",
-                    showLink: false,
+                    showLink: true,
                     rank: 19
                   },
                   children: [
