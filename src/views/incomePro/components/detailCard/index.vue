@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { inject, onMounted, ref, watch, nextTick } from "vue";
+import { inject, onMounted, ref, watch, nextTick, computed } from "vue";
 import LightCircle from "../common/lightCircle/index.vue";
 import Progress from "../common/progress/index.vue";
 import MonthlyData from "../achievement/monthlyData.vue";
 import _ from "lodash";
 import { divide } from "../../utils/calc";
-import { el } from "element-plus/es/locale/index.mjs";
 
 const DATA_TYPE_CHANNEL = [
   {
@@ -69,19 +68,23 @@ watch(
     ) {
       cardList.value = incomeData.value.projectProgressDataDetail;
     }
-  },
-  {
-    deep: true,
-    immediate: true
   }
 );
 
+const dataMap = computed(() => {
+  const map = new Map();
+  // 预先建立索引：key = "timerange-channelName"
+  cardList.value.forEach((rangeData, rangeIndex) => {
+    rangeData.forEach(item => {
+      map.set(`${rangeIndex}-${item.name}`, item);
+    });
+  });
+  return map;
+});
+
 // 在数据中获取想要的值
 const getDataForCardList = (channel: string, timerange: number) => {
-  if (cardList.value[timerange]) {
-    return cardList.value[timerange].find(item => item.name === channel);
-  }
-  return null;
+  return dataMap.value.get(`${timerange}-${channel}`) || null;
 };
 
 const initDetailCard = (type: string) => {

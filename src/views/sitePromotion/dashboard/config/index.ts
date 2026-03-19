@@ -6,5 +6,9 @@ export const CHANNEL_TYPE_OPTIONS = [
   {
     label: "超级直播",
     value: "超级直播"
+  },
+  {
+    label: "万相台",
+    value: "万相台"
   }
 ];

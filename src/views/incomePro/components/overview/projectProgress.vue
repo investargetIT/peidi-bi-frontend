@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Progress from "../common/progress/index.vue";
 import LightCircle from "../common/lightCircle/index.vue";
-import { inject, ref, watch } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import { divide } from "@/views/incomePro/utils/calc";
 import { MoreFilled } from "@element-plus/icons-vue";
 import _ from "lodash";
@@ -47,10 +47,6 @@ watch(
     ) {
       dataList.value = incomeData.value.projectProgressData;
     }
-  },
-  {
-    deep: true,
-    immediate: true
   }
 );
 
@@ -60,6 +56,20 @@ const getDataForDataList = (channel: string, timerange: number) => {
     return dataList.value[timerange].find(item => item.name === channel);
   }
   return null;
+};
+
+const dataMap = computed(() => {
+  const map = new Map();
+  dataList.value.forEach((rangeData: any[], rangeIndex: number) => {
+    rangeData.forEach(item => {
+      map.set(`${rangeIndex}-${item.name}`, item);
+    });
+  });
+  return map;
+});
+
+const getChannelData = (channel: string, timerange: number) => {
+  return dataMap.value.get(`${timerange}-${channel}`) || null;
 };
 
 // 详情页
@@ -116,7 +126,7 @@ const initDetailCard = (type: string) => {
       >
         <div class="flex items-center justify-between ml-2">
           <div class="flex items-center">
-            <LightCircle :status="getDataForDataList(channel, index)?.status" />
+            <LightCircle :status="getChannelData(channel, index)?.status" />
             <div
               class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
             >
@@ -128,14 +138,14 @@ const initDetailCard = (type: string) => {
               {{
                 _.floor(
                   divide(
-                    getDataForDataList(channel, index)?.income,
-                    getDataForDataList(channel, index)?.target
+                    getChannelData(channel, index)?.income,
+                    getChannelData(channel, index)?.target
                   ) * 100
                 )
               }}%
             </span>
             <span class="ml-2">
-              {{ getDataForDataList(channel, index)?.target.toLocaleString() }}
+              {{ getChannelData(channel, index)?.target.toLocaleString() }}
             </span>
           </div>
         </div>
@@ -146,14 +156,14 @@ const initDetailCard = (type: string) => {
               {
                 percentage: Math.min(
                   divide(
-                    getDataForDataList(channel, index)?.income,
-                    getDataForDataList(channel, index)?.target
+                    getChannelData(channel, index)?.income,
+                    getChannelData(channel, index)?.target
                   ) * 100,
                   100
                 ),
                 status: 'primary',
                 text: _.floor(
-                  getDataForDataList(channel, index)?.income
+                  getChannelData(channel, index)?.income
                 ).toLocaleString()
               }
             ]"
@@ -162,7 +172,7 @@ const initDetailCard = (type: string) => {
           <div
             class="mt-2"
             :style="{
-              width: getDataForDataList(channel, index)?.expect + '%'
+              width: getChannelData(channel, index)?.expect + '%'
             }"
           >
             <Progress
@@ -170,7 +180,7 @@ const initDetailCard = (type: string) => {
                 {
                   percentage: 100,
                   status: 'warning',
-                  text: getDataForDataList(channel, index)?.expect + '%'
+                  text: getChannelData(channel, index)?.expect + '%'
                 }
               ]"
               height="25px"

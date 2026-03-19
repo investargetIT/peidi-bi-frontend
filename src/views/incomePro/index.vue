@@ -713,9 +713,9 @@ provide("detailCardRef", detailCardRef);
     <div class="mt-3">
       <Overview />
     </div>
-    <div v-show="false" class="mt-3">
+    <!-- <div v-show="false" class="mt-3">
       <Achievement ref="achievementRef" />
-    </div>
+    </div> -->
     <div class="mt-3">
       <DetailCard ref="detailCardRef" />
     </div>
