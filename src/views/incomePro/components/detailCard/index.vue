@@ -4,7 +4,7 @@ import LightCircle from "../common/lightCircle/index.vue";
 import Progress from "../common/progress/index.vue";
 import MonthlyData from "../achievement/monthlyData.vue";
 import _ from "lodash";
-import { divide } from "../../utils/calc";
+import { divide, formatIncomeNumber } from "../../utils/calc";
 
 const DATA_TYPE_CHANNEL = [
   {
@@ -85,6 +85,15 @@ const dataMap = computed(() => {
 // 在数据中获取想要的值
 const getDataForCardList = (channel: string, timerange: number) => {
   return dataMap.value.get(`${timerange}-${channel}`) || null;
+};
+
+// 通用格式化函数，支持任意字段
+const formatField = (channel: string, timerange: number, field: string) => {
+  const data = getDataForCardList(channel, timerange);
+  if (!data || data[field] === null || data[field] === undefined) {
+    return "";
+  }
+  return formatIncomeNumber(data[field]);
 };
 
 const initDetailCard = (type: string) => {
@@ -178,10 +187,11 @@ defineExpose({
                         {
                           percentage: 100,
                           status: 'primary',
-                          text: _.floor(
-                            getDataForCardList(channelItem.name, timerangeIndex)
-                              ?.income
-                          ).toLocaleString()
+                          text: formatField(
+                            channelItem.name,
+                            timerangeIndex,
+                            'income'
+                          )
                         }
                       ]"
                       height="25px"
@@ -209,7 +219,7 @@ defineExpose({
                             ) * 100,
                           status: 'week_' + item.week,
                           text: item.week + '周',
-                          value: _.floor(item.income).toLocaleString()
+                          value: formatIncomeNumber(item.income)
                         }))
                       "
                       height="40px"
@@ -382,9 +392,7 @@ defineExpose({
                                 ?.yearTarget
                             ) * 100,
                           status: 'success',
-                          text: _.floor(
-                            getDataForCardList(channelItem.name, 0)?.yearIncome
-                          ).toLocaleString()
+                          text: formatField(channelItem.name, 0, 'yearIncome')
                         }
                       ]"
                       height="25px"

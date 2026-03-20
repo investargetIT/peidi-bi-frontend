@@ -5,6 +5,7 @@ import { computed, inject, ref, watch } from "vue";
 import { divide } from "@/views/incomePro/utils/calc";
 import { MoreFilled } from "@element-plus/icons-vue";
 import _ from "lodash";
+import { formatIncomeNumber } from "../../utils/calc";
 
 const DATA_TYPE_CHANNEL = ["全渠道", "线上", "线下"];
 const DATA_TYPE_TIMERANGE = ["本月", "年度"];
@@ -70,6 +71,15 @@ const dataMap = computed(() => {
 
 const getChannelData = (channel: string, timerange: number) => {
   return dataMap.value.get(`${timerange}-${channel}`) || null;
+};
+
+// 通用格式化函数，支持任意字段
+const formatField = (channel: string, timerange: number, field: string) => {
+  const data = getChannelData(channel, timerange);
+  if (!data || data[field] === null || data[field] === undefined) {
+    return "";
+  }
+  return formatIncomeNumber(data[field]);
 };
 
 // 详情页
@@ -145,7 +155,7 @@ const initDetailCard = (type: string) => {
               }}%
             </span>
             <span class="ml-2">
-              {{ getChannelData(channel, index)?.target.toLocaleString() }}
+              {{ formatField(channel, index, "target") }}
             </span>
           </div>
         </div>
@@ -162,9 +172,7 @@ const initDetailCard = (type: string) => {
                   100
                 ),
                 status: 'primary',
-                text: _.floor(
-                  getChannelData(channel, index)?.income
-                ).toLocaleString()
+                text: formatField(channel, index, 'income')
               }
             ]"
             height="25px"

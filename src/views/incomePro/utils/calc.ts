@@ -103,3 +103,30 @@ export const formatToWan = (value: number) => {
   }
   return value.toString();
 };
+
+/**
+ * 格式化收入数字（带千分位）
+ * @param num - 需要格式化的数字
+ * @returns 格式化后的字符串
+ */
+export function formatIncomeNumber(num: number | string): string {
+  if (num === null || num === undefined || num === "") return "";
+
+  const value = typeof num === "string" ? parseFloat(num) : num;
+
+  if (isNaN(value)) return "";
+
+  // 小于 1 万的数字，使用千分位
+  if (Math.abs(value) < 10000) {
+    return value.toLocaleString();
+  }
+
+  // 大于等于 1 万的数字，转换为万为单位
+  const wanValue = value / 10000;
+
+  // 保留两位小数
+  const formatted =
+    wanValue % 1 === 0 ? `${wanValue}` : `${wanValue.toFixed(2)}`;
+
+  return `${formatted}万`;
+}
