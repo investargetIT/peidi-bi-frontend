@@ -1,12 +1,7 @@
 // 权限设置相关的工具函数
 
 // 管理员 id
-const ADMIN_USER_IDS = [
-  // 任琪琳
-  "1870023775338692610",
-  // 肖嘉玲
-  "1869635118983348225"
-];
+const ADMIN_USER_IDS = [];
 
 // 开发人员 id
 const DEV_USER_IDS = [
@@ -103,7 +98,8 @@ export const permissionSettings = {
     ...DEV_USER_IDS,
     // 王琳
     "1874011001523318785"
-  ]
+  ],
+  littleRedBook: [...DEV_USER_IDS]
 };
 
 /**

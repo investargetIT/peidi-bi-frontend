@@ -341,7 +341,7 @@ function initRouter() {
             }
             //#endregion
 
-            //#region 判断站内推广效能看板权限
+            //#region 判断天猫推广需求权限
             if (hasPermission(userId, "sitePromotion")) {
               routesTemp.push({
                 path: "/sitePromotion",
@@ -350,7 +350,7 @@ function initRouter() {
                 component: Layout,
                 meta: {
                   icon: "streamline-ultimate/shop-sale-1",
-                  title: "站内推广效能看板",
+                  title: "天猫推广需求",
                   showLink: true,
                   rank: 17
                 },
@@ -360,7 +360,7 @@ function initRouter() {
                     name: "SitePromotionIndex",
                     component: () => import("@/views/sitePromotion/index.vue"),
                     meta: {
-                      title: "站内推广效能看板",
+                      title: "天猫推广需求",
                       showLink: true
                     }
                   }
@@ -447,6 +447,34 @@ function initRouter() {
                   ]
                 }
               );
+            }
+            //#endregion
+
+            //#region 判断小红书权限
+            if (hasPermission(userId, "littleRedBook")) {
+              routesTemp.push({
+                path: "/littleRedBook",
+                name: "LittleRedBookLayout",
+                redirect: "/littleRedBook/index",
+                component: Layout,
+                meta: {
+                  icon: "simple-icons/xiaohongshu",
+                  title: "小红书数据需求",
+                  showLink: true,
+                  rank: 21
+                },
+                children: [
+                  {
+                    path: "/littleRedBook/index",
+                    name: "LittleRedBookIndex",
+                    component: () => import("@/views/littleRedBook/index.vue"),
+                    meta: {
+                      title: "小红书数据需求",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
             }
             //#endregion
 
