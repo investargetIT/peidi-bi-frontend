@@ -99,7 +99,13 @@ export const permissionSettings = {
     // 王琳
     "1874011001523318785"
   ],
-  littleRedBook: [...DEV_USER_IDS]
+  littleRedBook: [
+    ...DEV_USER_IDS,
+    // 范振吉
+    "1874711258007646210",
+    // 缪欣瑶
+    "1922923618996105217"
+  ]
 };
 
 /**

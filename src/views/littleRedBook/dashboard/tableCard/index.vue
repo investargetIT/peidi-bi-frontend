@@ -108,8 +108,36 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .peidi-littleRedBook-warpper {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 200px);
   overflow-x: auto;
+
+  // 自定义滚动条样式
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #a8a8a8;
+    }
+
+    &:active {
+      background: #959595;
+    }
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+  }
 
   table {
     width: 100%;

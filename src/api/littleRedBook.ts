@@ -16,3 +16,42 @@ export const getBiProductTrafficMonitor = (params: {
     params
   });
 };
+
+/** 获取bi_product_name数据 */
+export const getBiProductNameList = () => {
+  return http.request("get", commonUrlApi("/oms/bi/product-name/list"), {});
+};
+
+/** 新增bi_product_name数据 */
+export const createBiProductName = (data: {
+  channel: string;
+  date?: string;
+  productId: string;
+  productName: string;
+  type: string;
+}) => {
+  return http.request("post", commonUrlApi("/oms/bi/product-name/new"), {
+    data
+  });
+};
+
+/** 修改bi_product_name数据 */
+export const updateBiProductName = (data: {
+  channel: string;
+  date: string;
+  id: number | string;
+  productId: string;
+  productName: string;
+  type: string;
+}) => {
+  return http.request("post", commonUrlApi("/oms/bi/product-name/update"), {
+    data
+  });
+};
+
+/** 删除bi_product_name数据 */
+export const deleteBiProductName = (data: { id: number | string }) => {
+  return http.request("post", commonUrlApi("/oms/bi/product-name/delete"), {
+    data
+  });
+};
