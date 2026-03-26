@@ -478,6 +478,35 @@ function initRouter() {
             }
             //#endregion
 
+            //#region 判断经营分析权限
+            if (hasPermission(userId, "operationAnalysis")) {
+              routesTemp.push({
+                path: "/operationAnalysis",
+                name: "OperationAnalysisLayout",
+                redirect: "/operationAnalysis/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-freehand/analytics-graph-pie",
+                  title: "经营分析",
+                  showLink: true,
+                  rank: 22
+                },
+                children: [
+                  {
+                    path: "/operationAnalysis/index",
+                    name: "OperationAnalysisIndex",
+                    component: () =>
+                      import("@/views/operationAnalysis/index.vue"),
+                    meta: {
+                      title: "经营分析",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {

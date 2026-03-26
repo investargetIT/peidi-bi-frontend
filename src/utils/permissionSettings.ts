@@ -105,7 +105,8 @@ export const permissionSettings = {
     "1874711258007646210",
     // 缪欣瑶
     "1922923618996105217"
-  ]
+  ],
+  operationAnalysis: [...DEV_USER_IDS]
 };
 
 /**
