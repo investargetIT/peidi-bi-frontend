@@ -15,6 +15,8 @@ import { getUserInfo, register, registerMobile } from "@/api/user";
 const router = useRouter();
 const { t } = useI18n();
 
+const unLoginUrl = localStorage.getItem("peidi-unLoginUrl");
+
 // 账号密码登录，所有登录方式都调用这个函数
 const fetchLogin = (username: string, password: string) => {
   useUserStoreHook()
@@ -27,6 +29,14 @@ const fetchLogin = (username: string, password: string) => {
         console.log(res?.data);
         // 获取后端路由
         return initRouter().then(() => {
+          // 先判断是否有未登录时的路由记录
+          if (unLoginUrl) {
+            router.push(unLoginUrl).then(() => {
+              message("登录成功", { type: "success" });
+            });
+            return;
+          }
+
           router.push(getTopMenu(true).path).then(() => {
             message(t("login.pureLoginSuccess"), { type: "success" });
           });

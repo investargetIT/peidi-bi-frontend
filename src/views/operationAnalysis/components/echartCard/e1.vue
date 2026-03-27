@@ -1,8 +1,30 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref, PropType } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
+import dayjs from "dayjs";
+
+const props = defineProps({
+  excelData: {
+    type: Array as PropType<any[]>,
+    default: () => []
+  }
+});
 
 // 核心指标达成总览
+const getCoreCard1Data = computed(() => {
+  const data = props.excelData?.[0]?.data || [];
+  return [
+    { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
+    { value: 3962, name: "杭州智创", itemStyle: { color: "#12239E" } },
+    { value: 185, name: "内销其他", itemStyle: { color: "#E66C37" } }
+  ].map(item => {
+    item.value =
+      data.find(d => d[dayjs().month() + "月"].trim() === item.name)?.[
+        "当期实际"
+      ] || 0;
+    return item;
+  });
+});
 const coreCard1 = ref({
   name: "coreCard1",
   title: "",
@@ -28,11 +50,12 @@ const coreCard1 = ref({
             return `${params.name}\n${params.value} (${percent}%)`;
           }
         },
-        data: [
-          { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
-          { value: 3962, name: "杭州智创", itemStyle: { color: "#12239E" } },
-          { value: 185, name: "内销其他", itemStyle: { color: "#E66C37" } }
-        ]
+        data: getCoreCard1Data
+        // [
+        //   { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
+        //   { value: 3962, name: "杭州智创", itemStyle: { color: "#12239E" } },
+        //   { value: 185, name: "内销其他", itemStyle: { color: "#E66C37" } }
+        // ]
       }
     ]
   },
@@ -43,6 +66,24 @@ const coreCard1 = ref({
   }
 });
 
+const getCoreCard2Data = computed(() => {
+  const data = props.excelData?.[0]?.data || [];
+  return [
+    {
+      value: 4358,
+      name: "自主品牌收入",
+
+      itemStyle: { color: "#12239E" }
+    },
+    { value: 184, name: "其他收入", itemStyle: { color: "#118DFF" } }
+  ].map(item => {
+    item.value =
+      data.find(d => d[dayjs().month() + "月"].trim() === item.name)?.[
+        "当期实际"
+      ] || 0;
+    return item;
+  });
+});
 const coreCard2 = ref({
   name: "coreCard2",
   title: "",
@@ -68,14 +109,15 @@ const coreCard2 = ref({
             return `${params.name}\n${params.value} (${percent}%)`;
           }
         },
-        data: [
-          {
-            value: 4358,
-            name: "⾃主品牌收⼊",
-            itemStyle: { color: "#12239E" }
-          },
-          { value: 184, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
-        ]
+        data: getCoreCard2Data
+        // [
+        //   {
+        //     value: 4358,
+        //     name: "⾃主品牌收⼊",
+        //     itemStyle: { color: "#12239E" }
+        //   },
+        //   { value: 184, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
+        // ]
       }
     ]
   },
@@ -86,6 +128,92 @@ const coreCard2 = ref({
   }
 });
 
+const getCoreCard3Data = computed(() => {
+  const data = props.excelData?.[0]?.data || [];
+
+  // 定义三个系列的配置
+  const seriesConfig = [
+    { name: "完成率", color: "#118DFF" },
+    { name: "全年进度", color: "#12239E" },
+    { name: "同比", color: "#E66C37" }
+  ];
+
+  // 从 excelData 中提取数据的逻辑（需要根据实际数据结构调整）
+  // 这里假设需要从 data 中计算这些值
+  const xValues = ["哈宠千百仓", "杭州智创", "内销其他"];
+
+  // 示例：根据实际业务逻辑计算数据
+  const completionRates = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item ? (item?.["完成率"] * 100).toFixed(0) || 0 : 0;
+  });
+
+  const yearProgress = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item ? (item?.["全年进度"] * 100).toFixed(0) || 0 : 0;
+  });
+
+  const yoyGrowth = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item
+      ? (
+          ((item?.["当期实际"] - item?.["去年同期"]) / item?.["去年同期"]) *
+          100
+        ).toFixed(0) || 0
+      : 0;
+  });
+
+  return [
+    {
+      name: "完成率",
+      type: "bar",
+      data: completionRates,
+      itemStyle: { color: seriesConfig[0].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    },
+    {
+      name: "全年进度",
+      type: "bar",
+      data: yearProgress,
+      itemStyle: { color: seriesConfig[1].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    },
+    {
+      name: "同比",
+      type: "bar",
+      data: yoyGrowth,
+      itemStyle: { color: seriesConfig[2].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    }
+  ];
+});
 const coreCard3 = ref({
   name: "coreCard3",
   title: "",
@@ -136,68 +264,7 @@ const coreCard3 = ref({
       type: "value",
       show: false
     },
-    series: [
-      {
-        name: "完成率",
-        type: "bar",
-        data: [146, 110, 29],
-        itemStyle: {
-          color: "#118DFF"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "全年进度",
-        type: "bar",
-        data: [13, 10, 3],
-        itemStyle: {
-          color: "#12239E"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "同比",
-        type: "bar",
-        data: [-2, 13, 41],
-        itemStyle: {
-          color: "#E66C37"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      }
-    ]
+    series: getCoreCard3Data
   },
   style: {
     width: "100%",
@@ -206,6 +273,91 @@ const coreCard3 = ref({
   }
 });
 
+const getCoreCard4Data = computed(() => {
+  const data = props.excelData?.[0]?.data || [];
+
+  // 定义三个系列的配置
+  const seriesConfig = [
+    { name: "完成率", color: "#118DFF" },
+    { name: "全年进度", color: "#12239E" },
+    { name: "同比", color: "#E66C37" }
+  ];
+
+  // 从 excelData 中提取数据的逻辑
+  const xValues = ["自主品牌收入", "其他收入"];
+
+  // 根据实际业务逻辑计算数据
+  const completionRates = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item ? (item?.["完成率"] * 100).toFixed(0) || 0 : 0;
+  });
+
+  const yearProgress = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item ? (item?.["全年进度"] * 100).toFixed(0) || 0 : 0;
+  });
+
+  const yoyGrowth = xValues.map(name => {
+    const item = data.find(d => d[dayjs().month() + "月"]?.trim() === name);
+    return item
+      ? (
+          ((item?.["当期实际"] - item?.["去年同期"]) / item?.["去年同期"]) *
+          100
+        ).toFixed(0) || 0
+      : 0;
+  });
+
+  return [
+    {
+      name: "完成率",
+      type: "bar",
+      data: completionRates,
+      itemStyle: { color: seriesConfig[0].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    },
+    {
+      name: "全年进度",
+      type: "bar",
+      data: yearProgress,
+      itemStyle: { color: seriesConfig[1].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    },
+    {
+      name: "同比",
+      type: "bar",
+      data: yoyGrowth,
+      itemStyle: { color: seriesConfig[2].color },
+      label: {
+        show: true,
+        position: "top",
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#666",
+        fontFamily: "sans-serif",
+        formatter: (params: any) => `${params.value}%`
+      },
+      emphasis: { focus: "series" }
+    }
+  ];
+});
 const coreCard4 = ref({
   name: "coreCard4",
   title: "",
@@ -256,68 +408,7 @@ const coreCard4 = ref({
       type: "value",
       show: false
     },
-    series: [
-      {
-        name: "完成率",
-        type: "bar",
-        data: [108, 50],
-        itemStyle: {
-          color: "#118DFF"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "全年进度",
-        type: "bar",
-        data: [10, 5],
-        itemStyle: {
-          color: "#12239E"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "同比",
-        type: "bar",
-        data: [27, -70],
-        itemStyle: {
-          color: "#E66C37"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      }
-    ]
+    series: getCoreCard4Data
   },
   style: {
     width: "100%",

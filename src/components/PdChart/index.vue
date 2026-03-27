@@ -3,6 +3,10 @@ import * as echarts from "echarts";
 import "echarts-wordcloud";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
+const emits = defineEmits<{
+  chartReady: [chart: echarts.ECharts];
+}>();
+
 // props
 const props = defineProps({
   // name 用于图表的初始化
@@ -55,6 +59,9 @@ onMounted(() => {
 
   myChart = echarts.init(chartDom);
   props.option && myChart.setOption(props.option, true);
+
+  // 触发 chartReady 事件，将图表实例传递给父组件
+  emits("chartReady", myChart);
 
   // 创建 ResizeObserver 监听容器尺寸变化
   resizeObserver = new ResizeObserver(entries => {

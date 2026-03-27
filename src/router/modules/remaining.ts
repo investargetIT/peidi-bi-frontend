@@ -27,5 +27,15 @@ export default [
         component: () => import("@/layout/redirect.vue")
       }
     ]
+  },
+  {
+    path: "/businessAnalysis",
+    name: "BusinessAnalysis",
+    component: () => import("@/views/businessAnalysis/index.vue"),
+    meta: {
+      title: "业务分析",
+      showLink: false,
+      rank: 103
+    }
   }
 ] satisfies Array<RouteConfigsTable>;

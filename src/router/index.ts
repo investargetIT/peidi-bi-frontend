@@ -193,7 +193,24 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       toCorrectRoute();
     }
   } else {
+    // if (to.path !== "/login") {
+    //   if (whiteList.indexOf(to.path) !== -1) {
+    //     next();
+    //   } else {
+    //     removeToken();
+    //     next({ path: "/login" });
+    //   }
+    // } else {
+    //   next();
+    // }
+
+    // alert("1: " + to.path);
     if (to.path !== "/login") {
+      // alert("2: " + to.path);
+      // 记录用户访问的URL，用于登录后重定向（排除白名单路由）
+      if (!whiteList.includes(to.path)) {
+        localStorage.setItem("peidi-unLoginUrl", to.fullPath);
+      }
       if (whiteList.indexOf(to.path) !== -1) {
         next();
       } else {
