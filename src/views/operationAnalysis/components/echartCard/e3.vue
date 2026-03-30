@@ -17,16 +17,15 @@ const productStructure1 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["45%", "70%"],
+        radius: ["35%", "50%"],
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          bleedMargin: 15,
-          fontSize: 14,
-          fontWeight: "bold",
-          lineHeight: 16,
+          // bleedMargin: 15,
+          fontSize: 12,
+          lineHeight: 12,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -90,8 +89,7 @@ const productStructure2 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -100,10 +98,11 @@ const productStructure2 = ref({
       type: "category",
       data: ["爵宴", "SMB/⻮能", "好适嘉", "Vivaland"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 12,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: {
@@ -122,7 +121,6 @@ const productStructure2 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -142,7 +140,6 @@ const productStructure2 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -171,16 +168,15 @@ const productStructure3 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["45%", "70%"],
+        radius: ["35%", "50%"],
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          bleedMargin: 15,
-          fontSize: 14,
-          fontWeight: "bold",
-          lineHeight: 16,
+          // bleedMargin: 15,
+          fontSize: 12,
+          lineHeight: 12,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -249,8 +245,7 @@ const productStructure4 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -265,10 +260,11 @@ const productStructure4 = ref({
         "爵宴烘焙粮"
       ],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 12,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: {
@@ -287,7 +283,6 @@ const productStructure4 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -307,7 +302,6 @@ const productStructure4 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -327,7 +321,6 @@ const productStructure4 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -356,16 +349,15 @@ const productStructure5 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["45%", "70%"],
+        radius: ["35%", "50%"],
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          bleedMargin: 15,
-          fontSize: 14,
-          fontWeight: "bold",
-          lineHeight: 16,
+          // bleedMargin: 15,
+          fontSize: 12,
+          lineHeight: 12,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -433,8 +425,7 @@ const productStructure6 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -443,10 +434,11 @@ const productStructure6 = ref({
       type: "category",
       data: ["好适嘉⼲粮", "好适嘉湿粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 12,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: {
@@ -465,7 +457,6 @@ const productStructure6 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -485,7 +476,6 @@ const productStructure6 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -505,7 +495,6 @@ const productStructure6 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -701,7 +690,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
         <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
       </div>
       <el-row :gutter="10">
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure1.name"
             :title="productStructure1.title"
@@ -713,7 +702,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
             @chart-ready="handlePieChart1Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure2.name"
             :title="productStructure2.title"
@@ -726,7 +715,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
           />
         </el-col>
 
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure3.name"
             :title="productStructure3.title"
@@ -738,7 +727,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
             @chart-ready="handlePieChart2Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure4.name"
             :title="productStructure4.title"
@@ -751,7 +740,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
           />
         </el-col>
 
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure5.name"
             :title="productStructure5.title"
@@ -763,7 +752,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
             @chart-ready="handlePieChart3Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="productStructure6.name"
             :title="productStructure6.title"

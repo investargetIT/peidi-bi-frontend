@@ -41,9 +41,8 @@ const coreCard1 = ref({
         radius: ["45%", "70%"],
         avoidLabelOverlap: false,
         label: {
-          fontSize: 16,
-          fontWeight: "bold",
-          lineHeight: 22,
+          fontSize: 14,
+          lineHeight: 14,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -120,7 +119,6 @@ const getCoreCard2Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -136,7 +134,6 @@ const getCoreCard2Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -152,7 +149,6 @@ const getCoreCard2Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -187,12 +183,11 @@ const coreCard2 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
+      itemWidth: 14, // 图标宽度
+      itemHeight: 14, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -201,10 +196,11 @@ const coreCard2 = ref({
       type: "category",
       data: ["哈宠千百仓", "杭州智创", "内销其他"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 0
       }
     },
     yAxis: {
@@ -253,9 +249,8 @@ const coreCard3 = ref({
         radius: ["45%", "70%"],
         avoidLabelOverlap: false,
         label: {
-          fontSize: 16,
-          fontWeight: "bold",
-          lineHeight: 22,
+          fontSize: 14,
+          lineHeight: 14,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -334,7 +329,7 @@ const getCoreCard4Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
+
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -350,7 +345,6 @@ const getCoreCard4Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -366,7 +360,6 @@ const getCoreCard4Data = computed(() => {
         show: true,
         position: "top",
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -401,12 +394,11 @@ const coreCard4 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
+      itemWidth: 14, // 图标宽度
+      itemHeight: 14, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -415,10 +407,11 @@ const coreCard4 = ref({
       type: "category",
       data: ["自主品牌收入", "其他收入"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 0
       }
     },
     yAxis: {
@@ -557,7 +550,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
         <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
       </div>
       <el-row :gutter="10">
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="coreCard1.name"
             :title="coreCard1.title"
@@ -569,7 +562,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             @chart-ready="handlePieChart1Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="coreCard2.name"
             :title="coreCard2.title"
@@ -581,7 +574,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             @chart-ready="handleBarChart1Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="coreCard3.name"
             :title="coreCard3.title"
@@ -593,7 +586,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             @chart-ready="handlePieChart2Ready"
           />
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="coreCard4.name"
             :title="coreCard4.title"

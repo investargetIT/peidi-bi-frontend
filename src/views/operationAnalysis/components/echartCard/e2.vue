@@ -40,12 +40,11 @@ const teamCard = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
+      itemWidth: 14, // 图标宽度
+      itemHeight: 14, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -63,10 +62,11 @@ const teamCard = ref({
         "跨境电商"
       ],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 12,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: [

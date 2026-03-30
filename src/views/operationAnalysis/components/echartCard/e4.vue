@@ -45,10 +45,11 @@ const costStructure1 = ref({
       type: "category",
       data: ["商品成本率", "营销费率", "⼈⼒成本率", "履约费率", "管理费率"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: {
@@ -120,16 +121,15 @@ const costStructure2 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["45%", "70%"],
+        radius: ["35%", "50%"],
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          bleedMargin: 15,
-          fontSize: 14,
-          fontWeight: "bold",
-          lineHeight: 16,
+          // bleedMargin: 15,
+          fontSize: 12,
+          lineHeight: 12,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -194,8 +194,7 @@ const costStructure3 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -204,17 +203,17 @@ const costStructure3 = ref({
       type: "category",
       data: ["商品成本率", "管理费率", "履约费率", "⼈⼒成本率", "营销费率"],
       axisLabel: {
-        fontSize: 16,
-        fontWeight: "bold",
+        fontSize: 14,
         color: "#666",
-        fontFamily: "sans-serif"
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: 45
       }
     },
     yAxis: {
       type: "value",
       axisLabel: {
         fontSize: 14,
-        fontWeight: "bold",
         color: "#666",
         fontFamily: "sans-serif",
         formatter: value => `${value}%`
@@ -241,7 +240,6 @@ const costStructure3 = ref({
           show: true,
           position: "top",
           fontSize: 14,
-          fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -399,20 +397,18 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
         <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
       </div>
       <el-row :gutter="10">
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <div class="relative">
             <div
               class="absolute top-0 right-0 z-10 bg-white bg-opacity-90 p-4 rounded-lg shadow-sm"
             >
               <div class="text-[#0a0a0a] font-bold text-sm">
-                <div class="text-[#118DFF] font-bold text-base">
-                  去除沃尔玛后⽑利率
-                </div>
+                <div class="text-[#118DFF] font-bold">去除沃尔玛后⽑利率</div>
                 <div class="flex items-center mt-2">
                   <div>34.6%</div>
                   <div class="ml-5">-2.4%</div>
                 </div>
-                <div class="text-[#118DFF] font-bold text-base mt-3">
+                <div class="text-[#118DFF] font-bold mt-3">
                   去除沃尔玛后营销费率
                 </div>
                 <div class="flex items-center mt-2">
@@ -433,7 +429,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             />
           </div>
         </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
+        <el-col :xs="12" :sm="12" :md="12">
           <ChartCard
             :name="costStructure2.name"
             :title="costStructure2.title"

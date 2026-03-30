@@ -235,7 +235,6 @@ const handleIncomeData = () => {
           .filter(data => data.channel === item.name)
           .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
         item.income = Number(income || 0);
-        console.log("本月周数据", income);
       });
       temp.forEach(item => {
         const progress = divide(item.income, item.target) * 100;
@@ -657,14 +656,24 @@ const handleIncomeData = () => {
             )
             .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
 
-          return _.floor(
-            divide(
-              Number(item.income) - Number(lastYearIncome),
-              lastYearIncome
-            ) * 100
+          // 本年数据不能包括本月的，所以item.income不能用
+          const thisYearIncome = incomeMonthData.value.reduce(
+            (acc, data) =>
+              acc + (data.channel === item.name ? Number(data.income || 0) : 0),
+            0
           );
+
+          // console.log("同比:", item.name, thisYearIncome, lastYearIncome);
+          return (
+            divide(
+              Number(thisYearIncome) - Number(lastYearIncome),
+              lastYearIncome,
+              4
+            ) * 100
+          ).toFixed(2);
         }
         item.yearOverYearGrowth = getYearOverYearGrowth();
+        // console.log(item.name, item.yearOverYearGrowth);
         //#endregion
 
         //#region monthOverMonthGrowth 环比
