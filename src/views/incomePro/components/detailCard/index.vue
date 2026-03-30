@@ -230,24 +230,16 @@ defineExpose({
                 <!-- 进度 -->
                 <div v-if="info === '进度'" class="ml-2">
                   <div>
-                    <Progress
-                      :segments="[
-                        {
-                          percentage: _.floor(
-                            divide(
-                              getDataForCardList(
-                                channelItem.name,
-                                timerangeIndex
-                              )?.income,
-                              getDataForCardList(
-                                channelItem.name,
-                                timerangeIndex
-                              )?.target
-                            ) * 100
-                          ),
-                          status: 'primary',
-                          text:
-                            _.floor(
+                    <div class="flex items-center whitespace-nowrap">
+                      <span
+                        class="text-xs mr-1 text-[var(--dash-text-secondary)]"
+                      >
+                        实际
+                      </span>
+                      <Progress
+                        :segments="[
+                          {
+                            percentage: _.floor(
                               divide(
                                 getDataForCardList(
                                   channelItem.name,
@@ -258,33 +250,55 @@ defineExpose({
                                   timerangeIndex
                                 )?.target
                               ) * 100
-                            ) + '%'
-                        }
-                      ]"
-                      height="25px"
-                    />
-                    <div
-                      class="mt-2"
-                      :style="{
-                        width:
-                          getDataForCardList(channelItem.name, timerangeIndex)
-                            ?.expect + '%'
-                      }"
-                    >
-                      <Progress
-                        :segments="[
-                          {
-                            percentage: 100,
-                            status: 'warning',
+                            ),
+                            status: 'primary',
                             text:
-                              getDataForCardList(
-                                channelItem.name,
-                                timerangeIndex
-                              )?.expect + '%'
+                              _.floor(
+                                divide(
+                                  getDataForCardList(
+                                    channelItem.name,
+                                    timerangeIndex
+                                  )?.income,
+                                  getDataForCardList(
+                                    channelItem.name,
+                                    timerangeIndex
+                                  )?.target
+                                ) * 100
+                              ) + '%'
                           }
                         ]"
                         height="25px"
                       />
+                    </div>
+                    <div class="flex items-center whitespace-nowrap">
+                      <span
+                        class="text-xs mr-1 text-[var(--dash-text-secondary)]"
+                      >
+                        期望
+                      </span>
+                      <div
+                        class="mt-2"
+                        :style="{
+                          width:
+                            getDataForCardList(channelItem.name, timerangeIndex)
+                              ?.expect + '%'
+                        }"
+                      >
+                        <Progress
+                          :segments="[
+                            {
+                              percentage: 100,
+                              status: 'warning',
+                              text:
+                                getDataForCardList(
+                                  channelItem.name,
+                                  timerangeIndex
+                                )?.expect + '%'
+                            }
+                          ]"
+                          height="25px"
+                        />
+                      </div>
                     </div>
                   </div>
 

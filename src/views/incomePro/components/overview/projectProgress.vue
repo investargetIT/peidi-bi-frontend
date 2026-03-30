@@ -129,73 +129,88 @@ const initDetailCard = (type: string) => {
         />
       </div>
 
-      <div
+      <el-tooltip
         v-for="(timerange, index) in DATA_TYPE_TIMERANGE"
         :key="timerange"
-        @click="initDetailCard(channel)"
+        content="点击可查看详情卡片"
+        placement="top"
+        :show-after="300"
       >
-        <div class="flex items-center justify-between ml-2">
-          <div class="flex items-center">
-            <LightCircle :status="getChannelData(channel, index)?.status" />
-            <div
-              class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
-            >
-              {{ timerange }}
+        <div class="cursor-pointer" @click="initDetailCard(channel)">
+          <div class="flex items-center justify-between ml-2">
+            <div class="flex items-center">
+              <LightCircle :status="getChannelData(channel, index)?.status" />
+              <div
+                class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
+              >
+                {{ timerange }}
+              </div>
+            </div>
+            <div class="text-sm text-[var(--dash-text-dim)]">
+              <span class="font-semibold text-[var(--dash-blue)]">
+                {{
+                  _.floor(
+                    divide(
+                      getChannelData(channel, index)?.income,
+                      getChannelData(channel, index)?.target
+                    ) * 100
+                  )
+                }}%
+              </span>
+              <span class="ml-2">
+                {{ formatField(channel, index, "target") }}
+              </span>
             </div>
           </div>
-          <div class="text-sm text-[var(--dash-text-dim)]">
-            <span class="font-semibold text-[var(--dash-blue)]">
-              {{
-                _.floor(
-                  divide(
-                    getChannelData(channel, index)?.income,
-                    getChannelData(channel, index)?.target
-                  ) * 100
-                )
-              }}%
-            </span>
-            <span class="ml-2">
-              {{ formatField(channel, index, "target") }}
-            </span>
-          </div>
-        </div>
 
-        <div class="ml-2 mb-2">
-          <Progress
-            :segments="[
-              {
-                percentage: Math.min(
-                  divide(
-                    getChannelData(channel, index)?.income,
-                    getChannelData(channel, index)?.target
-                  ) * 100,
-                  100
-                ),
-                status: 'primary',
-                text: formatField(channel, index, 'income')
-              }
-            ]"
-            height="25px"
-          />
-          <div
-            class="mt-2"
-            :style="{
-              width: getChannelData(channel, index)?.expect + '%'
-            }"
-          >
-            <Progress
-              :segments="[
-                {
-                  percentage: 100,
-                  status: 'warning',
-                  text: getChannelData(channel, index)?.expect + '%'
-                }
-              ]"
-              height="25px"
-            />
+          <div class="ml-2 mb-2">
+            <div class="flex items-center whitespace-nowrap">
+              <span class="text-xs mr-1 text-[var(--dash-text-secondary)]">
+                实际
+              </span>
+              <Progress
+                :segments="[
+                  {
+                    percentage: Math.min(
+                      divide(
+                        getChannelData(channel, index)?.income,
+                        getChannelData(channel, index)?.target
+                      ) * 100,
+                      100
+                    ),
+                    status: 'primary',
+                    text: formatField(channel, index, 'income')
+                  }
+                ]"
+                height="25px"
+              />
+            </div>
+
+            <div class="flex items-center whitespace-nowrap">
+              <span class="text-xs mr-1 text-[var(--dash-text-secondary)]">
+                期望
+              </span>
+              <div
+                class="mt-2"
+                :style="{
+                  width: getChannelData(channel, index)?.expect + '%'
+                }"
+              >
+                <Progress
+                  :segments="[
+                    {
+                      percentage: 100,
+                      status: 'warning',
+                      text: getChannelData(channel, index)?.expect + '%'
+                    }
+                  ]"
+                  height="25px"
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </el-tooltip>
     </div>
   </div>
 </template>

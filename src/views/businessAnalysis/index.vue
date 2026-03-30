@@ -8,7 +8,7 @@ const activeName = ref("incomePro");
 
 <template>
   <div class="p-8">
-    <el-tabs
+    <!-- <el-tabs
       v-model="activeName"
       type="border-card"
       class="peidi-el-tabs-modern-tabs"
@@ -19,6 +19,7 @@ const activeName = ref("incomePro");
       <el-tab-pane label="经营分析" name="operationAnalysis" lazy>
         <OperationAnalysis v-if="activeName === 'operationAnalysis'" />
       </el-tab-pane>
-    </el-tabs>
+    </el-tabs> -->
+    <OperationAnalysis />
   </div>
 </template>

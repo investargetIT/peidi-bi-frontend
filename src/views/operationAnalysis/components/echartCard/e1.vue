@@ -2,6 +2,7 @@
 import { computed, ref, PropType } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import dayjs from "dayjs";
+import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
   excelData: {
@@ -50,6 +51,14 @@ const coreCard1 = ref({
             return `${params.name}\n${params.value} (${percent}%)`;
           }
         },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
+        },
         data: getCoreCard1Data
         // [
         //   { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
@@ -67,68 +76,6 @@ const coreCard1 = ref({
 });
 
 const getCoreCard2Data = computed(() => {
-  const data = props.excelData?.[0]?.data || [];
-  return [
-    {
-      value: 4358,
-      name: "自主品牌收入",
-
-      itemStyle: { color: "#12239E" }
-    },
-    { value: 184, name: "其他收入", itemStyle: { color: "#118DFF" } }
-  ].map(item => {
-    item.value =
-      data.find(d => d[dayjs().month() + "月"].trim() === item.name)?.[
-        "当期实际"
-      ] || 0;
-    return item;
-  });
-});
-const coreCard2 = ref({
-  name: "coreCard2",
-  title: "",
-  text: "",
-  option: {
-    tooltip: {
-      trigger: "item"
-    },
-    series: [
-      {
-        name: "",
-        type: "pie",
-        radius: ["45%", "70%"],
-        avoidLabelOverlap: false,
-        label: {
-          fontSize: 16,
-          fontWeight: "bold",
-          lineHeight: 22,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => {
-            const percent = params.percent.toFixed(1);
-            return `${params.name}\n${params.value} (${percent}%)`;
-          }
-        },
-        data: getCoreCard2Data
-        // [
-        //   {
-        //     value: 4358,
-        //     name: "⾃主品牌收⼊",
-        //     itemStyle: { color: "#12239E" }
-        //   },
-        //   { value: 184, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
-        // ]
-      }
-    ]
-  },
-  style: {
-    width: "100%",
-    // height: "200px",
-    borderRadius: "10px"
-  }
-});
-
-const getCoreCard3Data = computed(() => {
   const data = props.excelData?.[0]?.data || [];
 
   // 定义三个系列的配置
@@ -214,8 +161,8 @@ const getCoreCard3Data = computed(() => {
     }
   ];
 });
-const coreCard3 = ref({
-  name: "coreCard3",
+const coreCard2 = ref({
+  name: "coreCard2",
   title: "",
   text: "",
   option: {
@@ -264,7 +211,77 @@ const coreCard3 = ref({
       type: "value",
       show: false
     },
-    series: getCoreCard3Data
+    series: getCoreCard2Data
+  },
+  style: {
+    width: "100%",
+    // height: "200px",
+    borderRadius: "10px"
+  }
+});
+
+const getCoreCard3Data = computed(() => {
+  const data = props.excelData?.[0]?.data || [];
+  return [
+    {
+      value: 4358,
+      name: "自主品牌收入",
+
+      itemStyle: { color: "#12239E" }
+    },
+    { value: 184, name: "其他收入", itemStyle: { color: "#118DFF" } }
+  ].map(item => {
+    item.value =
+      data.find(d => d[dayjs().month() + "月"].trim() === item.name)?.[
+        "当期实际"
+      ] || 0;
+    return item;
+  });
+});
+const coreCard3 = ref({
+  name: "coreCard3",
+  title: "",
+  text: "",
+  option: {
+    tooltip: {
+      trigger: "item"
+    },
+    series: [
+      {
+        name: "",
+        type: "pie",
+        radius: ["45%", "70%"],
+        avoidLabelOverlap: false,
+        label: {
+          fontSize: 16,
+          fontWeight: "bold",
+          lineHeight: 22,
+          color: "#666",
+          fontFamily: "sans-serif",
+          formatter: params => {
+            const percent = params.percent.toFixed(1);
+            return `${params.name}\n${params.value} (${percent}%)`;
+          }
+        },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
+        },
+        data: getCoreCard3Data
+        // [
+        //   {
+        //     value: 4358,
+        //     name: "⾃主品牌收⼊",
+        //     itemStyle: { color: "#12239E" }
+        //   },
+        //   { value: 184, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
+        // ]
+      }
+    ]
   },
   style: {
     width: "100%",
@@ -396,7 +413,7 @@ const coreCard4 = ref({
     },
     xAxis: {
       type: "category",
-      data: ["⾃主品牌收⼊", "其他收⼊"],
+      data: ["自主品牌收入", "其他收入"],
       axisLabel: {
         fontSize: 16,
         fontWeight: "bold",
@@ -416,12 +433,129 @@ const coreCard4 = ref({
     borderRadius: "10px"
   }
 });
+
+let pieChart1: echarts.ECharts | null = null;
+let barChart1: echarts.ECharts | null = null;
+
+const handlePieChart1Ready = (chart: echarts.ECharts) => {
+  pieChart1 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart1) {
+        barChart1.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1, 2],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart1) {
+        barChart1.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1, 2]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart1Ready = (chart: echarts.ECharts) => {
+  barChart1 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart1) {
+        pieChart1.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart1) {
+        pieChart1.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
+
+let pieChart2: echarts.ECharts | null = null;
+let barChart2: echarts.ECharts | null = null;
+
+const handlePieChart2Ready = (chart: echarts.ECharts) => {
+  pieChart2 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart2) {
+        barChart2.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1, 2],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart2) {
+        barChart2.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1, 2]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart2Ready = (chart: echarts.ECharts) => {
+  barChart2 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart2) {
+        pieChart2.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart2) {
+        pieChart2.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
 </script>
 
 <template>
   <div>
     <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">核心指标达成总览</div>
+      <div class="text-xl text-[#0a0a0a]">
+        核心指标达成总览
+        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
+      </div>
       <el-row :gutter="10">
         <el-col :xs="24" :sm="24" :md="12">
           <ChartCard
@@ -432,17 +566,7 @@ const coreCard4 = ref({
             :style="coreCard1?.style"
             :clacHeight="0"
             :showCard="false"
-          />
-        </el-col>
-        <el-col :xs="24" :sm="24" :md="12">
-          <ChartCard
-            :name="coreCard3.name"
-            :title="coreCard3.title"
-            :text="coreCard3.text"
-            :option="coreCard3.option"
-            :style="coreCard3?.style"
-            :clacHeight="0"
-            :showCard="false"
+            @chart-ready="handlePieChart1Ready"
           />
         </el-col>
         <el-col :xs="24" :sm="24" :md="12">
@@ -454,6 +578,19 @@ const coreCard4 = ref({
             :style="coreCard2?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handleBarChart1Ready"
+          />
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="12">
+          <ChartCard
+            :name="coreCard3.name"
+            :title="coreCard3.title"
+            :text="coreCard3.text"
+            :option="coreCard3.option"
+            :style="coreCard3?.style"
+            :clacHeight="0"
+            :showCard="false"
+            @chart-ready="handlePieChart2Ready"
           />
         </el-col>
         <el-col :xs="24" :sm="24" :md="12">
@@ -465,6 +602,7 @@ const coreCard4 = ref({
             :style="coreCard4?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handleBarChart2Ready"
           />
         </el-col>
       </el-row>

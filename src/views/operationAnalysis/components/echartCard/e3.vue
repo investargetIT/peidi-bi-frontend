@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
+import * as echarts from "echarts";
+import { DATA_TIME } from "../../utils/config";
 
 // 产品结构
 const productStructure1 = ref({
@@ -16,17 +18,32 @@ const productStructure1 = ref({
         name: "",
         type: "pie",
         radius: ["45%", "70%"],
-        avoidLabelOverlap: false,
+        avoidLabelOverlap: true,
         label: {
-          fontSize: 16,
+          show: true,
+          position: "outside",
+          alignTo: "none",
+          bleedMargin: 15,
+          fontSize: 14,
           fontWeight: "bold",
-          lineHeight: 22,
+          lineHeight: 16,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
             const percent = params.percent.toFixed(1);
             return `${params.name}\n${params.value} (${percent}%)`;
           }
+        },
+        labelLayout: {
+          hideOverlap: false
+        },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
         },
         data: [
           { value: 4262, name: "爵宴", itemStyle: { color: "#12239E" } },
@@ -39,7 +56,6 @@ const productStructure1 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
@@ -70,9 +86,9 @@ const productStructure2 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
-      itemGap: 10, // 图例项之间的间距
+      itemWidth: 16,
+      itemHeight: 16,
+      itemGap: 10,
       textStyle: {
         fontSize: 16,
         fontWeight: "bold",
@@ -139,7 +155,6 @@ const productStructure2 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
@@ -157,17 +172,32 @@ const productStructure3 = ref({
         name: "",
         type: "pie",
         radius: ["45%", "70%"],
-        avoidLabelOverlap: false,
+        avoidLabelOverlap: true,
         label: {
-          fontSize: 16,
+          show: true,
+          position: "outside",
+          alignTo: "none",
+          bleedMargin: 15,
+          fontSize: 14,
           fontWeight: "bold",
-          lineHeight: 22,
+          lineHeight: 16,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
             const percent = params.percent.toFixed(1);
             return `${params.name}\n${params.value} (${percent}%)`;
           }
+        },
+        labelLayout: {
+          hideOverlap: false
+        },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
         },
         data: [
           {
@@ -185,7 +215,6 @@ const productStructure3 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
@@ -216,9 +245,9 @@ const productStructure4 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
-      itemGap: 10, // 图例项之间的间距
+      itemWidth: 16,
+      itemHeight: 16,
+      itemGap: 10,
       textStyle: {
         fontSize: 16,
         fontWeight: "bold",
@@ -311,7 +340,6 @@ const productStructure4 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
@@ -329,11 +357,15 @@ const productStructure5 = ref({
         name: "",
         type: "pie",
         radius: ["45%", "70%"],
-        avoidLabelOverlap: false,
+        avoidLabelOverlap: true,
         label: {
-          fontSize: 16,
+          show: true,
+          position: "outside",
+          alignTo: "none",
+          bleedMargin: 15,
+          fontSize: 14,
           fontWeight: "bold",
-          lineHeight: 22,
+          lineHeight: 16,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -341,13 +373,24 @@ const productStructure5 = ref({
             return `${params.name}\n${params.value} (${percent}%)`;
           }
         },
+        labelLayout: {
+          hideOverlap: false
+        },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
+        },
         data: [
           { value: 77, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
           { value: 131, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
           { value: 54, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
           {
             value: 44,
-            name: "好适嘉其他+零⻝",
+            name: "好适嘉其他 + 零⻝",
             itemStyle: { color: "#9071CE" }
           }
         ]
@@ -356,7 +399,6 @@ const productStructure5 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
@@ -387,9 +429,9 @@ const productStructure6 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 16, // 图标宽度
-      itemHeight: 16, // 图标高度
-      itemGap: 10, // 图例项之间的间距
+      itemWidth: 16,
+      itemHeight: 16,
+      itemGap: 10,
       textStyle: {
         fontSize: 16,
         fontWeight: "bold",
@@ -399,7 +441,7 @@ const productStructure6 = ref({
     },
     xAxis: {
       type: "category",
-      data: ["好适嘉⼲粮", "好适嘉湿粮", "好适嘉冻⼲", "好适嘉其他+零食"],
+      data: ["好适嘉⼲粮", "好适嘉湿粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
       axisLabel: {
         fontSize: 16,
         fontWeight: "bold",
@@ -476,16 +518,188 @@ const productStructure6 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
     borderRadius: "10px"
   }
 });
+
+let pieChart1: echarts.ECharts | null = null;
+let barChart1: echarts.ECharts | null = null;
+
+const handlePieChart1Ready = (chart: echarts.ECharts) => {
+  pieChart1 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart1) {
+        barChart1.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart1) {
+        barChart1.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart1Ready = (chart: echarts.ECharts) => {
+  barChart1 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart1) {
+        pieChart1.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart1) {
+        pieChart1.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
+let pieChart2: echarts.ECharts | null = null;
+let barChart2: echarts.ECharts | null = null;
+
+const handlePieChart2Ready = (chart: echarts.ECharts) => {
+  pieChart2 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart2) {
+        barChart2.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1, 2],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart2) {
+        barChart2.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1, 2]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart2Ready = (chart: echarts.ECharts) => {
+  barChart2 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart2) {
+        pieChart2.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart2) {
+        pieChart2.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
+
+let pieChart3: echarts.ECharts | null = null;
+let barChart3: echarts.ECharts | null = null;
+
+const handlePieChart3Ready = (chart: echarts.ECharts) => {
+  pieChart3 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart3) {
+        barChart3.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1, 2],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart3) {
+        barChart3.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1, 2]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart3Ready = (chart: echarts.ECharts) => {
+  barChart3 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart3) {
+        pieChart3.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart3) {
+        pieChart3.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
 </script>
 
 <template>
   <div>
     <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">产品结构</div>
+      <div class="text-xl text-[#0a0a0a]">
+        产品结构
+        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
+      </div>
       <el-row :gutter="10">
         <el-col :xs="24" :sm="24" :md="12">
           <ChartCard
@@ -496,6 +710,7 @@ const productStructure6 = ref({
             :style="productStructure1?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handlePieChart1Ready"
           />
         </el-col>
         <el-col :xs="24" :sm="24" :md="12">
@@ -507,6 +722,7 @@ const productStructure6 = ref({
             :style="productStructure2?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handleBarChart1Ready"
           />
         </el-col>
 
@@ -519,6 +735,7 @@ const productStructure6 = ref({
             :style="productStructure3?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handlePieChart2Ready"
           />
         </el-col>
         <el-col :xs="24" :sm="24" :md="12">
@@ -530,6 +747,7 @@ const productStructure6 = ref({
             :style="productStructure4?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handleBarChart2Ready"
           />
         </el-col>
 
@@ -542,6 +760,7 @@ const productStructure6 = ref({
             :style="productStructure5?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handlePieChart3Ready"
           />
         </el-col>
         <el-col :xs="24" :sm="24" :md="12">
@@ -553,6 +772,7 @@ const productStructure6 = ref({
             :style="productStructure6?.style"
             :clacHeight="0"
             :showCard="false"
+            @chart-ready="handleBarChart3Ready"
           />
         </el-col>
       </el-row>

@@ -217,6 +217,7 @@ const handleIncomeData = () => {
       ];
       temp.forEach(item => {
         // expect 在周数据里去找到该周的期望值
+        // console.log("本周", getWeekOfMonth());
         const expect = incomeWeekData.value.find(
           data => data.week === getWeekOfMonth() && data.channel === item.name
         )?.monthExpectation;
@@ -234,6 +235,7 @@ const handleIncomeData = () => {
           .filter(data => data.channel === item.name)
           .reduce((acc, cur) => acc + Number(cur.income || 0), 0);
         item.income = Number(income || 0);
+        console.log("本月周数据", income);
       });
       temp.forEach(item => {
         const progress = divide(item.income, item.target) * 100;

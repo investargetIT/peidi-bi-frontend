@@ -88,8 +88,8 @@ export const getWeekOfMonth = (): number => {
   const now = dayjs();
   const startOfMonth = now.startOf("month");
 
-  // 当前周数 - 月初周数 + 1
-  return now.week() - startOfMonth.week() + 1;
+  // 当前周数 - 月初周数
+  return now.week() - startOfMonth.week();
 };
 
 /**

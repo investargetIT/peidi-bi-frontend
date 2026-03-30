@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
+import { DATA_TIME } from "../../utils/config";
 
 // 团队指标达成
 const teamCard = ref({
@@ -143,6 +144,9 @@ const teamCard = ref({
           fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
+          padding: [4, 6],
+          borderRadius: 3,
           formatter: params => `${params.value}%`
         },
         emphasis: {
@@ -164,6 +168,9 @@ const teamCard = ref({
           fontWeight: "bold",
           color: "#666",
           fontFamily: "sans-serif",
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
+          padding: [4, 6],
+          borderRadius: 3,
           formatter: params => `${params.value}%`
         },
         emphasis: {
@@ -183,7 +190,10 @@ const teamCard = ref({
 <template>
   <div>
     <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">团队指标达成</div>
+      <div class="text-xl text-[#0a0a0a]">
+        团队指标达成
+        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
+      </div>
       <ChartCard
         :name="teamCard.name"
         :title="teamCard.title"
