@@ -423,7 +423,7 @@ function initRouter() {
                 ]
               });
             }
-            if (hasPermission(userId, "incomPro")) {
+            if (hasPermission(userId, "incomePro")) {
               routesTemp.push({
                 path: "/incomePro",
                 name: "IncomeProLayout",

@@ -4,14 +4,15 @@ import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
 import { storageLocal } from "@pureadmin/utils";
 
+const activeName = ref("incomePro");
+
+//#region 陀螺仪逻辑
 const USER_ID = (storageLocal().getItem("dataSource") as any)?.id;
 const TLY = ref({
   x: 0,
   y: 0,
   z: 0
 });
-
-const activeName = ref("incomePro");
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   // console.log("Alpha (Z 轴):", event.alpha);
@@ -21,24 +22,25 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   TLY.value.x = event.beta;
   TLY.value.y = event.gamma;
 };
+//#endregion
 
 onMounted(() => {
-  if (window.DeviceOrientationEvent) {
-    window.addEventListener("deviceorientation", handleDeviceOrientation, true);
-  } else {
-    alert("您的设备不支持陀螺仪功能！");
-  }
+  // if (window.DeviceOrientationEvent) {
+  //   window.addEventListener("deviceorientation", handleDeviceOrientation, true);
+  // } else {
+  //   alert("您的设备不支持陀螺仪功能！");
+  // }
 });
 
 onUnmounted(() => {
-  window.removeEventListener("deviceorientation", handleDeviceOrientation);
+  // window.removeEventListener("deviceorientation", handleDeviceOrientation);
 });
 </script>
 
 <template>
-  <div class="p-8">
+  <div class="p-0">
     <div
-      v-if="USER_ID === '1926449443739600965'"
+      v-if="USER_ID === '1926449443739600965' && false"
       class="peidi-businessAnalysis-debug"
     >
       <p>陀螺仪</p>

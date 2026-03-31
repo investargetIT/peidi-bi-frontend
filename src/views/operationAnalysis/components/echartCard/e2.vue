@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import { DATA_TIME } from "../../utils/config";
 
+const props = defineProps({
+  sizeConfig: {
+    type: Object,
+    required: true
+  }
+});
+
 // 团队指标达成
-const teamCard = ref({
+const teamCard = computed(() => ({
   name: "teamCard",
   title: "",
   text: "",
@@ -40,15 +47,30 @@ const teamCard = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 14, // 图标宽度
-      itemHeight: 14, // 图标高度
+      itemWidth: 16, // 图标宽度
+      itemHeight: 16, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
     },
+    dataZoom: [
+      {
+        show: props.sizeConfig.name === "XS",
+        type: "inside",
+        start: 0,
+        end: props.sizeConfig.name === "XS" ? 40 : 100
+      },
+      {
+        show: props.sizeConfig.name === "XS",
+        type: "slider",
+        start: 0,
+        end: props.sizeConfig.name === "XS" ? 40 : 100
+      }
+    ],
     xAxis: {
       type: "category",
       data: [
@@ -62,19 +84,20 @@ const teamCard = ref({
         "跨境电商"
       ],
       axisLabel: {
-        fontSize: 12,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 45
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: [
       {
         type: "value",
         axisLabel: {
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif"
         }
@@ -82,8 +105,8 @@ const teamCard = ref({
       {
         type: "value",
         axisLabel: {
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: value => `${value}%`
@@ -101,8 +124,8 @@ const teamCard = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif"
         },
@@ -120,8 +143,8 @@ const teamCard = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif"
         },
@@ -140,8 +163,8 @@ const teamCard = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           backgroundColor: "rgba(255, 255, 255, 0.7)",
@@ -164,8 +187,8 @@ const teamCard = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
-          fontWeight: "bold",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           backgroundColor: "rgba(255, 255, 255, 0.7)",
@@ -184,25 +207,27 @@ const teamCard = ref({
     // height: "200px",
     borderRadius: "10px"
   }
-});
+}));
 </script>
 
 <template>
   <div>
-    <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">
-        团队指标达成
-        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
-      </div>
-      <ChartCard
-        :name="teamCard.name"
-        :title="teamCard.title"
-        :text="teamCard.text"
-        :option="teamCard.option"
-        :style="teamCard?.style"
-        :clacHeight="0"
-        :showCard="false"
-      />
-    </el-card>
+    <!-- <el-card shadow="never" style="border-radius: 10px"> -->
+    <div class="text-[#0a0a0a] text-base md:text-xl">
+      团队指标达成
+      <span class="text-[#666] text-xs md:text-sm">
+        (数据期间: {{ DATA_TIME }})
+      </span>
+    </div>
+    <ChartCard
+      :name="teamCard.name"
+      :title="teamCard.title"
+      :text="teamCard.text"
+      :option="teamCard.option"
+      :style="teamCard?.style"
+      :clacHeight="0"
+      :showCard="false"
+    />
+    <!-- </el-card> -->
   </div>
 </template>

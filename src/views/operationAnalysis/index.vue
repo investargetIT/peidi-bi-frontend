@@ -1,14 +1,31 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import E1 from "./components/echartCard/e1.vue";
 import E2 from "./components/echartCard/e2.vue";
 import E3 from "./components/echartCard/e3.vue";
 import E4 from "./components/echartCard/e4.vue";
 import { loadExcelFile, type SheetData } from "./utils/excelLoader";
 import { ElMessage } from "element-plus";
+import { SIZE_CONFIG } from "./utils/config";
 
 const excelData = ref<SheetData[]>([]);
 const loading = ref(false);
+const sizeConfig = ref(SIZE_CONFIG.XS);
+
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+const handleResize = () => {
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
+  resizeTimer = setTimeout(() => {
+    if (window.innerWidth >= 992) {
+      sizeConfig.value = SIZE_CONFIG.MD;
+    } else {
+      sizeConfig.value = SIZE_CONFIG.XS;
+    }
+    console.log(window.innerWidth);
+  }, 200);
+};
 
 const loadExcelData = async () => {
   loading.value = true;
@@ -34,14 +51,37 @@ const loadExcelData = async () => {
 
 onMounted(() => {
   loadExcelData();
+
+  if (window.innerWidth >= 992) {
+    sizeConfig.value = SIZE_CONFIG.MD;
+  } else {
+    sizeConfig.value = SIZE_CONFIG.XS;
+  }
+  console.log(window.innerWidth);
+  window.addEventListener("resize", handleResize);
+});
+
+onBeforeUnmount(() => {
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
+  window.removeEventListener("resize", handleResize);
 });
 </script>
 
 <template>
   <div v-loading="loading">
-    <div><E1 :excelData="excelData" /></div>
-    <div class="mt-4"><E2 :excelData="excelData" /></div>
-    <div class="mt-4"><E3 :excelData="excelData" /></div>
-    <div class="mt-4"><E4 :excelData="excelData" /></div>
+    <div>
+      <E1 :excelData="excelData" :sizeConfig="sizeConfig" />
+    </div>
+    <div class="mt-4">
+      <E2 :excelData="excelData" :sizeConfig="sizeConfig" />
+    </div>
+    <div class="mt-4">
+      <E3 :excelData="excelData" :sizeConfig="sizeConfig" />
+    </div>
+    <div class="mt-4">
+      <E4 :excelData="excelData" :sizeConfig="sizeConfig" />
+    </div>
   </div>
 </template>

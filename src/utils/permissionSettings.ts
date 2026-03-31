@@ -97,7 +97,7 @@ export const permissionSettings = {
     "1871107779173351425"
   ],
   income: [SHY_ID],
-  // incomPro: [
+  // incomePro: [
   //   ...DEV_USER_IDS,
   //   // 王琳
   //   "1874011001523318785",

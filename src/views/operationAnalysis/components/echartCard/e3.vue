@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import * as echarts from "echarts";
 import { DATA_TIME } from "../../utils/config";
 
+const props = defineProps({
+  sizeConfig: {
+    type: Object,
+    required: true
+  }
+});
+
 // 产品结构
-const productStructure1 = ref({
+const productStructure1 = computed(() => ({
   name: "productStructure1",
   title: "",
   text: "",
@@ -17,15 +24,15 @@ const productStructure1 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["35%", "50%"],
+        radius: props.sizeConfig.pieRadius,
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          // bleedMargin: 15,
-          fontSize: 12,
-          lineHeight: 12,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSizeL2,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -55,11 +62,12 @@ const productStructure1 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
-const productStructure2 = ref({
+const productStructure2 = computed(() => ({
   name: "productStructure2",
   title: "",
   text: "",
@@ -89,7 +97,8 @@ const productStructure2 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -98,11 +107,12 @@ const productStructure2 = ref({
       type: "category",
       data: ["爵宴", "SMB/⻮能", "好适嘉", "Vivaland"],
       axisLabel: {
-        fontSize: 12,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 45
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: {
@@ -120,7 +130,8 @@ const productStructure2 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -139,7 +150,8 @@ const productStructure2 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -152,11 +164,12 @@ const productStructure2 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
-const productStructure3 = ref({
+const productStructure3 = computed(() => ({
   name: "productStructure3",
   title: "",
   text: "",
@@ -168,15 +181,15 @@ const productStructure3 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["35%", "50%"],
+        radius: props.sizeConfig.pieRadius,
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          // bleedMargin: 15,
-          fontSize: 12,
-          lineHeight: 12,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSizeL2,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -211,11 +224,12 @@ const productStructure3 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
-const productStructure4 = ref({
+const productStructure4 = computed(() => ({
   name: "productStructure4",
   title: "",
   text: "",
@@ -245,7 +259,8 @@ const productStructure4 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -260,11 +275,12 @@ const productStructure4 = ref({
         "爵宴烘焙粮"
       ],
       axisLabel: {
-        fontSize: 12,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 45
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: {
@@ -282,7 +298,8 @@ const productStructure4 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -301,7 +318,8 @@ const productStructure4 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -320,7 +338,8 @@ const productStructure4 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -333,11 +352,12 @@ const productStructure4 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
-const productStructure5 = ref({
+const productStructure5 = computed(() => ({
   name: "productStructure5",
   title: "",
   text: "",
@@ -349,15 +369,15 @@ const productStructure5 = ref({
       {
         name: "",
         type: "pie",
-        radius: ["35%", "50%"],
+        radius: props.sizeConfig.pieRadius,
         avoidLabelOverlap: true,
         label: {
           show: true,
           position: "outside",
           alignTo: "none",
-          // bleedMargin: 15,
-          fontSize: 12,
-          lineHeight: 12,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSizeL2,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -391,11 +411,12 @@ const productStructure5 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
-const productStructure6 = ref({
+const productStructure6 = computed(() => ({
   name: "productStructure6",
   title: "",
   text: "",
@@ -425,7 +446,8 @@ const productStructure6 = ref({
       itemHeight: 16,
       itemGap: 10,
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -434,7 +456,8 @@ const productStructure6 = ref({
       type: "category",
       data: ["好适嘉⼲粮", "好适嘉湿粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
       axisLabel: {
-        fontSize: 12,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
@@ -456,7 +479,8 @@ const productStructure6 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -475,7 +499,8 @@ const productStructure6 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -494,7 +519,8 @@ const productStructure6 = ref({
         label: {
           show: true,
           position: "top",
-          fontSize: 14,
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => `${params.value}%`
@@ -507,10 +533,12 @@ const productStructure6 = ref({
   },
   style: {
     width: "100%",
+    height: props.sizeConfig.name === "XS" ? "250" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
+//#region 联动逻辑
 let pieChart1: echarts.ECharts | null = null;
 let barChart1: echarts.ECharts | null = null;
 
@@ -680,91 +708,94 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
     }
   });
 };
+//#endregion
 </script>
 
 <template>
   <div>
-    <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">
-        产品结构
-        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
-      </div>
-      <el-row :gutter="10">
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure1.name"
-            :title="productStructure1.title"
-            :text="productStructure1.text"
-            :option="productStructure1.option"
-            :style="productStructure1?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handlePieChart1Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure2.name"
-            :title="productStructure2.title"
-            :text="productStructure2.text"
-            :option="productStructure2.option"
-            :style="productStructure2?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handleBarChart1Ready"
-          />
-        </el-col>
+    <!-- <el-card shadow="never" style="border-radius: 10px"> -->
+    <div class="text-[#0a0a0a] text-base md:text-xl">
+      产品结构
+      <span class="text-[#666] text-xs md:text-sm">
+        (数据期间: {{ DATA_TIME }})
+      </span>
+    </div>
+    <el-row :gutter="10">
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure1.name"
+          :title="productStructure1.title"
+          :text="productStructure1.text"
+          :option="productStructure1.option"
+          :style="productStructure1?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart1Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure2.name"
+          :title="productStructure2.title"
+          :text="productStructure2.text"
+          :option="productStructure2.option"
+          :style="productStructure2?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart1Ready"
+        />
+      </el-col>
 
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure3.name"
-            :title="productStructure3.title"
-            :text="productStructure3.text"
-            :option="productStructure3.option"
-            :style="productStructure3?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handlePieChart2Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure4.name"
-            :title="productStructure4.title"
-            :text="productStructure4.text"
-            :option="productStructure4.option"
-            :style="productStructure4?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handleBarChart2Ready"
-          />
-        </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure3.name"
+          :title="productStructure3.title"
+          :text="productStructure3.text"
+          :option="productStructure3.option"
+          :style="productStructure3?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart2Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure4.name"
+          :title="productStructure4.title"
+          :text="productStructure4.text"
+          :option="productStructure4.option"
+          :style="productStructure4?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart2Ready"
+        />
+      </el-col>
 
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure5.name"
-            :title="productStructure5.title"
-            :text="productStructure5.text"
-            :option="productStructure5.option"
-            :style="productStructure5?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handlePieChart3Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="productStructure6.name"
-            :title="productStructure6.title"
-            :text="productStructure6.text"
-            :option="productStructure6.option"
-            :style="productStructure6?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handleBarChart3Ready"
-          />
-        </el-col>
-      </el-row>
-    </el-card>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure5.name"
+          :title="productStructure5.title"
+          :text="productStructure5.text"
+          :option="productStructure5.option"
+          :style="productStructure5?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart3Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="productStructure6.name"
+          :title="productStructure6.title"
+          :text="productStructure6.text"
+          :option="productStructure6.option"
+          :style="productStructure6?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart3Ready"
+        />
+      </el-col>
+    </el-row>
+    <!-- </el-card> -->
   </div>
 </template>

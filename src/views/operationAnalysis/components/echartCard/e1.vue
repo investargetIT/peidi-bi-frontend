@@ -8,6 +8,10 @@ const props = defineProps({
   excelData: {
     type: Array as PropType<any[]>,
     default: () => []
+  },
+  sizeConfig: {
+    type: Object,
+    required: true
   }
 });
 
@@ -26,7 +30,7 @@ const getCoreCard1Data = computed(() => {
     return item;
   });
 });
-const coreCard1 = ref({
+const coreCard1 = computed(() => ({
   name: "coreCard1",
   title: "",
   text: "",
@@ -41,8 +45,9 @@ const coreCard1 = ref({
         radius: ["45%", "70%"],
         avoidLabelOverlap: false,
         label: {
-          fontSize: 14,
-          lineHeight: 14,
+          fontSize: props.sizeConfig.fontSize,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSize,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -58,7 +63,7 @@ const coreCard1 = ref({
         blur: {
           alpha: 0.3
         },
-        data: getCoreCard1Data
+        data: getCoreCard1Data.value
         // [
         //   { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
         //   { value: 3962, name: "杭州智创", itemStyle: { color: "#12239E" } },
@@ -69,10 +74,10 @@ const coreCard1 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
 const getCoreCard2Data = computed(() => {
   const data = props.excelData?.[0]?.data || [];
@@ -118,7 +123,8 @@ const getCoreCard2Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -133,7 +139,8 @@ const getCoreCard2Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -148,7 +155,8 @@ const getCoreCard2Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -157,7 +165,7 @@ const getCoreCard2Data = computed(() => {
     }
   ];
 });
-const coreCard2 = ref({
+const coreCard2 = computed(() => ({
   name: "coreCard2",
   title: "",
   text: "",
@@ -183,11 +191,12 @@ const coreCard2 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 14, // 图标宽度
-      itemHeight: 14, // 图标高度
+      itemWidth: 16, // 图标宽度
+      itemHeight: 16, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -196,25 +205,26 @@ const coreCard2 = ref({
       type: "category",
       data: ["哈宠千百仓", "杭州智创", "内销其他"],
       axisLabel: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 0
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: {
       type: "value",
       show: false
     },
-    series: getCoreCard2Data
+    series: getCoreCard2Data.value
   },
   style: {
     width: "100%",
-    // height: "200px",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
 const getCoreCard3Data = computed(() => {
   const data = props.excelData?.[0]?.data || [];
@@ -234,7 +244,7 @@ const getCoreCard3Data = computed(() => {
     return item;
   });
 });
-const coreCard3 = ref({
+const coreCard3 = computed(() => ({
   name: "coreCard3",
   title: "",
   text: "",
@@ -249,8 +259,9 @@ const coreCard3 = ref({
         radius: ["45%", "70%"],
         avoidLabelOverlap: false,
         label: {
-          fontSize: 14,
-          lineHeight: 14,
+          fontSize: props.sizeConfig.fontSize,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSize,
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
@@ -266,7 +277,7 @@ const coreCard3 = ref({
         blur: {
           alpha: 0.3
         },
-        data: getCoreCard3Data
+        data: getCoreCard3Data.value
         // [
         //   {
         //     value: 4358,
@@ -280,10 +291,10 @@ const coreCard3 = ref({
   },
   style: {
     width: "100%",
-    // height: "200px",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
 const getCoreCard4Data = computed(() => {
   const data = props.excelData?.[0]?.data || [];
@@ -328,8 +339,8 @@ const getCoreCard4Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
-
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -344,7 +355,8 @@ const getCoreCard4Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -359,7 +371,8 @@ const getCoreCard4Data = computed(() => {
       label: {
         show: true,
         position: "top",
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         formatter: (params: any) => `${params.value}%`
@@ -368,7 +381,7 @@ const getCoreCard4Data = computed(() => {
     }
   ];
 });
-const coreCard4 = ref({
+const coreCard4 = computed(() => ({
   name: "coreCard4",
   title: "",
   text: "",
@@ -394,11 +407,12 @@ const coreCard4 = ref({
       orient: "horizontal",
       left: "left",
       icon: "circle",
-      itemWidth: 14, // 图标宽度
-      itemHeight: 14, // 图标高度
+      itemWidth: 16, // 图标宽度
+      itemHeight: 16, // 图标高度
       itemGap: 10, // 图例项之间的间距
       textStyle: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif"
       }
@@ -407,26 +421,28 @@ const coreCard4 = ref({
       type: "category",
       data: ["自主品牌收入", "其他收入"],
       axisLabel: {
-        fontSize: 14,
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 0
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: {
       type: "value",
       show: false
     },
-    series: getCoreCard4Data
+    series: getCoreCard4Data.value
   },
   style: {
     width: "100%",
-    // height: "200px",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
     borderRadius: "10px"
   }
-});
+}));
 
+//#region 联动逻辑
 let pieChart1: echarts.ECharts | null = null;
 let barChart1: echarts.ECharts | null = null;
 
@@ -540,65 +556,68 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
     }
   });
 };
+//#endregion
 </script>
 
 <template>
   <div>
-    <el-card shadow="never" style="border-radius: 10px">
-      <div class="text-xl text-[#0a0a0a]">
-        核心指标达成总览
-        <span class="text-[#666] text-sm">(数据期间：{{ DATA_TIME }})</span>
-      </div>
-      <el-row :gutter="10">
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="coreCard1.name"
-            :title="coreCard1.title"
-            :text="coreCard1.text"
-            :option="coreCard1.option"
-            :style="coreCard1?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handlePieChart1Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="coreCard2.name"
-            :title="coreCard2.title"
-            :text="coreCard2.text"
-            :option="coreCard2.option"
-            :style="coreCard2?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handleBarChart1Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="coreCard3.name"
-            :title="coreCard3.title"
-            :text="coreCard3.text"
-            :option="coreCard3.option"
-            :style="coreCard3?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handlePieChart2Ready"
-          />
-        </el-col>
-        <el-col :xs="12" :sm="12" :md="12">
-          <ChartCard
-            :name="coreCard4.name"
-            :title="coreCard4.title"
-            :text="coreCard4.text"
-            :option="coreCard4.option"
-            :style="coreCard4?.style"
-            :clacHeight="0"
-            :showCard="false"
-            @chart-ready="handleBarChart2Ready"
-          />
-        </el-col>
-      </el-row>
-    </el-card>
+    <!-- <el-card shadow="never" style="border-radius: 10px"> -->
+    <div class="text-[#0a0a0a] text-base md:text-xl">
+      核心指标达成总览
+      <span class="text-[#666] text-xs md:text-sm">
+        (数据期间: {{ DATA_TIME }})
+      </span>
+    </div>
+    <el-row :gutter="10">
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard1.name"
+          :title="coreCard1.title"
+          :text="coreCard1.text"
+          :option="coreCard1.option"
+          :style="coreCard1?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart1Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard2.name"
+          :title="coreCard2.title"
+          :text="coreCard2.text"
+          :option="coreCard2.option"
+          :style="coreCard2?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart1Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard3.name"
+          :title="coreCard3.title"
+          :text="coreCard3.text"
+          :option="coreCard3.option"
+          :style="coreCard3?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart2Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard4.name"
+          :title="coreCard4.title"
+          :text="coreCard4.text"
+          :option="coreCard4.option"
+          :style="coreCard4?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart2Ready"
+        />
+      </el-col>
+    </el-row>
+    <!-- </el-card> -->
   </div>
 </template>
