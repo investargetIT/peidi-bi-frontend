@@ -54,7 +54,7 @@ onUnmounted(() => {
       type="border-card"
       class="peidi-el-tabs-modern-tabs"
     >
-      <el-tab-pane label="业绩实时监控" name="incomePro" lazy>
+      <el-tab-pane label="业绩每周监控" name="incomePro" lazy>
         <IncomePro v-if="activeName === 'incomePro'" />
       </el-tab-pane>
       <el-tab-pane label="经营分析" name="operationAnalysis" lazy>

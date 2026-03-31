@@ -13,7 +13,7 @@ import LightCircle from "../common/lightCircle/index.vue";
           SALES ANALYTICS COMMAND CENTER
         </div>
         <div class="text-[var(--dash-text-primary)] text-3xl font-bold">
-          业绩实时监控
+          业绩每周监控
         </div>
       </div>
 
