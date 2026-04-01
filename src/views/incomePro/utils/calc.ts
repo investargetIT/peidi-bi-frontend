@@ -88,8 +88,14 @@ export const getWeekOfMonth = (): number => {
   const now = dayjs();
   const startOfMonth = now.startOf("month");
 
-  // 当前周数 - 月初周数
-  return now.week() - startOfMonth.week();
+  // 计算从月初到现在的天数差
+  const daysFromStart = now.date() - 1;
+
+  // 月初是星期几 (0=Sunday, 6=Saturday)
+  const startDayOfWeek = startOfMonth.day();
+
+  // 计算是第几周 (向上取整，第一周为第 1 周)
+  return Math.ceil((daysFromStart + startDayOfWeek) / 7);
 };
 
 /**

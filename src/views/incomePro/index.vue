@@ -22,6 +22,25 @@ import Overview from "./components/overview/index.vue";
 import Achievement from "./components/achievement/index.vue";
 import DetailCard from "./components/detailCard/index.vue";
 
+// 如果是当月第一周 就返回上个月的最后一周
+const getLastWeek = (num: number | string) => {
+  if (num === 1) {
+    const lastMonth = dayjs().subtract(1, "month");
+    const startOfLastMonth = lastMonth.startOf("month");
+    const endOfLastMonth = lastMonth.endOf("month");
+
+    // 计算上个月第一天是星期几 (0=Sunday, 6=Saturday)
+    const startDayOfWeek = startOfLastMonth.day();
+
+    // 计算上个月最后一天是第几天
+    const lastDay = endOfLastMonth.date();
+
+    // 计算是第几周
+    return Math.ceil((lastDay - 1 + startDayOfWeek) / 7);
+  }
+  return num;
+};
+
 // 基础数据
 const incomeWeekData = ref<any>([]); // 周数据
 const incomeMonthData = ref<any>([]); // 月数据
@@ -84,9 +103,17 @@ const fetchIncomeTargetData = (params: incomeParams) => {
 
 onMounted(async () => {
   // 初始化时请求数据
+  const currentWeek = getWeekOfMonth();
+  const targetMonth =
+    currentWeek === 1
+      ? dayjs().month() // 第一周时，上个月 (month() 返回 0-11)
+      : dayjs().month() + 1; // 非第
+  // 初始化时请求数据
+  console.log("当前第几周:", currentWeek, targetMonth);
+
   await fetchIncomeWeekData({
     year: dayjs().year(),
-    month: dayjs().month() + 1
+    month: targetMonth
   });
   await fetchIncomeMonthData({ year: dayjs().year() }, data => {
     // console.log("月度收入数据:", data);
@@ -219,7 +246,9 @@ const handleIncomeData = () => {
         // expect 在周数据里去找到该周的期望值
         // console.log("本周", getWeekOfMonth());
         const expect = incomeWeekData.value.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
+          data =>
+            data.week === getLastWeek(getWeekOfMonth()) &&
+            data.channel === item.name
         )?.monthExpectation;
         item.expect = Number((expect * 100).toFixed(0));
 
@@ -270,7 +299,9 @@ const handleIncomeData = () => {
       temp.forEach(item => {
         // expect 在周数据里去找到该周的期望值
         const expect = incomeWeekData.value.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
+          data =>
+            data.week === getLastWeek(getWeekOfMonth()) &&
+            data.channel === item.name
         )?.yearExpectation;
         item.expect = Number((expect * 100).toFixed(0));
 
@@ -348,7 +379,9 @@ const handleIncomeData = () => {
       temp.forEach(item => {
         //#region expect 期望值 在周数据里去找到该周的期望值
         const expect = incomeWeekData.value.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
+          data =>
+            data.week === getLastWeek(getWeekOfMonth()) &&
+            data.channel === item.name
         )?.monthExpectation;
         item.expect = Number((expect * 100).toFixed(0));
         //#endregion
@@ -617,7 +650,9 @@ const handleIncomeData = () => {
       temp.forEach(item => {
         //#region expect 期望值 在周数据里去找到该周的期望值
         const expect = incomeWeekData.value.find(
-          data => data.week === getWeekOfMonth() && data.channel === item.name
+          data =>
+            data.week === getLastWeek(getWeekOfMonth()) &&
+            data.channel === item.name
         )?.yearExpectation;
         item.expect = Number((expect * 100).toFixed(0));
         //#endregion

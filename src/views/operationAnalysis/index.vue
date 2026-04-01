@@ -31,7 +31,9 @@ const loadExcelData = async () => {
   loading.value = true;
   try {
     let baseUrl = window.location.href.split("#")[0];
-    const sheets = await loadExcelFile(baseUrl + "/static/经营分析指标.xlsx");
+    const sheets = await loadExcelFile(
+      baseUrl + "/static/经营分析指标202604011010.xlsx"
+    );
     excelData.value = sheets;
 
     if (sheets.length >= 4) {
