@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
 import { storageLocal } from "@pureadmin/utils";
+import NavBar from "./components/navBar/index.vue";
 
 const activeName = ref("incomePro");
 
@@ -61,6 +62,8 @@ onUnmounted(() => {
         <OperationAnalysis v-if="activeName === 'operationAnalysis'" />
       </el-tab-pane>
     </el-tabs>
+
+    <NavBar />
   </div>
 </template>
 

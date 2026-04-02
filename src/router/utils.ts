@@ -510,12 +510,12 @@ function initRouter() {
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {
-            message("获取用户信息失败", { type: "error" });
+            // message("获取用户信息失败", { type: "error" });
             resolve(router);
           }
         })
         .catch(error => {
-          message("获取用户信息失败:" + error.message, { type: "error" });
+          // message("获取用户信息失败:" + error.message, { type: "error" });
           resolve(router);
         });
 
