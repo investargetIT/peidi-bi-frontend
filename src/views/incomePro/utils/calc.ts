@@ -84,8 +84,8 @@ export function divide(
 /**
  * 获取本月第几周
  */
-export const getWeekOfMonth = (): number => {
-  const now = dayjs();
+export const getWeekOfMonth = (date?: string): number => {
+  const now = dayjs(date || dayjs().format("YYYY-MM-DD"));
   const startOfMonth = now.startOf("month");
 
   // 计算从月初到现在的天数差
