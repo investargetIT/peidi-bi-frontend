@@ -52,10 +52,10 @@ const productStructure1 = computed(() => ({
           alpha: 0.3
         },
         data: [
-          { value: 4262, name: "爵宴", itemStyle: { color: "#12239E" } },
-          { value: 184, name: "SMB/⻮能", itemStyle: { color: "#118DFF" } },
-          { value: 306, name: "好适嘉", itemStyle: { color: "#E66C37" } },
-          { value: 0, name: "Vivaland", itemStyle: { color: "#E044A7" } }
+          { value: 6433, name: "爵宴", itemStyle: { color: "#12239E" } },
+          { value: 308, name: "SMB/⻮能", itemStyle: { color: "#118DFF" } },
+          { value: 503, name: "好适嘉", itemStyle: { color: "#E66C37" } },
+          { value: 1, name: "Vivaland", itemStyle: { color: "#E044A7" } }
         ]
       }
     ]
@@ -123,7 +123,7 @@ const productStructure2 = computed(() => ({
       {
         name: "进度",
         type: "bar",
-        data: [11, 9, 6, 0],
+        data: [16, 15, 10, 0],
         itemStyle: {
           color: "#118DFF"
         },
@@ -143,7 +143,7 @@ const productStructure2 = computed(() => ({
       {
         name: "同比",
         type: "bar",
-        data: [27, -23, 27, 0],
+        data: [16, -20, 20, 0],
         itemStyle: {
           color: "#12239E"
         },
@@ -210,14 +210,14 @@ const productStructure3 = computed(() => ({
         },
         data: [
           {
-            value: 3295,
+            value: 4883,
             name: "爵宴⻛⼲零⻝",
             itemStyle: { color: "#198E44" }
           },
-          { value: 370, name: "爵宴湿粮", itemStyle: { color: "#C1F087" } },
-          { value: 319, name: "爵宴冻⼲", itemStyle: { color: "#21C149" } },
-          { value: 222, name: "爵宴⻛⼲粮", itemStyle: { color: "#BDD643" } },
-          { value: 55, name: "爵宴烘焙粮", itemStyle: { color: "#3EF882" } }
+          { value: 578, name: "爵宴湿粮", itemStyle: { color: "#C1F087" } },
+          { value: 348, name: "爵宴⻛⼲粮", itemStyle: { color: "#BDD643" } },
+          { value: 121, name: "爵宴烘焙粮", itemStyle: { color: "#3EF882" } },
+          { value: 504, name: "爵宴冻⼲", itemStyle: { color: "#21C149" } }
         ]
       }
     ]
@@ -270,9 +270,9 @@ const productStructure4 = computed(() => ({
       data: [
         "爵宴⻛⼲零⻝",
         "爵宴湿粮",
-        "爵宴冻⼲",
         "爵宴⻛⼲粮",
-        "爵宴烘焙粮"
+        "爵宴烘焙粮",
+        "爵宴冻⼲"
       ],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
@@ -291,7 +291,7 @@ const productStructure4 = computed(() => ({
       {
         name: "进度",
         type: "bar",
-        data: [14, 12, 11, 4, 1],
+        data: [20, 19, 7, 3, 17],
         itemStyle: {
           color: "#C1F087"
         },
@@ -311,7 +311,7 @@ const productStructure4 = computed(() => ({
       {
         name: "同比",
         type: "bar",
-        data: [24, 42, 75, -11, 0],
+        data: [13, 22, -13, 0, 51],
         itemStyle: {
           color: "#198E44"
         },
@@ -331,7 +331,7 @@ const productStructure4 = computed(() => ({
       {
         name: "毛利率",
         type: "bar",
-        data: [27, 37, 39, 36, 29],
+        data: [28, 38, 37, 26, 42],
         itemStyle: {
           color: "#BDD643"
         },
@@ -397,11 +397,11 @@ const productStructure5 = computed(() => ({
           alpha: 0.3
         },
         data: [
-          { value: 77, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
-          { value: 131, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
-          { value: 54, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
+          { value: 215, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
+          { value: 120, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
+          { value: 89, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
           {
-            value: 44,
+            value: 79,
             name: "好适嘉其他 + 零⻝",
             itemStyle: { color: "#9071CE" }
           }
@@ -454,14 +454,14 @@ const productStructure6 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["好适嘉⼲粮", "好适嘉湿粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
+      data: ["好适嘉湿粮", "好适嘉⼲粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
         color: "#666",
         fontFamily: "sans-serif",
         interval: 0,
-        rotate: 45
+        rotate: props.sizeConfig.rotate
       }
     },
     yAxis: {
@@ -472,7 +472,7 @@ const productStructure6 = computed(() => ({
       {
         name: "进度",
         type: "bar",
-        data: [8, 7, 4, 4],
+        data: [12, 10, 9, 8],
         itemStyle: {
           color: "#E68F96"
         },
@@ -492,7 +492,7 @@ const productStructure6 = computed(() => ({
       {
         name: "同比",
         type: "bar",
-        data: [216, -7, 254, -26],
+        data: [-8, 74, 191, -10],
         itemStyle: {
           color: "#EC8FCA"
         },
@@ -512,7 +512,7 @@ const productStructure6 = computed(() => ({
       {
         name: "毛利率",
         type: "bar",
-        data: [63, 28, 38],
+        data: [29, 58, 40, 40],
         itemStyle: {
           color: "#C163CA"
         },

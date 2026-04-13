@@ -63,12 +63,13 @@ const coreCard1 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        data: getCoreCard1Data.value
-        // [
-        //   { value: 395, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
-        //   { value: 3962, name: "杭州智创", itemStyle: { color: "#12239E" } },
-        //   { value: 185, name: "内销其他", itemStyle: { color: "#E66C37" } }
-        // ]
+        data:
+          // getCoreCard1Data.value
+          [
+            { value: 6055, name: "杭州智创", itemStyle: { color: "#12239E" } },
+            { value: 647, name: "哈宠千百仓", itemStyle: { color: "#118DFF" } },
+            { value: 286, name: "内销其他", itemStyle: { color: "#E66C37" } }
+          ]
       }
     ]
   },
@@ -203,7 +204,7 @@ const coreCard2 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["哈宠千百仓", "杭州智创", "内销其他"],
+      data: ["杭州智创", "哈宠千百仓", "内销其他"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -217,7 +218,70 @@ const coreCard2 = computed(() => ({
       type: "value",
       show: false
     },
-    series: getCoreCard2Data.value
+    series:
+      // getCoreCard2Data.value
+      [
+        {
+          name: "完成率",
+          type: "bar",
+          data: [95, 135, 26],
+          itemStyle: {
+            color: "#118DFF"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "全年进度",
+          type: "bar",
+          data: [15, 22, 4],
+          itemStyle: {
+            color: "#12239E"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "同比",
+          type: "bar",
+          data: [7, 7, 50],
+          itemStyle: {
+            color: "#E66C37"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        }
+      ]
   },
   style: {
     width: "100%",
@@ -277,15 +341,16 @@ const coreCard3 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        data: getCoreCard3Data.value
-        // [
-        //   {
-        //     value: 4358,
-        //     name: "⾃主品牌收⼊",
-        //     itemStyle: { color: "#12239E" }
-        //   },
-        //   { value: 184, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
-        // ]
+        data:
+          // getCoreCard3Data.value
+          [
+            {
+              value: 6646,
+              name: "⾃主品牌收⼊",
+              itemStyle: { color: "#12239E" }
+            },
+            { value: 342, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
+          ]
       }
     ]
   },
@@ -433,7 +498,70 @@ const coreCard4 = computed(() => ({
       type: "value",
       show: false
     },
-    series: getCoreCard4Data.value
+    series:
+      // getCoreCard4Data.value
+      [
+        {
+          name: "完成率",
+          type: "bar",
+          data: [96, 32],
+          itemStyle: {
+            color: "#118DFF"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "全年进度",
+          type: "bar",
+          data: [14.46, 8.44],
+          itemStyle: {
+            color: "#12239E"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "同比",
+          type: "bar",
+          data: [16, -53],
+          itemStyle: {
+            color: "#E66C37"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        }
+      ]
   },
   style: {
     width: "100%",

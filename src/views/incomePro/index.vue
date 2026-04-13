@@ -22,7 +22,11 @@ import Overview from "./components/overview/index.vue";
 import Achievement from "./components/achievement/index.vue";
 import DetailCard from "./components/detailCard/index.vue";
 
-const DEFAULT_DATE = ref("2026-04-05");
+// const DEFAULT_DATE = ref("2026-04-13");
+const DEFAULT_DATE = ref(
+  dayjs().subtract(1, "week").endOf("week").format("YYYY-MM-DD")
+);
+// console.log("DEFAULT_DATE:", DEFAULT_DATE.value);
 
 // 如果是当月第一周 就返回上个月的最后一周
 // FIXME：用DEFAULT_DATE.value计算，已经不需要这个逻辑
@@ -110,9 +114,9 @@ onMounted(async () => {
   const targetMonth =
     currentWeek === 1
       ? dayjs(DEFAULT_DATE.value).month() // 第一周时，上个月 (month() 返回 0-11)
-      : dayjs(DEFAULT_DATE.value).month() + 1; // 非第
+      : dayjs(DEFAULT_DATE.value).month() + 1; // 非第一周时，当前月
   // 初始化时请求数据
-  console.log("当前第几周:", currentWeek, targetMonth);
+  console.log("当前第几周/目标月份:", currentWeek, targetMonth);
 
   await fetchIncomeWeekData({
     year: dayjs(DEFAULT_DATE.value).year(),

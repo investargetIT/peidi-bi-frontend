@@ -50,7 +50,7 @@ const costStructure1 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["商品成本率", "营销费率", "⼈⼒成本率", "履约费率", "管理费率"],
+      data: ["商品成本率", "履约费率", "营销费率", "人力成本率", "管理费率"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -79,7 +79,7 @@ const costStructure1 = computed(() => ({
       {
         name: "",
         type: "bar",
-        data: [70.3, 23.7, 9.2, 8.0, 0.5],
+        data: [68.2, 8, 23.7, 9.8, 0.4],
         itemStyle: {
           color: params => {
             const colors = [
@@ -162,11 +162,11 @@ const costStructure2 = computed(() => ({
           alpha: 0.3
         },
         data: [
-          { value: 62.9, name: "商品成本率", itemStyle: { color: "#118DFF" } },
-          { value: 0.4, name: "管理费率", itemStyle: { color: "#E044A7" } },
+          { value: 60.9, name: "商品成本率", itemStyle: { color: "#118DFF" } },
           { value: 7.2, name: "履约费率", itemStyle: { color: "#6B007B" } },
-          { value: 8.2, name: "⼈⼒成本率", itemStyle: { color: "#E66C37" } },
-          { value: 21.2, name: "营销费率", itemStyle: { color: "#12239E" } }
+          { value: 21.2, name: "营销费率", itemStyle: { color: "#12239E" } },
+          { value: 8.9, name: "⼈⼒成本率", itemStyle: { color: "#E66C37" } },
+          { value: 0.3, name: "管理费率", itemStyle: { color: "#E044A7" } }
         ]
       }
     ]
@@ -216,7 +216,7 @@ const costStructure3 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["商品成本率", "管理费率", "履约费率", "⼈⼒成本率", "营销费率"],
+      data: ["商品成本率", "履约费率", "营销费率", "⼈⼒成本率", "管理费率"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -245,7 +245,7 @@ const costStructure3 = computed(() => ({
       {
         name: "",
         type: "bar",
-        data: [2, -0.2, -0.4, -1.6, -3.9],
+        data: [1.02, -0.3, 0.32, -0.11, -0.09],
         itemStyle: {
           color: params => {
             const colors = [
@@ -433,15 +433,15 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             <div class="text-[#0a0a0a] font-bold text-xs md:text-sm">
               <div class="text-[#118DFF] font-bold">去除沃尔玛后⽑利率</div>
               <div class="flex items-center mt-2">
-                <div>34.6%</div>
-                <div class="ml-5">-2.4%</div>
+                <div>37.53%</div>
+                <div class="ml-5">-0.69%</div>
               </div>
               <div class="text-[#118DFF] font-bold mt-3">
                 去除沃尔玛后营销费率
               </div>
               <div class="flex items-center mt-2">
-                <div>32.2%</div>
-                <div class="ml-5">-1.9%</div>
+                <div>29.34%</div>
+                <div class="ml-5">1.37%</div>
               </div>
             </div>
           </div>

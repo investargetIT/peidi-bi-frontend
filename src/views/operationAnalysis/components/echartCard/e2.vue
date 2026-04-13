@@ -74,14 +74,15 @@ const teamCard = computed(() => ({
     xAxis: {
       type: "category",
       data: [
-        "商超",
+        "哈宠团队",
         "天猫团队",
         "京东拼多多团队",
-        "哈宠团队",
         "抖音团队",
-        "线上分销",
-        "线下分销",
-        "跨境电商"
+        "销售一组",
+        "销售二组",
+        "销售三组",
+        "跨境电商",
+        "Vivaland"
       ],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
@@ -117,7 +118,7 @@ const teamCard = computed(() => ({
       {
         name: "本期累计",
         type: "bar",
-        data: [1548, 1171, 618, 496, 480, 439, 216, 25],
+        data: [814, 1834, 1030, 823, 361, 777, 1884, 27, 1],
         itemStyle: {
           color: "#12239E"
         },
@@ -136,7 +137,7 @@ const teamCard = computed(() => ({
       {
         name: "去年同期",
         type: "bar",
-        data: [771, 1154, 509, 457, 475, 461, 254, 0],
+        data: [756, 1970, 771, 761, 298, 780, 1388, 0, 0],
         itemStyle: {
           color: "#118DFF"
         },
@@ -156,7 +157,7 @@ const teamCard = computed(() => ({
         name: "达成情况",
         type: "line",
         yAxisIndex: 1,
-        data: [186, 96, 111, 117, 106, 131, 129, 76],
+        data: [126, 85, 115, 98, 120, 114, 139, 49, 12],
         itemStyle: {
           color: "#E66C37"
         },
@@ -180,7 +181,7 @@ const teamCard = computed(() => ({
         name: "达成进度",
         type: "line",
         yAxisIndex: 1,
-        data: [24, 8, 14, 16, 9, 10, 10, 7],
+        data: [26, 13, 24, 16, 17, 18, 30, 8, 0],
         itemStyle: {
           color: "#E044A7"
         },
