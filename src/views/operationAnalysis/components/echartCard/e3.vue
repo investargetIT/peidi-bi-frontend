@@ -20,6 +20,33 @@ const productStructure1 = computed(() => ({
     tooltip: {
       trigger: "item"
     },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "7245",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
     series: [
       {
         name: "",
@@ -177,6 +204,33 @@ const productStructure3 = computed(() => ({
     tooltip: {
       trigger: "item"
     },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "6434",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
     series: [
       {
         name: "",
@@ -365,6 +419,33 @@ const productStructure5 = computed(() => ({
     tooltip: {
       trigger: "item"
     },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "503",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
     series: [
       {
         name: "",
@@ -402,7 +483,7 @@ const productStructure5 = computed(() => ({
           { value: 89, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
           {
             value: 79,
-            name: "好适嘉其他 + 零⻝",
+            name: "好适嘉其他 + 零食",
             itemStyle: { color: "#9071CE" }
           }
         ]

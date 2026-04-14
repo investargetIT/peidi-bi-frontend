@@ -38,6 +38,33 @@ const coreCard1 = computed(() => ({
     tooltip: {
       trigger: "item"
     },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "6988",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
     series: [
       {
         name: "",
@@ -54,6 +81,10 @@ const coreCard1 = computed(() => ({
             const percent = params.percent.toFixed(1);
             return `${params.name}\n${params.value} (${percent}%)`;
           }
+        },
+        labelLayout: {
+          hideOverlap: false,
+          moveOverlap: "shiftY"
         },
         emphasis: {
           focus: "self",
@@ -316,6 +347,33 @@ const coreCard3 = computed(() => ({
     tooltip: {
       trigger: "item"
     },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "6988",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
     series: [
       {
         name: "",
@@ -346,10 +404,10 @@ const coreCard3 = computed(() => ({
           [
             {
               value: 6646,
-              name: "⾃主品牌收⼊",
+              name: "自主品牌收入",
               itemStyle: { color: "#12239E" }
             },
-            { value: 342, name: "其他收⼊", itemStyle: { color: "#118DFF" } }
+            { value: 342, name: "其他收入", itemStyle: { color: "#118DFF" } }
           ]
       }
     ]
@@ -570,6 +628,210 @@ const coreCard4 = computed(() => ({
   }
 }));
 
+// 利润
+const coreCard5 = computed(() => ({
+  name: "coreCard5",
+  title: "",
+  text: "",
+  option: {
+    tooltip: {
+      trigger: "item"
+    },
+    graphic: [
+      {
+        type: "text",
+        left: "center",
+        top: "center",
+        style: {
+          text: "-821",
+          textAlign: "center",
+          fill: "#333",
+          fontSize: props.sizeConfig.fontSize * 1.5,
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }
+      },
+      {
+        type: "text",
+        left: "center",
+        top: "55%",
+        style: {
+          text: "总计",
+          textAlign: "center",
+          fill: "#999",
+          fontSize: props.sizeConfig.fontSize * 0.9,
+          fontFamily: "sans-serif"
+        }
+      }
+    ],
+    series: [
+      {
+        name: "",
+        type: "pie",
+        radius: ["45%", "70%"],
+        avoidLabelOverlap: false,
+        label: {
+          fontSize: props.sizeConfig.fontSize,
+          fontWeight: props.sizeConfig.fontWeight,
+          lineHeight: props.sizeConfig.fontSize,
+          color: "#666",
+          fontFamily: "sans-serif",
+          formatter: params => {
+            const percent = params.percent.toFixed(1);
+            return `${params.name}\n${-params.value} (${percent}%)`;
+          }
+        },
+        emphasis: {
+          focus: "self",
+          scale: true,
+          scaleSize: 10
+        },
+        blur: {
+          alpha: 0.3
+        },
+        data:
+          // getCoreCard3Data.value
+          [
+            {
+              value: 821,
+              name: "利润",
+              itemStyle: { color: "#12239E" }
+            }
+          ]
+      }
+    ]
+  },
+  style: {
+    width: "100%",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
+    borderRadius: "10px"
+  }
+}));
+
+const coreCard6 = computed(() => ({
+  name: "coreCard6",
+  title: "",
+  text: "",
+  option: {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow"
+      },
+      formatter: params => {
+        let result = `<div style="font-weight: bold">${params[0].name}</div>`;
+        params.forEach(param => {
+          result += `<div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>${param.marker} ${param.seriesName}</span>
+            <span style="margin-left: 10px; font-weight: bold;">${param.value}%</span>
+          </div>`;
+        });
+        return result;
+      }
+    },
+    legend: {
+      show: true,
+      orient: "horizontal",
+      left: "left",
+      icon: "circle",
+      itemWidth: 16, // 图标宽度
+      itemHeight: 16, // 图标高度
+      itemGap: 10, // 图例项之间的间距
+      textStyle: {
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
+        color: "#666",
+        fontFamily: "sans-serif"
+      }
+    },
+    xAxis: {
+      type: "category",
+      data: ["利润"],
+      axisLabel: {
+        fontSize: props.sizeConfig.fontSize,
+        fontWeight: props.sizeConfig.fontWeight,
+        color: "#666",
+        fontFamily: "sans-serif",
+        interval: 0,
+        rotate: props.sizeConfig.rotate
+      }
+    },
+    yAxis: {
+      type: "value",
+      show: false
+    },
+    series:
+      // getCoreCard4Data.value
+      [
+        {
+          name: "完成率",
+          type: "bar",
+          data: [91],
+          itemStyle: {
+            color: "#118DFF"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "全年进度",
+          type: "bar",
+          data: [23],
+          itemStyle: {
+            color: "#12239E"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "同比",
+          type: "bar",
+          data: [-18],
+          itemStyle: {
+            color: "#E66C37"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        }
+      ]
+  },
+  style: {
+    width: "100%",
+    height: props.sizeConfig.name === "XS" ? "300" : "450",
+    borderRadius: "10px"
+  }
+}));
+
 //#region 联动逻辑
 let pieChart1: echarts.ECharts | null = null;
 let barChart1: echarts.ECharts | null = null;
@@ -684,6 +946,63 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
     }
   });
 };
+
+let pieChart3: echarts.ECharts | null = null;
+let barChart3: echarts.ECharts | null = null;
+
+const handlePieChart3Ready = (chart: echarts.ECharts) => {
+  pieChart3 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      const name = params.name;
+      if (barChart3) {
+        barChart3.dispatchAction({
+          type: "highlight",
+          seriesIndex: [0, 1, 2],
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series" && params.seriesName === "") {
+      if (barChart3) {
+        barChart3.dispatchAction({
+          type: "downplay",
+          seriesIndex: [0, 1, 2]
+        });
+      }
+    }
+  });
+};
+
+const handleBarChart3Ready = (chart: echarts.ECharts) => {
+  barChart3 = chart;
+  chart.on("mouseover", params => {
+    if (params.componentType === "series") {
+      const name = params.name;
+      if (pieChart3) {
+        pieChart3.dispatchAction({
+          type: "highlight",
+          seriesIndex: 0,
+          name: name
+        });
+      }
+    }
+  });
+
+  chart.on("mouseout", params => {
+    if (params.componentType === "series") {
+      if (pieChart3) {
+        pieChart3.dispatchAction({
+          type: "downplay",
+          seriesIndex: 0
+        });
+      }
+    }
+  });
+};
 //#endregion
 </script>
 
@@ -691,7 +1010,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
   <div>
     <!-- <el-card shadow="never" style="border-radius: 10px"> -->
     <div class="text-[#0a0a0a] text-base md:text-xl">
-      核心指标达成总览
+      核心指标达成总览(不含税)
       <span class="text-[#666] text-xs md:text-sm">
         (数据期间: {{ DATA_TIME }})
       </span>
@@ -743,6 +1062,30 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
           :clacHeight="0"
           :showCard="false"
           @chart-ready="handleBarChart2Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard5.name"
+          :title="coreCard5.title"
+          :text="coreCard5.text"
+          :option="coreCard5.option"
+          :style="coreCard5?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handlePieChart3Ready"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <ChartCard
+          :name="coreCard6.name"
+          :title="coreCard6.title"
+          :text="coreCard6.text"
+          :option="coreCard6.option"
+          :style="coreCard6?.style"
+          :clacHeight="0"
+          :showCard="false"
+          @chart-ready="handleBarChart3Ready"
         />
       </el-col>
     </el-row>

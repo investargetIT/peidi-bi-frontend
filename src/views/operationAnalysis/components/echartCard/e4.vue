@@ -84,9 +84,9 @@ const costStructure1 = computed(() => ({
           color: params => {
             const colors = [
               "#118DFF",
+              "#6B007B",
               "#12239E",
               "#E66C37",
-              "#6B007B",
               "#E044A7"
             ];
             return colors[params.dataIndex];
@@ -117,7 +117,7 @@ const costStructure1 = computed(() => ({
   },
   style: {
     width: "100%",
-    height: props.sizeConfig.name === "XS" ? "450" : "950",
+    height: props.sizeConfig.name === "XS" ? "250" : "475",
     borderRadius: "10px"
   }
 }));
@@ -165,7 +165,7 @@ const costStructure2 = computed(() => ({
           { value: 60.9, name: "商品成本率", itemStyle: { color: "#118DFF" } },
           { value: 7.2, name: "履约费率", itemStyle: { color: "#6B007B" } },
           { value: 21.2, name: "营销费率", itemStyle: { color: "#12239E" } },
-          { value: 8.9, name: "⼈⼒成本率", itemStyle: { color: "#E66C37" } },
+          { value: 8.9, name: "人力成本率", itemStyle: { color: "#E66C37" } },
           { value: 0.3, name: "管理费率", itemStyle: { color: "#E044A7" } }
         ]
       }
@@ -216,7 +216,7 @@ const costStructure3 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["商品成本率", "履约费率", "营销费率", "⼈⼒成本率", "管理费率"],
+      data: ["商品成本率", "履约费率", "营销费率", "人力成本率", "管理费率"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -250,10 +250,10 @@ const costStructure3 = computed(() => ({
           color: params => {
             const colors = [
               "#118DFF",
-              "#E044A7",
               "#6B007B",
+              "#12239E",
               "#E66C37",
-              "#12239E"
+              "#E044A7"
             ];
             return colors[params.dataIndex];
           }
@@ -428,7 +428,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
       <el-col :xs="24" :sm="12" :md="12">
         <div class="relative">
           <div
-            class="absolute top-0 right-0 z-10 bg-white bg-opacity-90 p-4 rounded-lg shadow-sm"
+            class="absolute top-0 right-[10%] z-10 bg-white bg-opacity-90 p-4 rounded-lg shadow-sm"
           >
             <div class="text-[#0a0a0a] font-bold text-xs md:text-sm">
               <div class="text-[#118DFF] font-bold">去除沃尔玛后⽑利率</div>
@@ -458,7 +458,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
         </div>
       </el-col>
       <el-col :xs="24" :sm="12" :md="12">
-        <ChartCard
+        <!-- <ChartCard
           :name="costStructure2.name"
           :title="costStructure2.title"
           :text="costStructure2.text"
@@ -467,7 +467,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
           :clacHeight="0"
           :showCard="false"
           @chart-ready="handlePieChartReady"
-        />
+        /> -->
         <ChartCard
           :name="costStructure3.name"
           :title="costStructure3.title"
