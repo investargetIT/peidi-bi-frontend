@@ -402,12 +402,9 @@ const coreCard3 = computed(() => ({
         data:
           // getCoreCard3Data.value
           [
-            {
-              value: 6646,
-              name: "自主品牌收入",
-              itemStyle: { color: "#12239E" }
-            },
-            { value: 342, name: "其他收入", itemStyle: { color: "#118DFF" } }
+            { value: 431, name: "主粮", itemStyle: { color: "#118DFF" } },
+            { value: 6215, name: "零食", itemStyle: { color: "#12239E" } },
+            { value: 342, name: "其他收入", itemStyle: { color: "#E66C37" } }
           ]
       }
     ]
@@ -542,7 +539,7 @@ const coreCard4 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["自主品牌收入", "其他收入"],
+      data: ["主粮", "零食", "其他收入"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -562,7 +559,7 @@ const coreCard4 = computed(() => ({
         {
           name: "完成率",
           type: "bar",
-          data: [96, 32],
+          data: [81, 107, 21],
           itemStyle: {
             color: "#118DFF"
           },
@@ -582,7 +579,7 @@ const coreCard4 = computed(() => ({
         {
           name: "全年进度",
           type: "bar",
-          data: [14.46, 8.44],
+          data: [5, 19, 4],
           itemStyle: {
             color: "#12239E"
           },
@@ -602,7 +599,7 @@ const coreCard4 = computed(() => ({
         {
           name: "同比",
           type: "bar",
-          data: [16, -53],
+          data: [17, 16, -53],
           itemStyle: {
             color: "#E66C37"
           },
@@ -1016,7 +1013,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
       </span>
     </div>
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12" :md="12">
+      <!-- <el-col :xs="24" :sm="12" :md="12">
         <ChartCard
           :name="coreCard1.name"
           :title="coreCard1.title"
@@ -1039,7 +1036,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
           :showCard="false"
           @chart-ready="handleBarChart1Ready"
         />
-      </el-col>
+      </el-col> -->
       <el-col :xs="24" :sm="12" :md="12">
         <ChartCard
           :name="coreCard3.name"
