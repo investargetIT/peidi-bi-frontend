@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import Progress from "../common/progress/index.vue";
 import LightCircle from "../common/lightCircle/index.vue";
-import { inject, ref, watch } from "vue";
+import { computed, inject, ref, watch } from "vue";
 import { divide } from "@/views/incomePro/utils/calc";
 import { MoreFilled } from "@element-plus/icons-vue";
 import _ from "lodash";
+import { formatIncomeNumber } from "../../utils/calc";
 
 const DATA_TYPE_CHANNEL = ["全渠道", "线上", "线下"];
 const DATA_TYPE_TIMERANGE = ["本月", "年度"];
@@ -47,10 +48,6 @@ watch(
     ) {
       dataList.value = incomeData.value.projectProgressData;
     }
-  },
-  {
-    deep: true,
-    immediate: true
   }
 );
 
@@ -60,6 +57,29 @@ const getDataForDataList = (channel: string, timerange: number) => {
     return dataList.value[timerange].find(item => item.name === channel);
   }
   return null;
+};
+
+const dataMap = computed(() => {
+  const map = new Map();
+  dataList.value.forEach((rangeData: any[], rangeIndex: number) => {
+    rangeData.forEach(item => {
+      map.set(`${rangeIndex}-${item.name}`, item);
+    });
+  });
+  return map;
+});
+
+const getChannelData = (channel: string, timerange: number) => {
+  return dataMap.value.get(`${timerange}-${channel}`) || null;
+};
+
+// 通用格式化函数，支持任意字段
+const formatField = (channel: string, timerange: number, field: string) => {
+  const data = getChannelData(channel, timerange);
+  if (!data || data[field] === null || data[field] === undefined) {
+    return "";
+  }
+  return formatIncomeNumber(data[field]);
 };
 
 // 详情页
@@ -109,75 +129,88 @@ const initDetailCard = (type: string) => {
         />
       </div>
 
-      <div
+      <el-tooltip
         v-for="(timerange, index) in DATA_TYPE_TIMERANGE"
         :key="timerange"
-        @click="initDetailCard(channel)"
+        content="点击可查看详情卡片"
+        placement="top"
+        :show-after="300"
       >
-        <div class="flex items-center justify-between ml-2">
-          <div class="flex items-center">
-            <LightCircle :status="getDataForDataList(channel, index)?.status" />
-            <div
-              class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
-            >
-              {{ timerange }}
+        <div class="cursor-pointer" @click="initDetailCard(channel)">
+          <div class="flex items-center justify-between ml-2">
+            <div class="flex items-center">
+              <LightCircle :status="getChannelData(channel, index)?.status" />
+              <div
+                class="text-sm font-medium text-[var(--dash-text-secondary)] ml-2"
+              >
+                {{ timerange }}
+              </div>
+            </div>
+            <div class="text-sm text-[var(--dash-text-dim)]">
+              <span class="font-semibold text-[var(--dash-blue)]">
+                {{
+                  _.floor(
+                    divide(
+                      getChannelData(channel, index)?.income,
+                      getChannelData(channel, index)?.target
+                    ) * 100
+                  )
+                }}%
+              </span>
+              <span class="ml-2">
+                {{ formatField(channel, index, "target") }}
+              </span>
             </div>
           </div>
-          <div class="text-sm text-[var(--dash-text-dim)]">
-            <span class="font-semibold text-[var(--dash-blue)]">
-              {{
-                _.floor(
-                  divide(
-                    getDataForDataList(channel, index)?.income,
-                    getDataForDataList(channel, index)?.target
-                  ) * 100
-                )
-              }}%
-            </span>
-            <span class="ml-2">
-              {{ getDataForDataList(channel, index)?.target.toLocaleString() }}
-            </span>
-          </div>
-        </div>
 
-        <div class="ml-2 mb-2">
-          <Progress
-            :segments="[
-              {
-                percentage: Math.min(
-                  divide(
-                    getDataForDataList(channel, index)?.income,
-                    getDataForDataList(channel, index)?.target
-                  ) * 100,
-                  100
-                ),
-                status: 'primary',
-                text: _.floor(
-                  getDataForDataList(channel, index)?.income
-                ).toLocaleString()
-              }
-            ]"
-            height="25px"
-          />
-          <div
-            class="mt-2"
-            :style="{
-              width: getDataForDataList(channel, index)?.expect + '%'
-            }"
-          >
-            <Progress
-              :segments="[
-                {
-                  percentage: 100,
-                  status: 'warning',
-                  text: getDataForDataList(channel, index)?.expect + '%'
-                }
-              ]"
-              height="25px"
-            />
+          <div class="ml-2 mb-2">
+            <div class="flex items-center whitespace-nowrap">
+              <span class="text-xs mr-1 text-[var(--dash-text-secondary)]">
+                实际
+              </span>
+              <Progress
+                :segments="[
+                  {
+                    percentage: Math.min(
+                      divide(
+                        getChannelData(channel, index)?.income,
+                        getChannelData(channel, index)?.target
+                      ) * 100,
+                      100
+                    ),
+                    status: 'primary',
+                    text: formatField(channel, index, 'income')
+                  }
+                ]"
+                height="25px"
+              />
+            </div>
+
+            <div class="flex items-center whitespace-nowrap">
+              <span class="text-xs mr-1 text-[var(--dash-text-secondary)]">
+                期望
+              </span>
+              <div
+                class="mt-2"
+                :style="{
+                  width: getChannelData(channel, index)?.expect + '%'
+                }"
+              >
+                <Progress
+                  :segments="[
+                    {
+                      percentage: 100,
+                      status: 'warning',
+                      text: getChannelData(channel, index)?.expect + '%'
+                    }
+                  ]"
+                  height="25px"
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </el-tooltip>
     </div>
   </div>
 </template>

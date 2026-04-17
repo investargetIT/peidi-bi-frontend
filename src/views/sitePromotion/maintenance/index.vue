@@ -27,6 +27,7 @@ const filteredMidProductMappingList = computed(() => {
   return midProductMappingList.value.filter(item => {
     return (
       item.productId.includes(searchValue.value) ||
+      item.channelType.includes(searchValue.value) ||
       item.productLine.includes(searchValue.value) ||
       item.productShortName.includes(searchValue.value)
     );
@@ -160,6 +161,7 @@ const handleDeleteProduct = (row: MidProductInfo) => {
         :height="650"
       >
         <el-table-column prop="productId" label="产品ID" width="" />
+        <el-table-column prop="channelType" label="渠道" width="" />
         <el-table-column prop="productLine" label="产品线" width="" />
         <el-table-column prop="productShortName" label="产品简称" width="" />
 

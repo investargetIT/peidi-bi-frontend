@@ -1,29 +1,29 @@
 <script setup lang="ts">
 const props = defineProps<{
-  status: "success" | "danger";
+  status: "success" | "danger" | null | undefined;
 }>();
 
-const getStatusClass = (status: "success" | "danger") => {
+const getStatusClass = (status: "success" | "danger" | null | undefined) => {
   if (status === "success") {
-    return "peidi-income-lightCircle-status-green";
+    return "peidi-incomePro-lightCircle-status-green";
   } else if (status === "danger") {
-    return "peidi-income-lightCircle-status-red";
+    return "peidi-incomePro-lightCircle-status-red";
   }
   return "";
 };
 </script>
 
 <template>
-  <div class="peidi-income-lightCircle-wrapper">
+  <div class="peidi-incomePro-lightCircle-wrapper">
     <span
-      class="peidi-income-lightCircle-status-indicator inline-block h-2.5 w-2.5"
+      class="peidi-incomePro-lightCircle-status-indicator inline-block h-2.5 w-2.5"
       :class="getStatusClass(props.status)"
     />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.peidi-income-lightCircle-wrapper {
+.peidi-incomePro-lightCircle-wrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,22 +31,22 @@ const getStatusClass = (status: "success" | "danger") => {
   margin: -4px;
 }
 
-.peidi-income-lightCircle-status-indicator {
-  border-radius: 50%;
+.peidi-incomePro-lightCircle-status-indicator {
   position: relative;
+  border-radius: 50%;
 
   &::before {
-    content: "";
-    background: inherit;
-    opacity: 0.3;
-    filter: blur(3px);
-    border-radius: 50%;
     position: absolute;
     inset: -2px;
+    content: "";
+    background: inherit;
+    border-radius: 50%;
+    opacity: 0.3;
+    filter: blur(3px);
   }
 }
 
-.peidi-income-lightCircle-status-green {
+.peidi-incomePro-lightCircle-status-green {
   background: linear-gradient(135deg, #00c853, #009624);
   animation: 2s ease-in-out infinite glow-pulse-green;
 }
@@ -68,7 +68,7 @@ const getStatusClass = (status: "success" | "danger") => {
   }
 }
 
-.peidi-income-lightCircle-status-red {
+.peidi-incomePro-lightCircle-status-red {
   background: linear-gradient(135deg, #ff5252, #d50000);
   animation: 1.5s ease-in-out infinite glow-pulse-red;
 }

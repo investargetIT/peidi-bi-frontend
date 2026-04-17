@@ -91,3 +91,22 @@ export const getWeekOfMonth = (): number => {
   // 当前周数 - 月初周数 + 1
   return now.week() - startOfMonth.week() + 1;
 };
+
+/**
+ * 格式化数字为万单位
+ * @param value 数值
+ * @returns 格式化后的字符串
+ */
+export const formatToWan = (value: number) => {
+  if (value >= 10000) {
+    return (value / 10000).toFixed(1) + "万";
+  }
+  return value.toString();
+};
+
+/**
+ * 生成 随机字符串
+ * @returns 生成的 随机字符串
+ */
+export const generateID = () =>
+  new Date().getTime().toString(36) + Math.random().toString(36).substring(2);

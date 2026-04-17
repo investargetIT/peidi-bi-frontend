@@ -341,7 +341,7 @@ function initRouter() {
             }
             //#endregion
 
-            //#region 判断站内推广效能看板权限
+            //#region 判断天猫推广需求权限
             if (hasPermission(userId, "sitePromotion")) {
               routesTemp.push({
                 path: "/sitePromotion",
@@ -350,7 +350,7 @@ function initRouter() {
                 component: Layout,
                 meta: {
                   icon: "streamline-ultimate/shop-sale-1",
-                  title: "站内推广效能看板",
+                  title: "天猫推广需求",
                   showLink: true,
                   rank: 17
                 },
@@ -360,7 +360,7 @@ function initRouter() {
                     name: "SitePromotionIndex",
                     component: () => import("@/views/sitePromotion/index.vue"),
                     meta: {
-                      title: "站内推广效能看板",
+                      title: "天猫推广需求",
                       showLink: true
                     }
                   }
@@ -399,66 +399,123 @@ function initRouter() {
 
             //#region 判断业绩实时监控权限
             if (hasPermission(userId, "income")) {
-              routesTemp.push(
-                {
-                  path: "/income",
-                  name: "IncomeLayout",
-                  redirect: "/income/index",
-                  component: Layout,
-                  meta: {
-                    icon: "streamline-freehand/money-coin-cash",
-                    title: "业绩实时监控",
-                    showLink: false,
-                    rank: 19
-                  },
-                  children: [
-                    {
-                      path: "/income/index",
-                      name: "IncomeIndex",
-                      component: () => import("@/views/income/index.vue"),
-                      meta: {
-                        title: "业绩实时监控",
-                        showLink: true
-                      }
-                    }
-                  ]
+              routesTemp.push({
+                path: "/income",
+                name: "IncomeLayout",
+                redirect: "/income/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-freehand/money-coin-cash",
+                  title: "业绩实时监控",
+                  showLink: true,
+                  rank: 19
                 },
-                {
-                  path: "/incomePro",
-                  name: "IncomeProLayout",
-                  redirect: "/incomePro/index",
-                  component: Layout,
-                  meta: {
-                    icon: "streamline-freehand/money-coin-cash",
-                    title: "业绩实时监控",
-                    showLink: true,
-                    rank: 20
-                  },
-                  children: [
-                    {
-                      path: "/incomePro/index",
-                      name: "IncomeProIndex",
-                      component: () => import("@/views/incomePro/index.vue"),
-                      meta: {
-                        title: "业绩实时监控",
-                        showLink: true
-                      }
+                children: [
+                  {
+                    path: "/income/index",
+                    name: "IncomeIndex",
+                    component: () => import("@/views/income/index.vue"),
+                    meta: {
+                      title: "业绩实时监控",
+                      showLink: true
                     }
-                  ]
-                }
-              );
+                  }
+                ]
+              });
+            }
+            if (hasPermission(userId, "incomePro")) {
+              routesTemp.push({
+                path: "/incomePro",
+                name: "IncomeProLayout",
+                redirect: "/incomePro/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-freehand/money-coin-cash",
+                  title: "业绩实时监控",
+                  showLink: true,
+                  rank: 20
+                },
+                children: [
+                  {
+                    path: "/incomePro/index",
+                    name: "IncomeProIndex",
+                    component: () => import("@/views/incomePro/index.vue"),
+                    meta: {
+                      title: "业绩实时监控",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
+            //#region 判断小红书权限
+            if (hasPermission(userId, "littleRedBook")) {
+              routesTemp.push({
+                path: "/littleRedBook",
+                name: "LittleRedBookLayout",
+                redirect: "/littleRedBook/index",
+                component: Layout,
+                meta: {
+                  icon: "simple-icons/xiaohongshu",
+                  title: "小红书数据需求",
+                  showLink: true,
+                  rank: 21
+                },
+                children: [
+                  {
+                    path: "/littleRedBook/index",
+                    name: "LittleRedBookIndex",
+                    component: () => import("@/views/littleRedBook/index.vue"),
+                    meta: {
+                      title: "小红书数据需求",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
+            //#endregion
+
+            //#region 判断经营分析权限
+            if (hasPermission(userId, "operationAnalysis")) {
+              routesTemp.push({
+                path: "/operationAnalysis",
+                name: "OperationAnalysisLayout",
+                redirect: "/operationAnalysis/index",
+                component: Layout,
+                meta: {
+                  icon: "streamline-freehand/analytics-graph-pie",
+                  title: "经营分析",
+                  showLink: true,
+                  rank: 22
+                },
+                children: [
+                  {
+                    path: "/operationAnalysis/index",
+                    name: "OperationAnalysisIndex",
+                    component: () =>
+                      import("@/views/operationAnalysis/index.vue"),
+                    meta: {
+                      title: "经营分析",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
             }
             //#endregion
 
             handleAsyncRoutes(cloneDeep(routesTemp));
             resolve(router);
           } else {
-            message("获取用户信息失败", { type: "error" });
+            // message("获取用户信息失败", { type: "error" });
             resolve(router);
           }
         })
         .catch(error => {
-          message("获取用户信息失败:" + error.message, { type: "error" });
+          // message("获取用户信息失败:" + error.message, { type: "error" });
           resolve(router);
         });
 
