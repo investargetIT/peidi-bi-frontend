@@ -24,7 +24,7 @@ export const getBiProductNameList = () => {
 
 /** 新增bi_product_name数据 */
 export const createBiProductName = (data: {
-  channel: string;
+  channel?: string;
   date?: string;
   productId: string;
   productName: string;
@@ -37,8 +37,8 @@ export const createBiProductName = (data: {
 
 /** 修改bi_product_name数据 */
 export const updateBiProductName = (data: {
-  channel: string;
-  date: string;
+  channel?: string;
+  date?: string;
   id: number | string;
   productId: string;
   productName: string;

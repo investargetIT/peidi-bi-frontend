@@ -23,9 +23,18 @@ import Achievement from "./components/achievement/index.vue";
 import DetailCard from "./components/detailCard/index.vue";
 
 // const DEFAULT_DATE = ref("2026-04-13");
-const DEFAULT_DATE = ref(
-  dayjs().subtract(1, "week").endOf("week").format("YYYY-MM-DD")
-);
+const getCurrentWeekDate = () => {
+  const lastWeekEnd = dayjs().subtract(1, "week").endOf("week");
+  const weekOfMonth = getWeekOfMonth(lastWeekEnd.format("YYYY-MM-DD"));
+
+  // 如果是当月第一周，返回上个月的最后一周
+  if (weekOfMonth === 1) {
+    return lastWeekEnd.subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+  }
+
+  return lastWeekEnd.format("YYYY-MM-DD");
+};
+const DEFAULT_DATE = ref(getCurrentWeekDate());
 // console.log("DEFAULT_DATE:", DEFAULT_DATE.value);
 
 // 如果是当月第一周 就返回上个月的最后一周

@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { storageLocal } from "@pureadmin/utils";
 import { ElMessage } from "element-plus";
-import { onMounted, reactive, ref } from "vue";
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { useNav } from "@/layout/hooks/useNav";
 import { emitter } from "@/utils/mitt"; // 添加mitt导入
 
 const { getLogo } = useNav();
 
 const username = ref("");
-
 const handleExit = () => {
   // 暴力退出 清空cookie
   document.cookie.split(";").forEach(cookie => {
@@ -20,15 +19,19 @@ const handleExit = () => {
   window.location.href = window.location.origin + "/#/businessAnalysis";
 };
 
+const onLogout = () => handleExit();
 onMounted(() => {
-  emitter.on("logout", () => {
-    handleExit(); // 使用现有的退出逻辑
-  });
+  // alert("注册onLogout事件");
+  emitter.on("logout", onLogout);
   // 从localStorage中获取用户名 ddUserInfo对象里的name
   const ddUserInfo = JSON.parse(localStorage.getItem("ddUserInfo") || "{}");
   if (ddUserInfo.name) {
     username.value = ddUserInfo.name;
   }
+});
+
+onBeforeUnmount(() => {
+  emitter.off("logout", onLogout);
 });
 </script>
 

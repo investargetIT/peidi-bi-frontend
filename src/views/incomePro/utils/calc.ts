@@ -88,14 +88,14 @@ export const getWeekOfMonth = (date?: string): number => {
   const now = dayjs(date || dayjs().format("YYYY-MM-DD"));
   const startOfMonth = now.startOf("month");
 
-  // 计算从月初到现在的天数差
-  const daysFromStart = now.date() - 1;
+  // 月初是星期几 (1=Monday, 7=Sunday)
+  const isoDay = startOfMonth.isoWeekday();
 
-  // 月初是星期几 (0=Sunday, 6=Saturday)
-  const startDayOfWeek = startOfMonth.day();
+  // 计算偏移量：将 isoWeekday 转换为实际的周一起点偏移量 (周一=0, 周日=6)
+  const offset = isoDay === 7 ? 6 : isoDay - 1;
 
   // 计算是第几周 (向上取整，第一周为第 1 周)
-  return Math.ceil((daysFromStart + startDayOfWeek) / 7);
+  return Math.ceil((now.date() + offset) / 7);
 };
 
 /**
