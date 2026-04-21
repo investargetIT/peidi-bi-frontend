@@ -5,10 +5,6 @@ import * as echarts from "echarts";
 import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
-  excelData: {
-    type: Object,
-    required: true
-  },
   sizeConfig: {
     type: Object,
     required: true
@@ -54,7 +50,7 @@ const costStructure1 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: props.excelData?.E4?.cost_structure_bar?.xAxisData || [],
+      data: ["商品成本率", "履约费率", "营销费率", "人力成本率", "管理费率"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -83,7 +79,7 @@ const costStructure1 = computed(() => ({
       {
         name: "",
         type: "bar",
-        data: props.excelData?.E4?.cost_structure_bar?.series || [],
+        data: [68.2, 8, 23.7, 9.8, 0.4],
         itemStyle: {
           color: params => {
             const colors = [
@@ -220,7 +216,7 @@ const costStructure3 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: props.excelData?.E4?.synchronous_change_bar?.xAxisData || [],
+      data: ["商品成本率", "履约费率", "营销费率", "人力成本率", "管理费率"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -249,7 +245,7 @@ const costStructure3 = computed(() => ({
       {
         name: "",
         type: "bar",
-        data: props.excelData?.E4?.synchronous_change_bar?.series || [],
+        data: [1.02, -0.3, 0.32, -0.11, -0.09],
         itemStyle: {
           color: params => {
             const colors = [
@@ -437,23 +433,15 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
             <div class="text-[#0a0a0a] font-bold text-xs md:text-sm">
               <div class="text-[#118DFF] font-bold">去除沃尔玛后⽑利率</div>
               <div class="flex items-center mt-2">
-                <div>
-                  {{ props.excelData?.E4?.eliminating_walmart_info[0] }}
-                </div>
-                <div class="ml-5">
-                  {{ props.excelData?.E4?.eliminating_walmart_info[1] }}
-                </div>
+                <div>37.53%</div>
+                <div class="ml-5">-0.69%</div>
               </div>
               <div class="text-[#118DFF] font-bold mt-3">
                 去除沃尔玛后营销费率
               </div>
               <div class="flex items-center mt-2">
-                <div>
-                  {{ props.excelData?.E4?.eliminating_walmart_info[2] }}
-                </div>
-                <div class="ml-5">
-                  {{ props.excelData?.E4?.eliminating_walmart_info[3] }}
-                </div>
+                <div>29.34%</div>
+                <div class="ml-5">1.37%</div>
               </div>
             </div>
           </div>

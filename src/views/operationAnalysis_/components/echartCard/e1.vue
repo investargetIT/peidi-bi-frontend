@@ -6,8 +6,8 @@ import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
   excelData: {
-    type: Object,
-    required: true
+    type: Array as PropType<any[]>,
+    default: () => []
   },
   sizeConfig: {
     type: Object,
@@ -353,10 +353,7 @@ const coreCard3 = computed(() => ({
         left: "center",
         top: "center",
         style: {
-          text: props.excelData?.E1?.income_pie.reduce(
-            (sum, item) => sum + (item.value || 0),
-            0
-          ),
+          text: "6988",
           textAlign: "center",
           fill: "#333",
           fontSize: props.sizeConfig.fontSize * 1.5,
@@ -402,14 +399,13 @@ const coreCard3 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        // getCoreCard3Data.value
-        // [
-        //   { value: 431, name: "主粮", itemStyle: { color: "#118DFF" } },
         data:
-          //   { value: 6215, name: "零食", itemStyle: { color: "#12239E" } },
-          //   { value: 342, name: "其他收入", itemStyle: { color: "#E66C37" } }
-          // ]
-          props.excelData?.E1?.income_pie || []
+          // getCoreCard3Data.value
+          [
+            { value: 431, name: "主粮", itemStyle: { color: "#118DFF" } },
+            { value: 6215, name: "零食", itemStyle: { color: "#12239E" } },
+            { value: 342, name: "其他收入", itemStyle: { color: "#E66C37" } }
+          ]
       }
     ]
   },
@@ -543,9 +539,7 @@ const coreCard4 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data:
-        // ["主粮", "零食", "其他收入"],
-        props.excelData?.E1?.income_bar?.xAxisData || [],
+      data: ["主粮", "零食", "其他收入"],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -561,75 +555,13 @@ const coreCard4 = computed(() => ({
     },
     series:
       // getCoreCard4Data.value
-      // [
-      //   {
-      //     name: "完成率",
-      //     type: "bar",
-      //     data: [81, 107, 21],
-      //     itemStyle: {
-      //       color: "#118DFF"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   },
-      //   {
-      //     name: "全年进度",
-      //     type: "bar",
-      //     data: [5, 19, 4],
-      //     itemStyle: {
-      //       color: "#12239E"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   },
-      //   {
-      //     name: "同比",
-      //     type: "bar",
-      //     data: [17, 16, -53],
-      //     itemStyle: {
-      //       color: "#E66C37"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   }
-      // ]
-      (props.excelData?.E1?.income_bar?.series || []).map(item => {
-        return {
-          name: item.name,
+      [
+        {
+          name: "完成率",
           type: "bar",
-          data: item.data,
+          data: [81, 107, 21],
           itemStyle: {
-            color: item.color
+            color: "#118DFF"
           },
           label: {
             show: true,
@@ -643,8 +575,48 @@ const coreCard4 = computed(() => ({
           emphasis: {
             focus: "series"
           }
-        };
-      })
+        },
+        {
+          name: "全年进度",
+          type: "bar",
+          data: [5, 19, 4],
+          itemStyle: {
+            color: "#12239E"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "同比",
+          type: "bar",
+          data: [17, 16, -53],
+          itemStyle: {
+            color: "#E66C37"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        }
+      ]
   },
   style: {
     width: "100%",
@@ -660,13 +632,7 @@ const coreCard5 = computed(() => ({
   text: "",
   option: {
     tooltip: {
-      trigger: "item",
-      formatter: params => {
-        const flag = props.excelData?.E1?.profit_flag || 1;
-        const percent = params.percent ? params.percent.toFixed(1) : 0;
-        const marker = `<span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:${params.color};"></span>`;
-        return `${marker} ${params.name} &nbsp;&nbsp;  <strong>${flag * params.value}</strong>`;
-      }
+      trigger: "item"
     },
     graphic: [
       {
@@ -674,12 +640,7 @@ const coreCard5 = computed(() => ({
         left: "center",
         top: "center",
         style: {
-          text:
-            (props.excelData?.E1?.profit_flag || 1) *
-            props.excelData?.E1?.profit_pie.reduce(
-              (sum, item) => sum + (item.value || 0),
-              0
-            ),
+          text: "-821",
           textAlign: "center",
           fill: "#333",
           fontSize: props.sizeConfig.fontSize * 1.5,
@@ -713,9 +674,8 @@ const coreCard5 = computed(() => ({
           color: "#666",
           fontFamily: "sans-serif",
           formatter: params => {
-            const flag = props.excelData?.E1?.profit_flag || 1;
             const percent = params.percent.toFixed(1);
-            return `${params.name}\n${flag * params.value} (${percent}%)`;
+            return `${params.name}\n${-params.value} (${percent}%)`;
           }
         },
         emphasis: {
@@ -726,16 +686,15 @@ const coreCard5 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        // getCoreCard3Data.value
         data:
-          // [
-          //   {
-          //     value: 821,
-          //     name: "利润",
-          //     itemStyle: { color: "#12239E" }
-          //   }
-          // ]
-          props.excelData?.E1?.profit_pie || []
+          // getCoreCard3Data.value
+          [
+            {
+              value: 821,
+              name: "利润",
+              itemStyle: { color: "#12239E" }
+            }
+          ]
       }
     ]
   },
@@ -800,75 +759,13 @@ const coreCard6 = computed(() => ({
     },
     series:
       // getCoreCard4Data.value
-      // [
-      //   {
-      //     name: "完成率",
-      //     type: "bar",
-      //     data: [91],
-      //     itemStyle: {
-      //       color: "#118DFF"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   },
-      //   {
-      //     name: "全年进度",
-      //     type: "bar",
-      //     data: [23],
-      //     itemStyle: {
-      //       color: "#12239E"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   },
-      //   {
-      //     name: "同比",
-      //     type: "bar",
-      //     data: [-18],
-      //     itemStyle: {
-      //       color: "#E66C37"
-      //     },
-      //     label: {
-      //       show: true,
-      //       position: "top",
-      //       fontSize: 14,
-      //       fontWeight: "bold",
-      //       color: "#666",
-      //       fontFamily: "sans-serif",
-      //       formatter: params => `${params.value}%`
-      //     },
-      //     emphasis: {
-      //       focus: "series"
-      //     }
-      //   }
-      // ]
-      (props.excelData?.E1?.profit_bar?.series || []).map(item => {
-        return {
-          name: item.name,
+      [
+        {
+          name: "完成率",
           type: "bar",
-          data: item.data,
+          data: [91],
           itemStyle: {
-            color: item.color
+            color: "#118DFF"
           },
           label: {
             show: true,
@@ -882,8 +779,48 @@ const coreCard6 = computed(() => ({
           emphasis: {
             focus: "series"
           }
-        };
-      })
+        },
+        {
+          name: "全年进度",
+          type: "bar",
+          data: [23],
+          itemStyle: {
+            color: "#12239E"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        },
+        {
+          name: "同比",
+          type: "bar",
+          data: [-18],
+          itemStyle: {
+            color: "#E66C37"
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 14,
+            fontWeight: "bold",
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        }
+      ]
   },
   style: {
     width: "100%",

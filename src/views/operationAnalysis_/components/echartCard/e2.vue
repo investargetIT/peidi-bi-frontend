@@ -4,10 +4,6 @@ import ChartCard from "@/components/PdChart/index.vue";
 import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
-  excelData: {
-    type: Object,
-    required: true
-  },
   sizeConfig: {
     type: Object,
     required: true
@@ -15,38 +11,6 @@ const props = defineProps({
 });
 
 // 团队指标达成
-const generateSeries = () => {
-  const baseLabelConfig = {
-    show: true,
-    position: "top",
-    fontSize: props.sizeConfig.fontSizeL2,
-    fontWeight: props.sizeConfig.fontWeight,
-    color: "#666",
-    fontFamily: "sans-serif"
-  };
-
-  const lineLabelConfig = {
-    ...baseLabelConfig,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    padding: [4, 6],
-    borderRadius: 3,
-    formatter: (params: any) => `${params.value}%`
-  };
-
-  return props.excelData?.E2?.indicators_bar?.series.map(item => ({
-    name: item.name,
-    type: item.type,
-    data: item.data,
-    yAxisIndex: item.yAxisIndex || 0,
-    itemStyle: {
-      color: item.color
-    },
-    label: item.type === "line" ? lineLabelConfig : baseLabelConfig,
-    emphasis: {
-      focus: "series"
-    }
-  }));
-};
 const teamCard = computed(() => ({
   name: "teamCard",
   title: "",
@@ -150,96 +114,94 @@ const teamCard = computed(() => ({
         }
       }
     ],
-    series:
-      // [
-      // {
-      //   name: "本期累计",
-      //   type: "bar",
-      //   data: [814, 1834, 1030, 823, 361, 777, 1884, 27, 1],
-      //   itemStyle: {
-      //     color: "#12239E"
-      //   },
-      //   label: {
-      //     show: true,
-      //     position: "top",
-      //     fontSize: props.sizeConfig.fontSizeL2,
-      //     fontWeight: props.sizeConfig.fontWeight,
-      //     color: "#666",
-      //     fontFamily: "sans-serif"
-      //   },
-      //   emphasis: {
-      //     focus: "series"
-      //   }
-      // },
-      // {
-      //   name: "去年同期",
-      //   type: "bar",
-      //   data: [756, 1970, 771, 761, 298, 780, 1388, 0, 0],
-      //   itemStyle: {
-      //     color: "#118DFF"
-      //   },
-      //   label: {
-      //     show: true,
-      //     position: "top",
-      //     fontSize: props.sizeConfig.fontSizeL2,
-      //     fontWeight: props.sizeConfig.fontWeight,
-      //     color: "#666",
-      //     fontFamily: "sans-serif"
-      //   },
-      //   emphasis: {
-      //     focus: "series"
-      //   }
-      // },
-      // {
-      //   name: "达成情况",
-      //   type: "line",
-      //   yAxisIndex: 1,
-      //   data: [126, 85, 115, 98, 120, 114, 139, 49, 12],
-      //   itemStyle: {
-      //     color: "#E66C37"
-      //   },
-      //   label: {
-      //     show: true,
-      //     position: "top",
-      //     fontSize: props.sizeConfig.fontSizeL2,
-      //     fontWeight: props.sizeConfig.fontWeight,
-      //     color: "#666",
-      //     fontFamily: "sans-serif",
-      //     backgroundColor: "rgba(255, 255, 255, 0.7)",
-      //     padding: [4, 6],
-      //     borderRadius: 3,
-      //     formatter: params => `${params.value}%`
-      //   },
-      //   emphasis: {
-      //     focus: "series"
-      //   }
-      // },
-      // {
-      //   name: "达成进度",
-      //   type: "line",
-      //   yAxisIndex: 1,
-      //   data: [26, 13, 24, 16, 17, 18, 30, 8, 0],
-      //   itemStyle: {
-      //     color: "#E044A7"
-      //   },
-      //   label: {
-      //     show: true,
-      //     position: "top",
-      //     fontSize: props.sizeConfig.fontSizeL2,
-      //     fontWeight: props.sizeConfig.fontWeight,
-      //     color: "#666",
-      //     fontFamily: "sans-serif",
-      //     backgroundColor: "rgba(255, 255, 255, 0.7)",
-      //     padding: [4, 6],
-      //     borderRadius: 3,
-      //     formatter: params => `${params.value}%`
-      //   },
-      //   emphasis: {
-      //     focus: "series"
-      //   }
-      // }
-      // ]
-      generateSeries()
+    series: [
+      {
+        name: "本期累计",
+        type: "bar",
+        data: [814, 1834, 1030, 823, 361, 777, 1884, 27, 1],
+        itemStyle: {
+          color: "#12239E"
+        },
+        label: {
+          show: true,
+          position: "top",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          color: "#666",
+          fontFamily: "sans-serif"
+        },
+        emphasis: {
+          focus: "series"
+        }
+      },
+      {
+        name: "去年同期",
+        type: "bar",
+        data: [756, 1970, 771, 761, 298, 780, 1388, 0, 0],
+        itemStyle: {
+          color: "#118DFF"
+        },
+        label: {
+          show: true,
+          position: "top",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          color: "#666",
+          fontFamily: "sans-serif"
+        },
+        emphasis: {
+          focus: "series"
+        }
+      },
+      {
+        name: "达成情况",
+        type: "line",
+        yAxisIndex: 1,
+        data: [126, 85, 115, 98, 120, 114, 139, 49, 12],
+        itemStyle: {
+          color: "#E66C37"
+        },
+        label: {
+          show: true,
+          position: "top",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          color: "#666",
+          fontFamily: "sans-serif",
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
+          padding: [4, 6],
+          borderRadius: 3,
+          formatter: params => `${params.value}%`
+        },
+        emphasis: {
+          focus: "series"
+        }
+      },
+      {
+        name: "达成进度",
+        type: "line",
+        yAxisIndex: 1,
+        data: [26, 13, 24, 16, 17, 18, 30, 8, 0],
+        itemStyle: {
+          color: "#E044A7"
+        },
+        label: {
+          show: true,
+          position: "top",
+          fontSize: props.sizeConfig.fontSizeL2,
+          fontWeight: props.sizeConfig.fontWeight,
+          color: "#666",
+          fontFamily: "sans-serif",
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
+          padding: [4, 6],
+          borderRadius: 3,
+          formatter: params => `${params.value}%`
+        },
+        emphasis: {
+          focus: "series"
+        }
+      }
+    ]
   },
   style: {
     width: "100%",

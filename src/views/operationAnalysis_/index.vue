@@ -6,9 +6,9 @@ import E3 from "./components/echartCard/e3.vue";
 import E4 from "./components/echartCard/e4.vue";
 import { loadExcelFile, type SheetData } from "./utils/excelLoader";
 import { ElMessage } from "element-plus";
-import { SIZE_CONFIG, DATA_FORMAT } from "./utils/config";
+import { SIZE_CONFIG } from "./utils/config";
 
-const excelData = ref<any>({});
+const excelData = ref<SheetData[]>([]);
 const loading = ref(false);
 const sizeConfig = ref(SIZE_CONFIG.XS);
 
@@ -28,13 +28,12 @@ const handleResize = () => {
 };
 
 const loadExcelData = async () => {
-  excelData.value = DATA_FORMAT;
-  return;
-
   loading.value = true;
   try {
     let baseUrl = window.location.href.split("#")[0];
-    const sheets = await loadExcelFile(baseUrl + "/static/经营分析指标.xlsx");
+    const sheets = await loadExcelFile(
+      baseUrl + "/static/经营分析指标.xlsx"
+    );
     excelData.value = sheets;
 
     if (sheets.length >= 4) {
