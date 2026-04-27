@@ -33,7 +33,7 @@ export const loadExcelFile = async (filePath: string): Promise<SheetData[]> => {
       worksheet.eachRow((row, rowNumber) => {
         const rowData = Array.isArray(row.values) ? row.values.slice(1) : [];
         rows.push(rowData);
-
+        
         if (rowNumber === 1) {
           headers.push(...rowData.map((cell: any) => String(cell || "")));
         } else if (headers.length > 0) {

@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { ElMessage } from "element-plus";
 import { divide, getWarningLightStatus, getWeekOfMonth } from "./utils/calc";
+import { CHANNEL_CATEGORY } from "./utils/constant";
 import _ from "lodash";
 import Header from "./components/header/index.vue";
 import Dashboard from "./components/dashboard/index.vue";
@@ -278,7 +279,8 @@ const handleIncomeData = () => {
         const target = incomeTargetData.value.find(
           data =>
             data.month === dayjs(DEFAULT_DATE.value).month() + 1 &&
-            data.channel === item.name
+            CHANNEL_CATEGORY[item.name].includes(data.channel)
+          // data.channel === item.name
         )?.target;
         item.target = Number(target || 0);
 
@@ -330,7 +332,7 @@ const handleIncomeData = () => {
 
         // target 算总和
         const target = incomeTargetData.value
-          .filter(data => data.channel === item.name)
+          .filter(data => CHANNEL_CATEGORY[item.name].includes(data.channel))
           .reduce((acc, cur) => acc + Number(cur.target || 0), 0);
         item.target = Number(target || 0);
 
