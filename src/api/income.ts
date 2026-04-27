@@ -42,3 +42,13 @@ export const getFinancialIncomeTargetList = (params: incomeParams) => {
     }
   );
 };
+
+/** 获取货品销售日报表 */
+export const getGoodsSalesDayList = (params: {
+  endDate: string;
+  startDate: string;
+}) => {
+  return http.request("get", commonUrlApi("/oms/finance/goodsSalesDay"), {
+    params
+  });
+};

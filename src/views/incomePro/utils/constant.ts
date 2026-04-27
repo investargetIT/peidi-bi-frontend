@@ -1,3 +1,6 @@
+// 用一个标识来判断是否开启每日采集版
+export const IS_EVERY_DAY = false;
+
 // 渠道分类
 export const CHANNEL_CATEGORY = {
   全渠道: [
