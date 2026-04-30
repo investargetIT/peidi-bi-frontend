@@ -26,6 +26,8 @@ import DetailCard from "./components/detailCard/index.vue";
 
 // const DEFAULT_DATE = ref("2026-04-13");
 const getCurrentWeekDate = () => {
+  // FIXME: 劳动节特殊处理
+  return "2026-04-30";
   const lastWeekEnd = dayjs().subtract(1, "week").endOf("week");
   const weekOfMonth = getWeekOfMonth(lastWeekEnd.format("YYYY-MM-DD"));
 

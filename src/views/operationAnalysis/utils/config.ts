@@ -125,12 +125,12 @@ export const DATA_FORMAT = {
   E3: {
     pd_pie: [
       { value: 6433, name: "爵宴", itemStyle: { color: "#12239E" } },
-      { value: 308, name: "SMB/⻮能", itemStyle: { color: "#118DFF" } },
+      { value: 308, name: "SMB/齿能", itemStyle: { color: "#118DFF" } },
       { value: 503, name: "好适嘉", itemStyle: { color: "#E66C37" } },
       { value: 1, name: "Vivaland", itemStyle: { color: "#E044A7" } }
     ],
     pd_bar: {
-      xAxisData: ["爵宴", "SMB/⻮能", "好适嘉", "Vivaland"],
+      xAxisData: ["爵宴", "SMB/齿能", "好适嘉", "Vivaland"],
       series: [
         {
           name: "进度",
@@ -147,21 +147,21 @@ export const DATA_FORMAT = {
     meatyway_pie: [
       {
         value: 4883,
-        name: "爵宴⻛⼲零⻝",
+        name: "爵宴风干零食",
         itemStyle: { color: "#198E44" }
       },
       { value: 578, name: "爵宴湿粮", itemStyle: { color: "#C1F087" } },
-      { value: 348, name: "爵宴⻛⼲粮", itemStyle: { color: "#BDD643" } },
+      { value: 348, name: "爵宴风干粮", itemStyle: { color: "#BDD643" } },
       { value: 121, name: "爵宴烘焙粮", itemStyle: { color: "#3EF882" } },
-      { value: 504, name: "爵宴冻⼲", itemStyle: { color: "#21C149" } }
+      { value: 504, name: "爵宴冻干", itemStyle: { color: "#21C149" } }
     ],
     meatyway_bar: {
       xAxisData: [
-        "爵宴⻛⼲零⻝",
+        "爵宴风干零食",
         "爵宴湿粮",
-        "爵宴⻛⼲粮",
+        "爵宴风干粮",
         "爵宴烘焙粮",
-        "爵宴冻⼲"
+        "爵宴冻干"
       ],
       series: [
         {
@@ -183,21 +183,16 @@ export const DATA_FORMAT = {
     },
     healthy_pie: [
       { value: 215, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
-      { value: 120, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
-      { value: 89, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
+      { value: 120, name: "好适嘉干粮", itemStyle: { color: "#E8D166" } },
+      { value: 89, name: "好适嘉冻干", itemStyle: { color: "#D64550" } },
       {
         value: 79,
-        name: "好适嘉其他 + 零食",
+        name: "好适嘉其他+零食",
         itemStyle: { color: "#9071CE" }
       }
     ],
     healthy_bar: {
-      xAxisData: [
-        "好适嘉湿粮",
-        "好适嘉⼲粮",
-        "好适嘉冻⼲",
-        "好适嘉其他 + 零食"
-      ],
+      xAxisData: ["好适嘉湿粮", "好适嘉干粮", "好适嘉冻干", "好适嘉其他+零食"],
       series: [
         {
           name: "进度",
