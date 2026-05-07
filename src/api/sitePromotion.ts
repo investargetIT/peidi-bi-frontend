@@ -33,7 +33,6 @@ export const getBiMidProductMappingList = () => {
 export interface MidProductInfo {
   id?: number;
   productId: string;
-  channelType: string;
   productLine: string;
   productShortName: string;
 }

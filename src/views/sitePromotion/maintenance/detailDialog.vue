@@ -2,7 +2,6 @@
 import { ElMessage, FormInstance, FormRules } from "element-plus";
 import { computed, nextTick, reactive, ref } from "vue";
 import { type MidProductInfo } from "@/api/sitePromotion";
-import { CHANNEL_TYPE_OPTIONS } from "../dashboard/config/index";
 
 // props
 const props = defineProps({
@@ -28,7 +27,6 @@ const ruleFormRef = ref<FormInstance>();
 const ruleForm = reactive<MidProductInfo>({
   id: null,
   productId: "",
-  channelType: "",
   productLine: "",
   productShortName: ""
 });
@@ -47,7 +45,6 @@ const rules = reactive<FormRules<MidProductInfo>>({
       trigger: "blur"
     }
   ],
-  channelType: [{ required: true, message: "请选择渠道", trigger: "change" }],
   productLine: [{ required: true, message: "请输入产品线", trigger: "change" }],
   productShortName: [
     { required: true, message: "请输入产品简称", trigger: "change" }
@@ -126,16 +123,6 @@ defineExpose({
     >
       <el-form-item label="产品ID" prop="productId">
         <el-input v-model="ruleForm.productId" placeholder="请输入产品ID" />
-      </el-form-item>
-      <el-form-item label="渠道" prop="channelType">
-        <el-select v-model="ruleForm.channelType" placeholder="请选择渠道">
-          <el-option
-            v-for="item in CHANNEL_TYPE_OPTIONS"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
       </el-form-item>
       <el-form-item label="产品线" prop="productLine">
         <el-input v-model="ruleForm.productLine" placeholder="请输入产品线" />

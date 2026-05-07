@@ -6,7 +6,17 @@ import {
 } from "@/api/sitePromotion";
 import { dayjs, ElMessage, FormInstance } from "element-plus";
 import SummaryCard from "./summaryCard.vue";
-import { CHANNEL_TYPE_OPTIONS } from "./config";
+
+const CHANNEL_TYPE_OPTIONS = [
+  {
+    label: "品专",
+    value: "品专"
+  },
+  {
+    label: "超级直播",
+    value: "超级直播"
+  }
+];
 
 const summaryTableData = ref([]);
 const tableData = ref([]);
@@ -335,12 +345,6 @@ onMounted(() => {
           <el-table-column
             prop="date"
             label="日期"
-            width=""
-            :resizable="false"
-          />
-          <el-table-column
-            prop="channelType"
-            label="渠道"
             width=""
             :resizable="false"
           />

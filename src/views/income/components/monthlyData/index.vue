@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
+import SelectCard from "../selectCard/index.vue";
 import _ from "lodash";
 import dayjs from "dayjs";
 
@@ -48,49 +49,41 @@ const monthlyDataCards = ref({
       containLabel: true
     },
     legend: {
-      data: [
-        {
-          name: "本年",
-          icon: "roundRect",
-          itemStyle: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "#B4C5FF" },
-              { offset: 1, color: "#002A78" }
-            ]
-          }
-        },
-        "同比",
-        "环比"
-      ]
+      data: ["本年", "同比(去年)", "环比(上月)"],
+      left: "0",
+      top: "0"
     },
     xAxis: [
       {
         type: "category",
-        data: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+        data: [
+          "1月",
+          "2月",
+          "3月",
+          "4月",
+          "5月",
+          "6月",
+          "7月",
+          "8月",
+          "9月",
+          "10月",
+          "11月",
+          "12月"
+        ],
         axisPointer: {
           type: "shadow"
-        },
-        axisLabel: {
-          show: true,
-          interval: 0 //使x轴文字显示全
         }
       }
     ],
     yAxis: [
       {
         type: "value",
-        name: "业绩(万)",
+        name: "本年",
         // min: 0,
         // max: 250,
         // interval: 50,
         axisLabel: {
-          formatter: "{value}",
-          show: true
+          formatter: "{value}"
         },
         splitLine: {
           show: false
@@ -98,7 +91,7 @@ const monthlyDataCards = ref({
       },
       {
         type: "value",
-        name: "比例(%)",
+        name: "比例（%）",
         // min: 0,
         // max: 25,
         // interval: 5,
@@ -120,29 +113,9 @@ const monthlyDataCards = ref({
             const maxVal = Math.max(...seriesData);
             const currentValue = params.value;
             if (currentValue === maxVal) {
-              return {
-                type: "linear",
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  { offset: 0, color: "#B4C5FF" },
-                  { offset: 1, color: "#002A78" }
-                ]
-              };
+              return "#20C6DF";
             }
-            return {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                { offset: 0, color: "#B4C5FF" },
-                { offset: 1, color: "#002A78" }
-              ]
-            };
+            return "#3B82F6";
           }
         },
         label: {
@@ -160,20 +133,20 @@ const monthlyDataCards = ref({
         ]
       },
       {
-        name: "同比",
+        name: "同比(去年)",
         type: "line",
         smooth: true,
         yAxisIndex: 1,
         lineStyle: {
-          color: "#FFB95F",
+          color: "rgb(237, 125, 49)",
           width: 2
         },
         itemStyle: {
-          color: "#FFB95F"
+          color: "rgb(237, 125, 49)"
         },
         tooltip: {
           valueFormatter: function (value) {
-            return value + "%";
+            return value;
           }
         },
         markLine: {
@@ -194,20 +167,20 @@ const monthlyDataCards = ref({
         ]
       },
       {
-        name: "环比",
+        name: "环比(上月)",
         type: "line",
         smooth: true,
         yAxisIndex: 1,
         lineStyle: {
-          color: "#4EDEA3",
+          color: "rgb(236, 72, 153)",
           width: 2
         },
         itemStyle: {
-          color: "#4EDEA3"
+          color: "rgb(236, 72, 153)"
         },
         tooltip: {
           valueFormatter: function (value) {
-            return value + "%";
+            return value;
           }
         },
         data: [
@@ -244,7 +217,7 @@ watch(
 
     // 当前月份 当前月份之后的数据截取掉不展示
     const currentMonth = dayjs().month() + 1;
-    const barData = dataList.map((item: any) => _.floor(item.income / 10000));
+    const barData = dataList.map((item: any) => _.floor(item.income));
     monthlyDataCards.value = {
       ...monthlyDataCards.value,
       option: {
@@ -258,13 +231,13 @@ watch(
             ...monthlyDataCards.value.option.series[1],
             data: yearOverYearGrowthList
               .map((item: any) => _.floor(item.growthRate))
-              .slice(0, currentMonth - 1)
+              .slice(0, currentMonth)
           },
           {
             ...monthlyDataCards.value.option.series[2],
             data: monthOverMonthGrowthList
               .map((item: any) => _.floor(item.growthRate))
-              .slice(0, currentMonth - 1)
+              .slice(0, currentMonth)
           }
         ]
       }
@@ -284,7 +257,6 @@ watch(
       :text="monthlyDataCards.text"
       :option="monthlyDataCards.option"
       :style="monthlyDataCards?.style"
-      :show-card="false"
     />
   </div>
 </template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { inject, onMounted, ref, watch, nextTick, computed } from "vue";
+import { inject, onMounted, ref, watch, nextTick } from "vue";
 import LightCircle from "../common/lightCircle/index.vue";
 import Progress from "../common/progress/index.vue";
 import MonthlyData from "../achievement/monthlyData.vue";
 import _ from "lodash";
-import { divide, formatIncomeNumber } from "../../utils/calc";
+import { divide } from "../../utils/calc";
+import { el } from "element-plus/es/locale/index.mjs";
 
 const DATA_TYPE_CHANNEL = [
   {
@@ -68,32 +69,19 @@ watch(
     ) {
       cardList.value = incomeData.value.projectProgressDataDetail;
     }
+  },
+  {
+    deep: true,
+    immediate: true
   }
 );
 
-const dataMap = computed(() => {
-  const map = new Map();
-  // 预先建立索引：key = "timerange-channelName"
-  cardList.value.forEach((rangeData, rangeIndex) => {
-    rangeData.forEach(item => {
-      map.set(`${rangeIndex}-${item.name}`, item);
-    });
-  });
-  return map;
-});
-
 // 在数据中获取想要的值
 const getDataForCardList = (channel: string, timerange: number) => {
-  return dataMap.value.get(`${timerange}-${channel}`) || null;
-};
-
-// 通用格式化函数，支持任意字段
-const formatField = (channel: string, timerange: number, field: string) => {
-  const data = getDataForCardList(channel, timerange);
-  if (!data || data[field] === null || data[field] === undefined) {
-    return "";
+  if (cardList.value[timerange]) {
+    return cardList.value[timerange].find(item => item.name === channel);
   }
-  return formatIncomeNumber(data[field]);
+  return null;
 };
 
 const initDetailCard = (type: string) => {
@@ -187,11 +175,10 @@ defineExpose({
                         {
                           percentage: 100,
                           status: 'primary',
-                          text: formatField(
-                            channelItem.name,
-                            timerangeIndex,
-                            'income'
-                          )
+                          text: _.floor(
+                            getDataForCardList(channelItem.name, timerangeIndex)
+                              ?.income
+                          ).toLocaleString()
                         }
                       ]"
                       height="25px"
@@ -219,7 +206,7 @@ defineExpose({
                             ) * 100,
                           status: 'week_' + item.week,
                           text: item.week + '周',
-                          value: formatIncomeNumber(item.income)
+                          value: _.floor(item.income).toLocaleString()
                         }))
                       "
                       height="40px"
@@ -230,16 +217,24 @@ defineExpose({
                 <!-- 进度 -->
                 <div v-if="info === '进度'" class="ml-2">
                   <div>
-                    <div class="flex items-center whitespace-nowrap">
-                      <span
-                        class="text-xs mr-1 text-[var(--dash-text-secondary)]"
-                      >
-                        实际
-                      </span>
-                      <Progress
-                        :segments="[
-                          {
-                            percentage: _.floor(
+                    <Progress
+                      :segments="[
+                        {
+                          percentage: _.floor(
+                            divide(
+                              getDataForCardList(
+                                channelItem.name,
+                                timerangeIndex
+                              )?.income,
+                              getDataForCardList(
+                                channelItem.name,
+                                timerangeIndex
+                              )?.target
+                            ) * 100
+                          ),
+                          status: 'primary',
+                          text:
+                            _.floor(
                               divide(
                                 getDataForCardList(
                                   channelItem.name,
@@ -250,55 +245,33 @@ defineExpose({
                                   timerangeIndex
                                 )?.target
                               ) * 100
-                            ),
-                            status: 'primary',
+                            ) + '%'
+                        }
+                      ]"
+                      height="25px"
+                    />
+                    <div
+                      class="mt-2"
+                      :style="{
+                        width:
+                          getDataForCardList(channelItem.name, timerangeIndex)
+                            ?.expect + '%'
+                      }"
+                    >
+                      <Progress
+                        :segments="[
+                          {
+                            percentage: 100,
+                            status: 'warning',
                             text:
-                              _.floor(
-                                divide(
-                                  getDataForCardList(
-                                    channelItem.name,
-                                    timerangeIndex
-                                  )?.income,
-                                  getDataForCardList(
-                                    channelItem.name,
-                                    timerangeIndex
-                                  )?.target
-                                ) * 100
-                              ) + '%'
+                              getDataForCardList(
+                                channelItem.name,
+                                timerangeIndex
+                              )?.expect + '%'
                           }
                         ]"
                         height="25px"
                       />
-                    </div>
-                    <div class="flex items-center whitespace-nowrap">
-                      <span
-                        class="text-xs mr-1 text-[var(--dash-text-secondary)]"
-                      >
-                        期望
-                      </span>
-                      <div
-                        class="mt-2"
-                        :style="{
-                          width:
-                            getDataForCardList(channelItem.name, timerangeIndex)
-                              ?.expect + '%'
-                        }"
-                      >
-                        <Progress
-                          :segments="[
-                            {
-                              percentage: 100,
-                              status: 'warning',
-                              text:
-                                getDataForCardList(
-                                  channelItem.name,
-                                  timerangeIndex
-                                )?.expect + '%'
-                            }
-                          ]"
-                          height="25px"
-                        />
-                      </div>
                     </div>
                   </div>
 
@@ -406,7 +379,9 @@ defineExpose({
                                 ?.yearTarget
                             ) * 100,
                           status: 'success',
-                          text: formatField(channelItem.name, 0, 'yearIncome')
+                          text: _.floor(
+                            getDataForCardList(channelItem.name, 0)?.yearIncome
+                          ).toLocaleString()
                         }
                       ]"
                       height="25px"
