@@ -16,7 +16,7 @@ const handleExit = () => {
       .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
   });
 
-  window.location.href = window.location.origin + "/#/businessAnalysis";
+  window.location.href = window.location.href;
 };
 
 const onLogout = () => handleExit();

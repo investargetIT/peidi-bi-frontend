@@ -11,12 +11,13 @@ import {
   getFinancialIncomeMonthList,
   getFinancialIncomeTargetList,
   getGoodsSalesDayList,
+  getFinancialIncomeDayList,
   type incomeParams
 } from "@/api/income";
 import dayjs from "dayjs";
 import { ElMessage } from "element-plus";
 import { divide, getWarningLightStatus, getWeekOfMonth } from "./utils/calc";
-import { IS_EVERY_DAY, CHANNEL_CATEGORY } from "./utils/constant";
+import { CHANNEL_CATEGORY } from "./utils/constant";
 import _ from "lodash";
 import Header from "./components/header/index.vue";
 import Dashboard from "./components/dashboard/index.vue";
@@ -24,17 +25,23 @@ import Overview from "./components/overview/index.vue";
 import Achievement from "./components/achievement/index.vue";
 import DetailCard from "./components/detailCard/index.vue";
 
+const props = defineProps<{
+  IS_EVERY_DAY: boolean;
+}>();
+
+const { IS_EVERY_DAY } = props;
+
 // const DEFAULT_DATE = ref("2026-04-13");
 const getCurrentWeekDate = () => {
-  // FIXME: 劳动节特殊处理
-  return "2026-04-30";
+  // // FIXME: 劳动节特殊处理
+  // return "2026-04-30";
   const lastWeekEnd = dayjs().subtract(1, "week").endOf("week");
   const weekOfMonth = getWeekOfMonth(lastWeekEnd.format("YYYY-MM-DD"));
 
   // 如果是当月第一周，返回上个月的最后一周
-  if (weekOfMonth === 1) {
-    return lastWeekEnd.subtract(1, "month").endOf("month").format("YYYY-MM-DD");
-  }
+  // if (weekOfMonth === 1) {
+  //   return lastWeekEnd.subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+  // }
 
   return lastWeekEnd.format("YYYY-MM-DD");
 };
@@ -63,7 +70,11 @@ const getLastWeek = (num: number | string) => {
 
 // 基础数据
 const incomeWeekData = ref<any>([]); // 周数据
-const incomeWeekDataEveryDay = ref<any>([]); // 周数据-每日采集版
+
+const incomeWeekDataEveryDay = ref<any>([]); // 周数据-每日采集版 下面两个数据合并
+const incomeWeekDataEveryDay_goodsSales = ref<any>([]); // 周数据-每日采集版-销售汇总表
+const incomeWeekDataEveryDay_financialIncomeDay = ref<any>([]); // 周数据-每日采集版-人工采集
+
 const incomeMonthData = ref<any>([]); // 月数据
 const incomeLastYearData = ref<any>([]); // 上年度月数据
 const incomeTargetData = ref<any>([]); // 目标数据
@@ -121,7 +132,7 @@ const fetchIncomeTargetData = (params: incomeParams) => {
     });
 };
 
-// 获取周收入数据-每日采集版
+// 获取周收入数据-每日采集版-销售汇总表
 const fetchIncomeWeekDataNew = (params: {
   endDate: string;
   startDate: string;
@@ -129,25 +140,75 @@ const fetchIncomeWeekDataNew = (params: {
   return getGoodsSalesDayList(params)
     .then((res: any) => {
       if (res.code === 200) {
-        console.log("获取周收入数据-每日采集版:", res);
-        incomeWeekDataEveryDay.value = res.data || [];
+        // console.log("获取周收入数据-每日采集版:", res);
+        incomeWeekDataEveryDay_goodsSales.value =
+          res.data
+            .filter(item => item.channel !== "拼多多")
+            .map(item => {
+              return {
+                actualSalesAmount:
+                  item.channel === "京东"
+                    ? item.actualSalesAmount * 0.6
+                    : item.channel === "天猫"
+                      ? item.actualSalesAmount * 0.7
+                      : item.actualSalesAmount,
+                day: item.day,
+                endDate: item.endDate,
+                id: item.id,
+                platform: item.channel,
+                salesNum: null,
+                startDate: item.startDate
+              };
+            }) || [];
+        console.log(
+          "获取周收入数据-每日采集版-销售汇总表:",
+          incomeWeekDataEveryDay_goodsSales.value
+        );
       } else {
-        ElMessage.error("获取周收入数据-每日采集版失败: " + res?.msg);
+        // ElMessage.error("获取周收入数据-每日采集版失败: " + res?.msg);
       }
     })
     .catch(error => {
-      ElMessage.error("获取周收入数据-每日采集版失败: " + error?.message);
+      // ElMessage.error("获取周收入数据-每日采集版失败: " + error?.message);
     });
+};
+const fetchIncomeWeekDataNew2 = (params: {
+  endDate: string;
+  startDate: string;
+}) => {
+  return getFinancialIncomeDayList(params).then((res: any) => {
+    if (res.code === 200) {
+      // console.log("获取周收入数据-每日采集版:", res);
+      incomeWeekDataEveryDay_financialIncomeDay.value =
+        res.data.map(item => {
+          return {
+            actualSalesAmount: item.income,
+            day: null,
+            endDate: item.date,
+            id: null,
+            platform: item.channel,
+            salesNum: null,
+            startDate: item.date
+          };
+        }) || [];
+      console.log(
+        "获取周收入数据-每日采集版-人工采集:",
+        incomeWeekDataEveryDay_financialIncomeDay.value
+      );
+    }
+  });
 };
 //#endregion
 
 onMounted(async () => {
   // 初始化时请求数据
   const currentWeek = getWeekOfMonth(DEFAULT_DATE.value);
-  const targetMonth =
-    currentWeek === 1
-      ? dayjs(DEFAULT_DATE.value).month() // 第一周时，上个月 (month() 返回 0-11)
-      : dayjs(DEFAULT_DATE.value).month() + 1; // 非第一周时，当前月
+  // const targetMonth =
+  //   currentWeek === 1
+  //     ? dayjs(DEFAULT_DATE.value).month() // 第一周时，上个月 (month() 返回 0-11)
+  //     : dayjs(DEFAULT_DATE.value).month() + 1; // 非第一周时，当前月
+  const targetMonth = dayjs(DEFAULT_DATE.value).month() + 1;
+
   // 初始化时请求数据
   console.log("当前第几周/目标月份:", currentWeek, targetMonth);
 
@@ -170,10 +231,43 @@ onMounted(async () => {
     }
   );
   await fetchIncomeTargetData({ year: dayjs(DEFAULT_DATE.value).year() });
+
+  let startDate = dayjs(DEFAULT_DATE.value)
+    .startOf("week")
+    .format("YYYY-MM-DD");
+  let endDate = dayjs(DEFAULT_DATE.value).endOf("week").format("YYYY-MM-DD");
+  console.log(
+    "startDate:",
+    startDate,
+    "endDate:",
+    endDate,
+    "DEFAULT_DATE.value:",
+    DEFAULT_DATE.value,
+    "targetMonth:",
+    targetMonth,
+    dayjs(startDate).month() + 1
+  );
+  if (dayjs(startDate).month() + 1 !== targetMonth) {
+    startDate = dayjs(DEFAULT_DATE.value).startOf("month").format("YYYY-MM-DD");
+  }
+  if (dayjs(endDate).month() + 1 !== targetMonth) {
+    endDate = dayjs(DEFAULT_DATE.value).endOf("month").format("YYYY-MM-DD");
+  }
+
   await fetchIncomeWeekDataNew({
-    startDate: dayjs(DEFAULT_DATE.value).startOf("week").format("YYYY-MM-DD"),
-    endDate: dayjs(DEFAULT_DATE.value).endOf("week").format("YYYY-MM-DD")
+    startDate,
+    endDate
   });
+  await fetchIncomeWeekDataNew2({
+    startDate,
+    endDate
+  });
+
+  // 合并数据
+  incomeWeekDataEveryDay.value = [
+    ...incomeWeekDataEveryDay_goodsSales.value,
+    ...incomeWeekDataEveryDay_financialIncomeDay.value
+  ];
 
   // 都请求完成后 再处理数据
   handleIncomeData();

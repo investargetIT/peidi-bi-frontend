@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
 import { storageLocal } from "@pureadmin/utils";
@@ -24,6 +24,16 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   TLY.value.y = event.gamma;
 };
 //#endregion
+
+// 开发测试
+const IS_DEBUG = computed(() =>
+  [
+    "1926449443739600965",
+    "1850741012504838145",
+    "1926449443739601629",
+    "1874011001523318785"
+  ].includes(USER_ID)
+);
 
 onMounted(() => {
   // if (window.DeviceOrientationEvent) {
@@ -56,10 +66,18 @@ onUnmounted(() => {
       class="peidi-el-tabs-modern-tabs"
     >
       <el-tab-pane label="业绩每周监控" name="incomePro" lazy>
-        <IncomePro v-if="activeName === 'incomePro'" />
+        <IncomePro v-if="activeName === 'incomePro'" :IS_EVERY_DAY="false" />
       </el-tab-pane>
       <el-tab-pane label="经营分析" name="operationAnalysis" lazy>
         <OperationAnalysis v-if="activeName === 'operationAnalysis'" />
+      </el-tab-pane>
+      <el-tab-pane
+        label="业绩每周监控（日采集内测）"
+        name="incomePro_day"
+        lazy
+        v-if="IS_DEBUG"
+      >
+        <IncomePro v-if="activeName === 'incomePro_day'" :IS_EVERY_DAY="true" />
       </el-tab-pane>
     </el-tabs>
 

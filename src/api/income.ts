@@ -52,3 +52,17 @@ export const getGoodsSalesDayList = (params: {
     params
   });
 };
+
+/** 获取bi_financial_income_day数据 */
+export const getFinancialIncomeDayList = (params: {
+  endDate: string;
+  startDate: string;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/bi/financial-income-day/list"),
+    {
+      params
+    }
+  );
+};

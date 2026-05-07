@@ -17,6 +17,8 @@ const DEV_USER_IDS = [
   "1846392647319093250",
   // 余建飞
   "1926449443739601619",
+  // 杨世豪
+  "1926449443739601629",
   ...ADMIN_USER_IDS
 ];
 
@@ -130,15 +132,15 @@ export const permissionSettings = {
   //   // Nikki
   //   "1926449443739601215"
   // ],
-  incomePro: [SHY_ID],
+  // incomePro: [SHY_ID],
   littleRedBook: [
     ...DEV_USER_IDS,
     // 范振吉
     "1874711258007646210",
     // 缪欣瑶
     "1922923618996105217"
-  ],
-  operationAnalysis: [SHY_ID]
+  ]
+  // operationAnalysis: [SHY_ID]
 };
 
 /**

@@ -243,7 +243,7 @@ const loadBusinessAnalysisData = async () => {
       costList
     };
 
-    ElMessage.success("数据加载成功");
+    // ElMessage.success("数据加载成功");
   } catch (error) {
     console.error("数据加载失败:", error);
     ElMessage.error("数据加载失败");
