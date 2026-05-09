@@ -118,10 +118,21 @@ onMounted(async () => {
     startDate: dayjs().startOf("month").format("YYYY-MM-DD") // 本月第一天
   });
 
+  // 如果更新数据截止月份与当前月份不同 则需要请求更新数据截止月份的数据
+  if (dayjs(DEFAULT_DATE.value).month() !== dayjs().month()) {
+    await fetchIncomeWeekData({
+      endDate: dayjs(DEFAULT_DATE.value).endOf("month").format("YYYY-MM-DD"),
+      startDate: dayjs(DEFAULT_DATE.value).startOf("month").format("YYYY-MM-DD")
+    });
+  }
+
   const year = dayjs(DEFAULT_DATE.value).year();
   await fetchIncomeMonthData({ year }, data => {
     // console.log("月度收入数据:", data);
-    incomeMonthData.value = data;
+    incomeMonthData.value = data.filter(
+      (item: any) => item.month < dayjs(DEFAULT_DATE.value).month() + 1
+    ); // 清除掉当前月份之后的数据包括当前月份
+    // console.log("处理过的月度收入数据:", incomeMonthData.value);
   });
   await fetchIncomeMonthData({ year: year - 1 }, data => {
     // console.log("上年度月度收入数据:", data);
@@ -171,7 +182,7 @@ const handleIncomeWeekData = () => {
     }
   });
 
-  console.log("处理后的周数据:", incomeWeekDataTemp);
+  // console.log("处理后的周数据:", incomeWeekDataTemp);
   incomeWeekData.value = incomeWeekDataTemp;
 };
 
