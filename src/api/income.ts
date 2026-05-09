@@ -66,3 +66,28 @@ export const getFinancialIncomeDayList = (params: {
     }
   );
 };
+
+/** 根据日期区间查询每日财务收入目标数据（含渠道系数） */
+export const getFinancialIncomeTargetDailyList = (params: {
+  endDate: string;
+  startDate: string;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/bi/financial-income-target-daily/list"),
+    {
+      params
+    }
+  );
+};
+
+/** 获取年业绩期望目标列表 */
+export const getYearExpectTargetList = (params: {
+  endDate?: string;
+  startDate?: string;
+  salesChannel?: string;
+}) => {
+  return http.request("get", commonUrlApi("/oms/bi/year-expect-target/list"), {
+    params
+  });
+};
