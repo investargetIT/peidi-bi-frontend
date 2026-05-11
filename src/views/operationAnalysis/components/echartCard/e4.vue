@@ -2,7 +2,7 @@
 import { computed, ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import * as echarts from "echarts";
-import { DATA_TIME } from "../../utils/config";
+// import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
   excelData: {
@@ -11,6 +11,10 @@ const props = defineProps({
   },
   sizeConfig: {
     type: Object,
+    required: true
+  },
+  dataTime: {
+    type: String,
     required: true
   }
 });
@@ -425,7 +429,7 @@ const handleBarChart2Ready = (chart: echarts.ECharts) => {
     <div class="text-[#0a0a0a] text-base md:text-xl">
       成本结构
       <span class="text-[#666] text-xs md:text-sm">
-        (数据期间: {{ DATA_TIME }})
+        (数据期间: {{ dataTime }})
       </span>
     </div>
     <el-row :gutter="10">

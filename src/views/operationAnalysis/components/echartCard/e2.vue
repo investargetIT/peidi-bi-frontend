@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
-import { DATA_TIME } from "../../utils/config";
+// import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
   excelData: {
@@ -10,6 +10,10 @@ const props = defineProps({
   },
   sizeConfig: {
     type: Object,
+    required: true
+  },
+  dataTime: {
+    type: String,
     required: true
   }
 });
@@ -255,7 +259,7 @@ const teamCard = computed(() => ({
     <div class="text-[#0a0a0a] text-base md:text-xl">
       团队指标达成
       <span class="text-[#666] text-xs md:text-sm">
-        (数据期间: {{ DATA_TIME }})
+        (数据期间: {{ dataTime }})
       </span>
     </div>
     <ChartCard

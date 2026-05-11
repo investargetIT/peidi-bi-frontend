@@ -20,6 +20,7 @@ const sourceData = ref<any>({});
 const excelData = ref<any>({});
 const loading = ref(false);
 const sizeConfig = ref(SIZE_CONFIG.XS);
+const dataTime = ref("");
 
 let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 const handleResize = () => {
@@ -222,8 +223,6 @@ const loadBusinessAnalysisData = async () => {
   try {
     loading.value = true;
 
-    const nowDate = dayjs().format("YYYY/MM/01");
-
     const [overviewList, groupList, productList, costList] = await Promise.all([
       getBusinessAnalysisOverviewList({}),
       getBusinessAnalysisGroupList({}),
@@ -235,6 +234,13 @@ const loadBusinessAnalysisData = async () => {
     // console.log("团队指标:", groupList);
     // console.log("产品结构:", productList);
     // console.log("成本结构:", costList);
+
+    const startDate = dayjs().format("YYYY.01");
+    const endDate = dayjs((overviewList as any)?.data?.[0]?.date || "").format(
+      "YYYY.MM"
+    );
+    // console.log("起始日期:", startDate, "结束日期:", endDate);
+    dataTime.value = `${startDate}~${endDate}`;
 
     sourceData.value = {
       overviewList,
@@ -277,16 +283,32 @@ onBeforeUnmount(() => {
 <template>
   <div v-loading="loading">
     <div>
-      <E1 :excelData="excelData" :sizeConfig="sizeConfig" />
+      <E1
+        :excelData="excelData"
+        :sizeConfig="sizeConfig"
+        :dataTime="dataTime"
+      />
     </div>
     <div class="mt-4">
-      <E2 :excelData="excelData" :sizeConfig="sizeConfig" />
+      <E2
+        :excelData="excelData"
+        :sizeConfig="sizeConfig"
+        :dataTime="dataTime"
+      />
     </div>
     <div class="mt-4">
-      <E3 :excelData="excelData" :sizeConfig="sizeConfig" />
+      <E3
+        :excelData="excelData"
+        :sizeConfig="sizeConfig"
+        :dataTime="dataTime"
+      />
     </div>
     <div class="mt-4">
-      <E4 :excelData="excelData" :sizeConfig="sizeConfig" />
+      <E4
+        :excelData="excelData"
+        :sizeConfig="sizeConfig"
+        :dataTime="dataTime"
+      />
     </div>
   </div>
 </template>
