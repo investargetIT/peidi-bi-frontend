@@ -236,9 +236,9 @@ const loadBusinessAnalysisData = async () => {
     // console.log("成本结构:", costList);
 
     const startDate = dayjs().format("YYYY.01");
-    const endDate = dayjs((overviewList as any)?.data?.[0]?.date || "").format(
-      "YYYY.MM"
-    );
+    const endDate = dayjs((overviewList as any)?.data?.[0]?.date || "")
+      .subtract(1, "month")
+      .format("YYYY.MM");
     // console.log("起始日期:", startDate, "结束日期:", endDate);
     dataTime.value = `${startDate}~${endDate}`;
 
