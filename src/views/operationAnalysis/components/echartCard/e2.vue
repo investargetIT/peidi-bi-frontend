@@ -42,6 +42,7 @@ const generateSeries = () => {
     type: item.type,
     data: item.data,
     yAxisIndex: item.yAxisIndex || 0,
+    smooth: item.type === "line" ? true : undefined,
     itemStyle: {
       color: item.color
     },

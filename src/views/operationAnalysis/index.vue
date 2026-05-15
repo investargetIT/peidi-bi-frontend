@@ -223,12 +223,28 @@ const loadBusinessAnalysisData = async () => {
   try {
     loading.value = true;
 
-    const [overviewList, groupList, productList, costList] = await Promise.all([
-      getBusinessAnalysisOverviewList({}),
-      getBusinessAnalysisGroupList({}),
-      getBusinessAnalysisProductList({}),
-      getBusinessAnalysisCostList({})
-    ]);
+    let targetDate = dayjs().format("YYYY-MM-01");
+
+    let [overviewList, groupList, productList, costList]: any[] =
+      await Promise.all([
+        getBusinessAnalysisOverviewList({ date: targetDate }),
+        getBusinessAnalysisGroupList({ date: targetDate }),
+        getBusinessAnalysisProductList({ date: targetDate }),
+        getBusinessAnalysisCostList({ date: targetDate })
+      ]);
+
+    console.log("overviewList", overviewList);
+
+    if (overviewList?.code === 200 && overviewList?.data?.length === 0) {
+      targetDate = dayjs().subtract(1, "month").format("YYYY-MM-01");
+
+      [overviewList, groupList, productList, costList] = await Promise.all([
+        getBusinessAnalysisOverviewList({ date: targetDate }),
+        getBusinessAnalysisGroupList({ date: targetDate }),
+        getBusinessAnalysisProductList({ date: targetDate }),
+        getBusinessAnalysisCostList({ date: targetDate })
+      ]);
+    }
 
     // console.log("核心指标:", overviewList);
     // console.log("团队指标:", groupList);
