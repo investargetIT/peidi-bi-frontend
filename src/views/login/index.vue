@@ -33,6 +33,7 @@ const fetchLogin = (username: string, password: string) => {
           if (unLoginUrl) {
             router.push(unLoginUrl).then(() => {
               message("登录成功", { type: "success" });
+              localStorage.removeItem("peidi-unLoginUrl");
             });
             return;
           }
