@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
 import IncomeDaily from "@/views/incomeDaily/index.vue";
+import SettingsCard from "./components/settingsCard/index.vue";
 import { storageLocal } from "@pureadmin/utils";
 import NavBar from "./components/navBar/index.vue";
 
@@ -32,8 +33,8 @@ const IS_DEBUG = computed(() =>
     "1926449443739600965",
     "1850741012504838145",
     "1926449443739601629",
-    "1874011001523318785",
-    "1846392647319093250"
+    "1846392647319093250",
+    "1874011001523318785" // 王琳
   ].includes(USER_ID)
 );
 
@@ -75,6 +76,9 @@ onUnmounted(() => {
       </el-tab-pane> -->
       <el-tab-pane label="经营分析" name="operationAnalysis" lazy>
         <OperationAnalysis v-if="activeName === 'operationAnalysis'" />
+      </el-tab-pane>
+      <el-tab-pane v-if="IS_DEBUG" label="配置" name="settings" lazy>
+        <SettingsCard v-if="activeName === 'settings'" />
       </el-tab-pane>
       <!-- <el-tab-pane
         label="业绩每周监控（日采集内测）"
