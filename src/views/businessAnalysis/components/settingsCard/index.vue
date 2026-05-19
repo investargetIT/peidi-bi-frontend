@@ -2,14 +2,18 @@
 import { ref } from "vue";
 import { ReSegmented } from "@/components/ReSegmented";
 import type { OptionsType } from "@/components/ReSegmented/src/type";
-import TeamConfig from "./team-config/index.vue";
-import TeamIncomeTarget from "./team-income-target/index.vue";
+import TeamIndicators from "./team-indicators/index.vue";
+import ProductCategoryTree from "./product-category-tree/index.vue";
+import CostCategoryGroup from "./cost-category-group/index.vue";
+import CoreIndicators from "./core-indicators/index.vue";
 
 const activeSegment = ref(0);
 
 const options: OptionsType[] = [
-  { label: "团队配置", value: "team-config" },
-  { label: "团队收入目标", value: "team-income-target" }
+  { label: "核心指标达成", value: "core-indicators" },
+  { label: "团队指标达成", value: "team-indicators" },
+  { label: "产品结构", value: "product-category-tree" },
+  { label: "成本结构", value: "cost-category-group" }
 ];
 
 const handleSegmentChange = ({ index, option }) => {
@@ -28,8 +32,10 @@ const handleSegmentChange = ({ index, option }) => {
       />
     </div>
     <div class="settings-card-content">
-      <TeamConfig v-if="activeSegment === 0" />
-      <TeamIncomeTarget v-if="activeSegment === 1" />
+      <CoreIndicators v-if="activeSegment === 0" />
+      <TeamIndicators v-if="activeSegment === 1" />
+      <ProductCategoryTree v-if="activeSegment === 2" />
+      <CostCategoryGroup v-if="activeSegment === 3" />
     </div>
   </div>
 </template>

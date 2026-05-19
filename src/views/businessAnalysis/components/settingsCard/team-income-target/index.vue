@@ -17,6 +17,7 @@ const teamConfigList = ref<BiTeamConfig[]>([]);
 const loading = ref(false);
 const dialogVisible = ref(false);
 const isEdit = ref(false);
+const submitLoading = ref(false);
 const formData = ref<BiTeamIncomeTarget>({
   teamConfigId: undefined,
   statisticsDate: dayjs().format("YYYY-MM-DD"),
@@ -112,6 +113,9 @@ const handleSubmit = async () => {
     return;
   }
 
+  if (submitLoading.value) return;
+  submitLoading.value = true;
+
   try {
     const res: any = isEdit.value
       ? await updateTeamIncomeTarget(formData.value)
@@ -126,6 +130,8 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     ElMessage.error(isEdit.value ? "更新失败" : "新增失败");
+  } finally {
+    submitLoading.value = false;
   }
 };
 
@@ -223,7 +229,7 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column prop="createAt" label="创建时间" width="180" />
-      <el-table-column label="操作" width="120" fixed="right">
+      <el-table-column label="操作" width="80" fixed="right">
         <template #default="{ row }">
           <el-button
             type="primary"
@@ -231,13 +237,6 @@ onMounted(() => {
             size="small"
             :icon="Edit"
             @click="handleEdit(row)"
-          />
-          <el-button
-            type="danger"
-            link
-            size="small"
-            :icon="Delete"
-            @click="handleDelete(row)"
           />
         </template>
       </el-table-column>
@@ -312,7 +311,7 @@ onMounted(() => {
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
   </div>
