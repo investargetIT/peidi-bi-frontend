@@ -5,15 +5,25 @@ import {
   getCostCategoryGroupList,
   addCostCategoryGroup,
   updateCostCategoryGroup,
+  deleteCostCategoryGroup,
   getCostCategoryListWithGroup,
   addCostCategory,
   updateCostCategory,
+  deleteCostCategory,
   type BiCostCategoryGroup,
   type BiCostCategory
 } from "@/api/businessAnalysis";
 import { Plus, Search, Edit, Delete } from "@element-plus/icons-vue";
 
 const activeTab = ref("category");
+
+const handleTabChange = (tabName: string) => {
+  if (tabName === "category") {
+    fetchCategoryList();
+  } else if (tabName === "group") {
+    fetchGroupList();
+  }
+};
 
 // 成本类别分组相关
 const groupTableData = ref<BiCostCategoryGroup[]>([]);
@@ -82,8 +92,13 @@ const handleGroupDelete = async (row: BiCostCategoryGroup) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchGroupList();
+    const res: any = await deleteCostCategoryGroup(row.id!);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchGroupList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -179,7 +194,7 @@ const handleCategoryEdit = (row: BiCostCategory) => {
 const handleCategoryDelete = async (row: BiCostCategory) => {
   try {
     await ElMessageBox.confirm(
-      `确认删除成本类别"${row.group?.groupName}"吗？`,
+      `确认删除成本类别吗？`,
       "提示",
       {
         confirmButtonText: "确定",
@@ -187,8 +202,13 @@ const handleCategoryDelete = async (row: BiCostCategory) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchCategoryList();
+    const res: any = await deleteCostCategory(row.id!);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchCategoryList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -232,7 +252,7 @@ onMounted(() => {
 
 <template>
   <div class="cost-category-group-wrapper">
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
       <el-tab-pane label="成本类别" name="category">
         <div class="toolbar">
           <div class="search-bar">
@@ -285,7 +305,7 @@ onMounted(() => {
             <el-table-column prop="sortOrder" label="排序" width="100" />
             <el-table-column prop="createdAt" label="创建时间" width="180" />
             <el-table-column prop="updatedAt" label="更新时间" width="180" />
-            <el-table-column label="操作" width="80" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
                   type="primary"
@@ -293,6 +313,13 @@ onMounted(() => {
                   size="small"
                   :icon="Edit"
                   @click="handleCategoryEdit(row)"
+                />
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  :icon="Delete"
+                  @click="handleCategoryDelete(row)"
                 />
               </template>
             </el-table-column>
@@ -381,7 +408,7 @@ onMounted(() => {
             <el-table-column prop="sortOrder" label="排序" width="100" />
             <el-table-column prop="createdAt" label="创建时间" width="180" />
             <el-table-column prop="updatedAt" label="更新时间" width="180" />
-            <el-table-column label="操作" width="80" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
                   type="primary"
@@ -389,6 +416,13 @@ onMounted(() => {
                   size="small"
                   :icon="Edit"
                   @click="handleGroupEdit(row)"
+                />
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  :icon="Delete"
+                  @click="handleGroupDelete(row)"
                 />
               </template>
             </el-table-column>

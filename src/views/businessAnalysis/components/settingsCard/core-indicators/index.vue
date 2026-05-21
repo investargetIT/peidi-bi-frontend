@@ -15,6 +15,14 @@ import { Plus, Search, Edit, Delete } from "@element-plus/icons-vue";
 
 const activeTab = ref("summary");
 
+const handleTabChange = (tabName: string) => {
+  if (tabName === "summary") {
+    fetchSummaryList();
+  } else if (tabName === "config") {
+    fetchConfigList();
+  }
+};
+
 // 指标达成总表配置相关
 const configTableData = ref<BiIndicatorSummaryConfig[]>([]);
 const configLoading = ref(false);
@@ -231,7 +239,7 @@ onMounted(() => {
 
 <template>
   <div class="core-indicators-wrapper">
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
       <el-tab-pane label="指标达成总览" name="summary">
         <div class="toolbar">
           <div class="search-bar">

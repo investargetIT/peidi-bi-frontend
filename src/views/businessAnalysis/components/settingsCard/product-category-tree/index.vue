@@ -5,15 +5,25 @@ import {
   getProductCategoryTreeList,
   addProductCategoryTree,
   updateProductCategoryTree,
+  deleteProductCategoryTree,
   getProductCategoryIncomeList,
   addProductCategoryIncome,
   updateProductCategoryIncome,
+  deleteProductCategoryIncome,
   type BiProductCategoryTree,
   type BiProductCategoryIncome
 } from "@/api/businessAnalysis";
 import { Plus, Search, Edit, Delete, FolderOpened } from "@element-plus/icons-vue";
 
 const activeTab = ref("income");
+
+const handleTabChange = (tabName: string) => {
+  if (tabName === "income") {
+    fetchIncomeList();
+  } else if (tabName === "tree") {
+    fetchList();
+  }
+};
 
 // 产品类别树相关
 const tableData = ref<BiProductCategoryTree[]>([]);
@@ -146,8 +156,13 @@ const handleDelete = async (row: BiProductCategoryTree) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchList();
+    const res: any = await deleteProductCategoryTree(row);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -195,7 +210,8 @@ const incomeIsEdit = ref(false);
 const incomeSubmitLoading = ref(false);
 const incomeStep = ref(1); // 1: 选择二级节点, 2: 选择子节点并填写表单
 const selectedSecondLevelNode = ref<BiProductCategoryTree | null>(null);
-const selectedChildNodes = ref<{ node: BiProductCategoryTree; form: BiProductCategoryIncome }[]>([]);
+const selectedChildNodes = ref<{ node: BiProductCategoryTree; form: BiProductCategoryIncome; isExisting?: boolean }[]>([]);
+const removedChildNodes = ref<BiProductCategoryIncome[]>([]); // 记录被移除的已存在子节点
 const incomeFormData = ref<BiProductCategoryIncome>({
   biProductCategoryTreeId: undefined,
   currentIncome: undefined,
@@ -247,6 +263,7 @@ const handleIncomeAdd = () => {
   incomeStep.value = 1;
   selectedSecondLevelNode.value = null;
   selectedChildNodes.value = [];
+  removedChildNodes.value = []; // 重置移除列表
   parentEditForm.value = {}; // 重置父级表单
   incomeDialogVisible.value = true;
 };
@@ -280,8 +297,17 @@ const selectSecondLevelNode = (node: BiProductCategoryTree) => {
 const toggleChildNodeSelection = (node: BiProductCategoryTree) => {
   const index = selectedChildNodes.value.findIndex(item => item.node.id === node.id);
   if (index > -1) {
-    selectedChildNodes.value.splice(index, 1);
+    const removedItem = selectedChildNodes.value.splice(index, 1)[0];
+    // 如果是已存在的子节点，记录到 removedChildNodes 中
+    if (removedItem.isExisting) {
+      removedChildNodes.value.push(removedItem.form);
+    }
   } else {
+    // 检查是否在移除列表中，如果是则从移除列表中移除
+    const removedIndex = removedChildNodes.value.findIndex(item => item.biProductCategoryTreeId === node.id);
+    if (removedIndex > -1) {
+      removedChildNodes.value.splice(removedIndex, 1);
+    }
     selectedChildNodes.value.push({
       node,
       form: {
@@ -357,6 +383,7 @@ const handleIncomeEdit = (row: BiProductCategoryIncome) => {
 
   // 填充已有的子节点数据，标记已存在的子节点
   selectedChildNodes.value = [];
+  removedChildNodes.value = []; // 重置移除列表
   if (row.child && row.child.length > 0) {
     row.child.forEach(childRow => {
       const childNode = findNode(treeData.value, childRow.biProductCategoryTreeId);
@@ -375,8 +402,11 @@ const handleIncomeEdit = (row: BiProductCategoryIncome) => {
 
 const handleIncomeDelete = async (row: BiProductCategoryIncome) => {
   try {
+    const hasChildren = row.child && row.child.length > 0;
     await ElMessageBox.confirm(
-      `确认删除产品类别收入"${row.categoryName}"吗？`,
+      hasChildren
+        ? `确认删除产品类别收入"${row.categoryName}"及其所有子级数据吗？`
+        : `确认删除产品类别收入"${row.categoryName}"吗？`,
       "提示",
       {
         confirmButtonText: "确定",
@@ -384,8 +414,22 @@ const handleIncomeDelete = async (row: BiProductCategoryIncome) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchIncomeList();
+
+    // 如果有子级，先删除所有子级
+    if (hasChildren) {
+      for (const child of row.child) {
+        await deleteProductCategoryIncome(child);
+      }
+    }
+
+    // 删除当前行
+    const res: any = await deleteProductCategoryIncome(row);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchIncomeList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -394,7 +438,11 @@ const handleIncomeDelete = async (row: BiProductCategoryIncome) => {
 };
 
 const handleIncomeSubmit = async () => {
-  if (selectedChildNodes.value.length === 0) {
+  if (selectedChildNodes.value.length === 0 && incomeIsEdit.value && removedChildNodes.value.length > 0) {
+    ElMessage.warning("至少需要保留一个子节点");
+    return;
+  }
+  if (selectedChildNodes.value.length === 0 && !incomeIsEdit.value) {
     ElMessage.warning("请至少选择一个子节点");
     return;
   }
@@ -411,32 +459,47 @@ const handleIncomeSubmit = async () => {
   incomeSubmitLoading.value = true;
 
   try {
-    // 计算父节点汇总数据
-    const parentSummary = calculateParentSummary();
+    // 先删除被移除的已存在子节点
+    if (incomeIsEdit.value && removedChildNodes.value.length > 0) {
+      for (const child of removedChildNodes.value) {
+        await deleteProductCategoryIncome(child);
+      }
+    }
 
-    // 构建提交的数据结构
-    const submitData = {
-      ...(incomeIsEdit.value ? incomeFormData.value : {}), // 编辑时带上原始数据的 id 等字段
-      ...parentSummary,
-      ...(incomeIsEdit.value ? parentEditForm.value : {}), // 编辑时合并父级表单数据
-      categoryName: selectedSecondLevelNode.value?.categoryName,
-      child: selectedChildNodes.value.map(item => ({
-        ...item.form,
-        categoryName: item.node.categoryName
-      }))
-    };
+    // 只有当还有选中的子节点时才提交更新
+    if (selectedChildNodes.value.length > 0) {
+      // 计算父节点汇总数据
+      const parentSummary = calculateParentSummary();
 
-    // 根据是新增还是编辑调用不同的接口
-    const res: any = incomeIsEdit.value
-      ? await updateProductCategoryIncome(submitData)
-      : await addProductCategoryIncome(submitData);
+      // 构建提交的数据结构
+      const submitData = {
+        ...(incomeIsEdit.value ? incomeFormData.value : {}), // 编辑时带上原始数据的 id 等字段
+        ...parentSummary,
+        ...(incomeIsEdit.value ? parentEditForm.value : {}), // 编辑时合并父级表单数据
+        categoryName: selectedSecondLevelNode.value?.categoryName,
+        child: selectedChildNodes.value.map(item => ({
+          ...item.form,
+          categoryName: item.node.categoryName
+        }))
+      };
 
-    if (res.success) {
-      ElMessage.success(incomeIsEdit.value ? "更新成功" : "新增成功");
+      // 根据是新增还是编辑调用不同的接口
+      const res: any = incomeIsEdit.value
+        ? await updateProductCategoryIncome(submitData)
+        : await addProductCategoryIncome(submitData);
+
+      if (res.success) {
+        ElMessage.success(incomeIsEdit.value ? "更新成功" : "新增成功");
+        incomeDialogVisible.value = false;
+        await fetchIncomeList();
+      } else {
+        ElMessage.error(res.msg || (incomeIsEdit.value ? "更新失败" : "新增失败"));
+      }
+    } else {
+      // 如果没有选中的子节点了，只删除被移除的就可以了
+      ElMessage.success("更新成功");
       incomeDialogVisible.value = false;
       await fetchIncomeList();
-    } else {
-      ElMessage.error(res.msg || (incomeIsEdit.value ? "更新失败" : "新增失败"));
     }
   } catch (error) {
     ElMessage.error(incomeIsEdit.value ? "更新失败" : "新增失败");
@@ -453,7 +516,7 @@ onMounted(() => {
 
 <template>
   <div class="product-category-tree-wrapper">
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
       <el-tab-pane label="产品类别收入" name="income">
         <div class="toolbar">
           <div class="search-bar">
@@ -527,9 +590,9 @@ onMounted(() => {
               </template>
             </el-table-column>
             <el-table-column prop="createAt" label="创建时间" width="180" />
-            <el-table-column label="操作" width="100" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
-                <!-- 只有父节点（有child的）显示编辑按钮，不显示删除按钮 -->
+                <!-- 只有父节点（有child的）显示编辑按钮 -->
                 <el-button
                   v-if="row.child && row.child.length > 0"
                   type="primary"
@@ -537,6 +600,14 @@ onMounted(() => {
                   size="small"
                   :icon="Edit"
                   @click="handleIncomeEdit(row)"
+                />
+                <!-- 所有行都显示删除按钮 -->
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  :icon="Delete"
+                  @click="handleIncomeDelete(row)"
                 />
               </template>
             </el-table-column>
@@ -688,7 +759,7 @@ onMounted(() => {
                 <template #header>
                   <div class="child-form-header">
                     <span>{{ item.node.categoryName }}</span>
-                    <el-button v-if="!item.isExisting" link type="danger" size="small" @click="toggleChildNodeSelection(item.node)">移除</el-button>
+                    <el-button link type="danger" size="small" @click="toggleChildNodeSelection(item.node)">移除</el-button>
                   </div>
                 </template>
                 <el-form label-width="120px">
@@ -817,6 +888,14 @@ onMounted(() => {
                       >
                         编辑
                       </el-button>
+                      <el-button
+                        type="danger"
+                        link
+                        size="small"
+                        @click.stop="handleDelete(data)"
+                      >
+                        删除
+                      </el-button>
                     </span>
                   </div>
                 </template>
@@ -851,7 +930,7 @@ onMounted(() => {
                 <el-table-column prop="brand" label="品牌" width="100" />
                 <el-table-column prop="productLine" label="产品线" width="120" />
                 <el-table-column prop="sortOrder" label="排序" width="80" />
-                <el-table-column label="操作" width="80" fixed="right">
+                <el-table-column label="操作" width="160" fixed="right">
                   <template #default="{ row }">
                     <el-button
                       type="primary"
@@ -859,6 +938,13 @@ onMounted(() => {
                       size="small"
                       :icon="Edit"
                       @click="handleEdit(row)"
+                    />
+                    <el-button
+                      type="danger"
+                      link
+                      size="small"
+                      :icon="Delete"
+                      @click="handleDelete(row)"
                     />
                   </template>
                 </el-table-column>

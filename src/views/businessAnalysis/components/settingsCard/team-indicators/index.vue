@@ -5,9 +5,11 @@ import {
   getTeamConfigList,
   addTeamConfig,
   updateTeamConfig,
+  deleteTeamConfig,
   getTeamIncomeTargetList,
   addTeamIncomeTarget,
   updateTeamIncomeTarget,
+  deleteTeamIncomeTarget,
   type BiTeamConfig,
   type BiTeamIncomeTarget
 } from "@/api/businessAnalysis";
@@ -15,6 +17,14 @@ import { Plus, Search, Edit, Delete } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
 
 const activeTab = ref("target");
+
+const handleTabChange = (tabName: string) => {
+  if (tabName === "target") {
+    fetchTargetList();
+  } else if (tabName === "config") {
+    fetchConfigList();
+  }
+};
 
 // 团队配置相关
 const configTableData = ref<BiTeamConfig[]>([]);
@@ -69,8 +79,13 @@ const handleConfigDelete = async (row: BiTeamConfig) => {
       cancelButtonText: "取消",
       type: "warning"
     });
-    ElMessage.success("删除功能待接口完善");
-    await fetchConfigList();
+    const res: any = await deleteTeamConfig(row);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchConfigList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -177,8 +192,13 @@ const handleTargetDelete = async (row: BiTeamIncomeTarget) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchTargetList();
+    const res: any = await deleteTeamIncomeTarget(row);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchTargetList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -228,7 +248,7 @@ onMounted(() => {
 
 <template>
   <div class="team-indicators-wrapper">
-    <el-tabs v-model="activeTab">
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
       <el-tab-pane label="团队收入目标" name="target">
         <div class="toolbar">
           <div class="search-bar">
@@ -336,7 +356,7 @@ onMounted(() => {
             </template>
           </el-table-column>
           <el-table-column prop="createAt" label="创建时间" width="180" />
-          <el-table-column label="操作" width="80" fixed="right">
+          <el-table-column label="操作" width="160" fixed="right">
             <template #default="{ row }">
               <el-button
                 type="primary"
@@ -344,6 +364,13 @@ onMounted(() => {
                 size="small"
                 :icon="Edit"
                 @click="handleTargetEdit(row)"
+              />
+              <el-button
+                type="danger"
+                link
+                size="small"
+                :icon="Delete"
+                @click="handleTargetDelete(row)"
               />
             </template>
           </el-table-column>
@@ -451,7 +478,7 @@ onMounted(() => {
           <el-table-column prop="teamName" label="团队名称" />
           <el-table-column prop="createAt" label="创建时间" width="180" />
           <el-table-column prop="updateAt" label="更新时间" width="180" />
-          <el-table-column label="操作" width="80" fixed="right">
+          <el-table-column label="操作" width="160" fixed="right">
             <template #default="{ row }">
               <el-button
                 type="primary"
@@ -459,6 +486,13 @@ onMounted(() => {
                 size="small"
                 :icon="Edit"
                 @click="handleConfigEdit(row)"
+              />
+              <el-button
+                type="danger"
+                link
+                size="small"
+                :icon="Delete"
+                @click="handleConfigDelete(row)"
               />
             </template>
           </el-table-column>

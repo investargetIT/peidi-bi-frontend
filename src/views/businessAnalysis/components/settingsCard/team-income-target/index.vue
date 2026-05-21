@@ -5,6 +5,7 @@ import {
   getTeamIncomeTargetList,
   addTeamIncomeTarget,
   updateTeamIncomeTarget,
+  deleteTeamIncomeTarget,
   getTeamConfigList,
   type BiTeamIncomeTarget,
   type BiTeamConfig
@@ -92,10 +93,13 @@ const handleDelete = async (row: BiTeamIncomeTarget) => {
         type: "warning"
       }
     );
-    // 删除接口待提供，先只做提示
-    ElMessage.success("删除功能待接口完善");
-    // 刷新列表
-    await fetchList();
+    const res: any = await deleteTeamIncomeTarget(row);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -229,7 +233,7 @@ onMounted(() => {
         </template>
       </el-table-column>
       <el-table-column prop="createAt" label="创建时间" width="180" />
-      <el-table-column label="操作" width="80" fixed="right">
+      <el-table-column label="操作" width="160" fixed="right">
         <template #default="{ row }">
           <el-button
             type="primary"
@@ -237,6 +241,13 @@ onMounted(() => {
             size="small"
             :icon="Edit"
             @click="handleEdit(row)"
+          />
+          <el-button
+            type="danger"
+            link
+            size="small"
+            :icon="Delete"
+            @click="handleDelete(row)"
           />
         </template>
       </el-table-column>

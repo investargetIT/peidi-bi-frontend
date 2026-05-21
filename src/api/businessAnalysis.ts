@@ -2,9 +2,9 @@
 import { http } from "@/utils/http";
 
 // 测试环境地址
-const commonUrlApi = (url: string) => `${"http://12.18.1.36:8085"}${url}`;
+// const commonUrlApi = (url: string) => `${"http://12.18.1.36:8085"}${url}`;
 // 生产环境地址
-// const commonUrlApi = (url: string) => `${"https://api.peidigroup.cn"}${url}`;
+const commonUrlApi = (url: string) => `${"https://api.peidigroup.cn"}${url}`;
 
 /** 获取经营分析会核心指标达成总览 */
 export const getBusinessAnalysisOverviewList = (params: { date?: string }) => {
@@ -126,6 +126,17 @@ export const updateTeamConfig = (data: BiTeamConfig) => {
   );
 };
 
+/** 删除团队配置 */
+export const deleteTeamConfig = (data: BiTeamConfig) => {
+  return http.request<ApiResponse>(
+    "post",
+    commonUrlApi("/oms/bi/team-config/delete"),
+    {
+      data
+    }
+  );
+};
+
 /** 查询所有团队收入指标列表 */
 export const getTeamIncomeTargetList = () => {
   return http.request<ApiResponse<BiTeamIncomeTarget[]>>(
@@ -150,6 +161,17 @@ export const updateTeamIncomeTarget = (data: BiTeamIncomeTarget) => {
   return http.request<ApiResponse>(
     "post",
     commonUrlApi("/oms/bi/team-income-target/update"),
+    {
+      data
+    }
+  );
+};
+
+/** 删除团队收入指标 */
+export const deleteTeamIncomeTarget = (data: BiTeamIncomeTarget) => {
+  return http.request<ApiResponse>(
+    "post",
+    commonUrlApi("/oms/bi/team-income-target/delete"),
     {
       data
     }
@@ -229,6 +251,17 @@ export const updateProductCategoryTree = (data: BiProductCategoryTree) => {
   );
 };
 
+/** 删除产品类别 */
+export const deleteProductCategoryTree = (data: BiProductCategoryTree) => {
+  return http.request<ApiResponse>(
+    "post",
+    commonUrlApi("/oms/bi/product-category-tree/delete"),
+    {
+      data
+    }
+  );
+};
+
 /** 成本类别分组表 */
 export interface BiCostCategoryGroup {
   /** 创建时间 */
@@ -273,6 +306,17 @@ export const updateCostCategoryGroup = (data: BiCostCategoryGroup) => {
     commonUrlApi("/oms/bi/cost-category-group/update"),
     {
       data
+    }
+  );
+};
+
+/** 删除成本类别分组 */
+export const deleteCostCategoryGroup = (id: number) => {
+  return http.request<ApiResponse>(
+    "get",
+    commonUrlApi("/oms/bi/cost-category-group/delete"),
+    {
+      params: { id }
     }
   );
 };
@@ -325,6 +369,17 @@ export const updateCostCategory = (data: BiCostCategory) => {
     commonUrlApi("/oms/bi/cost-category/update"),
     {
       data
+    }
+  );
+};
+
+/** 删除成本类别 */
+export const deleteCostCategory = (id: number) => {
+  return http.request<ApiResponse>(
+    "get",
+    commonUrlApi("/oms/bi/cost-category/delete"),
+    {
+      params: { id }
     }
   );
 };
@@ -482,6 +537,15 @@ export const updateProductCategoryIncome = (data: BiProductCategoryIncome) => {
   return http.request<ApiResponse>(
     "post",
     commonUrlApi("/oms/bi/product-category-income/update"),
+    { data }
+  );
+};
+
+/** 删除产品类别收入 */
+export const deleteProductCategoryIncome = (data: BiProductCategoryIncome) => {
+  return http.request<ApiResponse>(
+    "post",
+    commonUrlApi("/oms/bi/product-category-income/delete"),
     { data }
   );
 };
