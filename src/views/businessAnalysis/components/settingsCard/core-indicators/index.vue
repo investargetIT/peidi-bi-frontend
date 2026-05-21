@@ -5,9 +5,11 @@ import {
   getIndicatorSummaryConfigList,
   addIndicatorSummaryConfig,
   updateIndicatorSummaryConfig,
+  deleteIndicatorSummaryConfig,
   getIndicatorSummaryList,
   addIndicatorSummary,
   updateIndicatorSummary,
+  deleteIndicatorSummary,
   type BiIndicatorSummaryConfig,
   type BiIndicatorSummary
 } from "@/api/businessAnalysis";
@@ -36,8 +38,11 @@ const configFormData = ref<BiIndicatorSummaryConfig>({
 const configSearchText = ref("");
 
 const filteredConfigTableData = computed(() => {
-  if (!configSearchText.value) return configTableData.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  return configTableData.value
+  if (!configSearchText.value)
+    return [...configTableData.value].sort(
+      (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+    );
+  return [...configTableData.value]
     .filter(item => item.configName?.includes(configSearchText.value))
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 });
@@ -75,17 +80,18 @@ const handleConfigEdit = (row: BiIndicatorSummaryConfig) => {
 
 const handleConfigDelete = async (row: BiIndicatorSummaryConfig) => {
   try {
-    await ElMessageBox.confirm(
-      `确认删除配置"${row.configName}"吗？`,
-      "提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }
-    );
-    ElMessage.success("删除功能待接口完善");
-    await fetchConfigList();
+    await ElMessageBox.confirm(`确认删除配置"${row.configName}"吗？`, "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+    const res: any = await deleteIndicatorSummaryConfig(row.id!);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchConfigList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -112,7 +118,9 @@ const handleConfigSubmit = async () => {
       configDialogVisible.value = false;
       await fetchConfigList();
     } else {
-      ElMessage.error(res.msg || (configIsEdit.value ? "更新失败" : "新增失败"));
+      ElMessage.error(
+        res.msg || (configIsEdit.value ? "更新失败" : "新增失败")
+      );
     }
   } catch (error) {
     ElMessage.error(configIsEdit.value ? "更新失败" : "新增失败");
@@ -140,8 +148,9 @@ const summaryFormData = ref<BiIndicatorSummary>({
 const summarySearchText = ref("");
 
 const filteredSummaryTableData = computed(() => {
-  if (!summarySearchText.value) return summaryTableData.value.sort((a, b) => b.id - a.id);
-  return summaryTableData.value
+  if (!summarySearchText.value)
+    return [...summaryTableData.value].sort((a, b) => b.id - a.id);
+  return [...summaryTableData.value]
     .filter(item => item.config?.configName?.includes(summarySearchText.value))
     .sort((a, b) => b.id - a.id);
 });
@@ -194,8 +203,13 @@ const handleSummaryDelete = async (row: BiIndicatorSummary) => {
         type: "warning"
       }
     );
-    ElMessage.success("删除功能待接口完善");
-    await fetchSummaryList();
+    const res: any = await deleteIndicatorSummary(row.id!);
+    if (res.success) {
+      ElMessage.success("删除成功");
+      await fetchSummaryList();
+    } else {
+      ElMessage.error(res.msg || "删除失败");
+    }
   } catch (error) {
     if (error !== "cancel") {
       ElMessage.error("删除失败");
@@ -222,7 +236,9 @@ const handleSummarySubmit = async () => {
       summaryDialogVisible.value = false;
       await fetchSummaryList();
     } else {
-      ElMessage.error(res.msg || (summaryIsEdit.value ? "更新失败" : "新增失败"));
+      ElMessage.error(
+        res.msg || (summaryIsEdit.value ? "更新失败" : "新增失败")
+      );
     }
   } catch (error) {
     ElMessage.error(summaryIsEdit.value ? "更新失败" : "新增失败");
@@ -279,9 +295,19 @@ onMounted(() => {
                 {{ row.currentBudget?.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="completionRate" label="完成率(%)" width="120">
+            <el-table-column
+              prop="completionRate"
+              label="完成率(%)"
+              width="120"
+            >
               <template #default="{ row }">
-                <el-tag :type="row.completionRate && row.completionRate >= 100 ? 'success' : 'warning'">
+                <el-tag
+                  :type="
+                    row.completionRate && row.completionRate >= 100
+                      ? 'success'
+                      : 'warning'
+                  "
+                >
                   {{ row.completionRate?.toFixed(2) }}%
                 </el-tag>
               </template>
@@ -297,7 +323,8 @@ onMounted(() => {
                   v-if="row.growthRate !== null && row.growthRate !== undefined"
                   :type="row.growthRate >= 0 ? 'success' : 'danger'"
                 >
-                  {{ row.growthRate > 0 ? "+" : "" }}{{ row.growthRate?.toFixed(2) }}%
+                  {{ row.growthRate > 0 ? "+" : ""
+                  }}{{ row.growthRate?.toFixed(2) }}%
                 </el-tag>
               </template>
             </el-table-column>
@@ -306,7 +333,11 @@ onMounted(() => {
                 {{ row.annualBudget?.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="annualProgress" label="全年进度(%)" width="140">
+            <el-table-column
+              prop="annualProgress"
+              label="全年进度(%)"
+              width="140"
+            >
               <template #default="{ row }">
                 <el-progress
                   :percentage="row.annualProgress || 0"
@@ -321,7 +352,7 @@ onMounted(() => {
               </template>
             </el-table-column>
             <el-table-column prop="createdAt" label="创建时间" width="180" />
-            <el-table-column label="操作" width="80" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
                   type="primary"
@@ -329,6 +360,13 @@ onMounted(() => {
                   size="small"
                   :icon="Edit"
                   @click="handleSummaryEdit(row)"
+                />
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  :icon="Delete"
+                  @click="handleSummaryDelete(row)"
                 />
               </template>
             </el-table-column>
@@ -422,7 +460,12 @@ onMounted(() => {
           </el-form>
           <template #footer>
             <el-button @click="summaryDialogVisible = false">取消</el-button>
-            <el-button type="primary" :loading="summarySubmitLoading" @click="handleSummarySubmit">确定</el-button>
+            <el-button
+              type="primary"
+              :loading="summarySubmitLoading"
+              @click="handleSummarySubmit"
+              >确定</el-button
+            >
           </template>
         </el-dialog>
       </el-tab-pane>
@@ -451,11 +494,15 @@ onMounted(() => {
             stripe
           >
             <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="configName" label="配置名称" min-width="200" />
+            <el-table-column
+              prop="configName"
+              label="配置名称"
+              min-width="200"
+            />
             <el-table-column prop="sortOrder" label="排序" width="100" />
             <el-table-column prop="createdAt" label="创建时间" width="180" />
             <el-table-column prop="updatedAt" label="更新时间" width="180" />
-            <el-table-column label="操作" width="80" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
                   type="primary"
@@ -463,6 +510,13 @@ onMounted(() => {
                   size="small"
                   :icon="Edit"
                   @click="handleConfigEdit(row)"
+                />
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  :icon="Delete"
+                  @click="handleConfigDelete(row)"
                 />
               </template>
             </el-table-column>
@@ -491,7 +545,12 @@ onMounted(() => {
           </el-form>
           <template #footer>
             <el-button @click="configDialogVisible = false">取消</el-button>
-            <el-button type="primary" :loading="configSubmitLoading" @click="handleConfigSubmit">确定</el-button>
+            <el-button
+              type="primary"
+              :loading="configSubmitLoading"
+              @click="handleConfigSubmit"
+              >确定</el-button
+            >
           </template>
         </el-dialog>
       </el-tab-pane>

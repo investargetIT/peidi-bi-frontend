@@ -401,7 +401,9 @@ export interface BiIndicatorSummaryConfig {
 }
 
 /** 搜索查询指标达成总表配置列表 */
-export const getIndicatorSummaryConfigList = (params?: { searchStr?: string }) => {
+export const getIndicatorSummaryConfigList = (params?: {
+  searchStr?: string;
+}) => {
   return http.request<ApiResponse<BiIndicatorSummaryConfig[]>>(
     "get",
     commonUrlApi("/oms/bi/indicator-summary-config/list"),
@@ -419,11 +421,24 @@ export const addIndicatorSummaryConfig = (data: BiIndicatorSummaryConfig) => {
 };
 
 /** 更新指标达成总表配置 */
-export const updateIndicatorSummaryConfig = (data: BiIndicatorSummaryConfig) => {
+export const updateIndicatorSummaryConfig = (
+  data: BiIndicatorSummaryConfig
+) => {
   return http.request<ApiResponse>(
     "post",
     commonUrlApi("/oms/bi/indicator-summary-config/update"),
     { data }
+  );
+};
+
+/** 删除指标达成总表配置 */
+export const deleteIndicatorSummaryConfig = (id: number) => {
+  return http.request<ApiResponse>(
+    "get",
+    commonUrlApi("/oms/bi/indicator-summary-config/delete"),
+    {
+      params: { id }
+    }
   );
 };
 
@@ -481,6 +496,17 @@ export const updateIndicatorSummary = (data: BiIndicatorSummary) => {
     "post",
     commonUrlApi("/oms/bi/indicator-summary/update"),
     { data }
+  );
+};
+
+/** 删除指标达成总览 */
+export const deleteIndicatorSummary = (id: number) => {
+  return http.request<ApiResponse>(
+    "get",
+    commonUrlApi("/oms/bi/indicator-summary/delete"),
+    {
+      params: { id }
+    }
   );
 };
 
