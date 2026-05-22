@@ -39,8 +39,8 @@ const groupFormData = ref<BiCostCategoryGroup>({
 const groupSearchText = ref("");
 
 const filteredGroupTableData = computed(() => {
-  if (!groupSearchText.value) return groupTableData.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  return groupTableData.value
+  if (!groupSearchText.value) return [...groupTableData.value].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  return [...groupTableData.value]
     .filter(
       item =>
         item.groupName?.includes(groupSearchText.value) ||
@@ -149,8 +149,8 @@ const categoryFormData = ref<BiCostCategory>({
 const categorySearchText = ref("");
 
 const filteredCategoryTableData = computed(() => {
-  if (!categorySearchText.value) return categoryTableData.value.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  return categoryTableData.value
+  if (!categorySearchText.value) return [...categoryTableData.value].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  return [...categoryTableData.value]
     .filter(
       item =>
         item.group?.groupName?.includes(categorySearchText.value)
@@ -264,9 +264,9 @@ onMounted(() => {
               style="width: 300px"
             />
           </div>
-          <el-button type="primary" :icon="Plus" @click="handleCategoryAdd()"
-            >新增成本类别</el-button
-          >
+          <el-button type="primary" :icon="Plus" @click="handleCategoryAdd()">
+            新增成本类别
+          </el-button>
         </div>
 
         <el-card shadow="never" class="table-card">
@@ -276,35 +276,42 @@ onMounted(() => {
             border
             stripe
           >
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column label="分组名称" min-width="200">
+            <el-table-column label="成本类别" min-width="200">
               <template #default="{ row }">
                 {{ row.group?.groupName }}
               </template>
             </el-table-column>
-            <el-table-column label="分组代码" width="150">
-              <template #default="{ row }">
-                {{ row.group?.groupCode }}
-              </template>
-            </el-table-column>
             <el-table-column prop="currentCost" label="本期累计" width="120">
               <template #default="{ row }">
-                {{ row.currentCost?.toFixed(2) }}%
+                {{ row.currentCost?.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="yoyChange" label="同比变化(%)" width="150">
+            <el-table-column label="成本占比" width="120">
+              <template #default="{ row }">
+                <!-- 预留字段 -->
+              </template>
+            </el-table-column>
+            <el-table-column label="去年同期" width="120">
+              <template #default="{ row }">
+                <!-- 预留字段 -->
+              </template>
+            </el-table-column>
+            <el-table-column label="成本占比" width="120">
+              <template #default="{ row }">
+                <!-- 预留字段 -->
+              </template>
+            </el-table-column>
+            <el-table-column prop="yoyChange" label="同比变化" width="150">
               <template #default="{ row }">
                 <el-tag
                   v-if="row.yoyChange !== null && row.yoyChange !== undefined"
                   :type="row.yoyChange >= 0 ? 'success' : 'danger'"
                 >
-                  {{ row.yoyChange > 0 ? '+' : '' }}{{ row.yoyChange?.toFixed(2) }}%
+                  {{ row.yoyChange > 0 ? "+" : "" }}{{ row.yoyChange?.toFixed(2) }}%
                 </el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="sortOrder" label="排序" width="100" />
-            <el-table-column prop="createdAt" label="创建时间" width="180" />
-            <el-table-column prop="updatedAt" label="更新时间" width="180" />
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
@@ -346,7 +353,7 @@ onMounted(() => {
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="本期累计(%)">
+            <el-form-item label="本期累计">
               <el-input-number
                 v-model="categoryFormData.currentCost"
                 :precision="2"
@@ -355,7 +362,7 @@ onMounted(() => {
                 style="width: 100%"
               />
             </el-form-item>
-            <el-form-item label="同比变化(%)">
+            <el-form-item label="同比变化">
               <el-input-number
                 v-model="categoryFormData.yoyChange"
                 :precision="2"
@@ -390,9 +397,9 @@ onMounted(() => {
               style="width: 300px"
             />
           </div>
-          <el-button type="primary" :icon="Plus" @click="handleGroupAdd()"
-            >新增分组</el-button
-          >
+          <el-button type="primary" :icon="Plus" @click="handleGroupAdd()">
+            新增分组
+          </el-button>
         </div>
 
         <el-card shadow="never" class="table-card">
@@ -402,12 +409,8 @@ onMounted(() => {
             border
             stripe
           >
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="groupName" label="分组名称" min-width="200" />
-            <el-table-column prop="groupCode" label="分组代码" width="200" />
+            <el-table-column prop="groupName" label="分组名" min-width="200" />
             <el-table-column prop="sortOrder" label="排序" width="100" />
-            <el-table-column prop="createdAt" label="创建时间" width="180" />
-            <el-table-column prop="updatedAt" label="更新时间" width="180" />
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button

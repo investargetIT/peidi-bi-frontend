@@ -46,8 +46,8 @@ const formData = ref<BiProductCategoryTree>({
 const searchText = ref("");
 
 const filteredTableData = computed(() => {
-  if (!searchText.value) return tableData.value.sort((a, b) => a.id - b.id);
-  return tableData.value
+  if (!searchText.value) return [...tableData.value].sort((a, b) => a.id - b.id);
+  return [...tableData.value]
     .filter(
       item =>
         item.categoryName?.includes(searchText.value) ||
@@ -543,19 +543,18 @@ onMounted(() => {
             :tree-props="{ children: 'child', hasChildren: 'hasChildren' }"
             default-expand-all
           >
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="categoryName" label="类别名称" min-width="200" />
-            <el-table-column prop="currentIncome" label="收入" width="120">
+            <el-table-column prop="categoryName" label="产品/服务类别" min-width="200" />
+            <el-table-column prop="currentIncome" label="本期累计收入" width="140">
               <template #default="{ row }">
                 {{ row.currentIncome?.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="incomeRatio" label="占比(%)" width="120">
+            <el-table-column prop="incomeRatio" label="收入占比" width="120">
               <template #default="{ row }">
                 {{ row.incomeRatio?.toFixed(2) }}%
               </template>
             </el-table-column>
-            <el-table-column prop="yearOnYearChange" label="同比变化(%)" width="140">
+            <el-table-column prop="yearOnYearChange" label="同比变化" width="140">
               <template #default="{ row }">
                 <el-tag
                   v-if="row.yearOnYearChange !== null && row.yearOnYearChange !== undefined"
@@ -565,7 +564,7 @@ onMounted(() => {
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="grossProfitRate" label="毛利率(%)" width="120">
+            <el-table-column prop="grossProfitRate" label="毛利率" width="120">
               <template #default="{ row }">
                 {{ row.grossProfitRate?.toFixed(2) }}%
               </template>
@@ -575,7 +574,7 @@ onMounted(() => {
                 {{ row.annualTarget?.toFixed(2) }}
               </template>
             </el-table-column>
-            <el-table-column prop="completionProgress" label="达成进度(%)" width="140">
+            <el-table-column prop="completionProgress" label="达成进度" width="140">
               <template #default="{ row }">
                 <el-progress
                   :percentage="row.completionProgress || 0"
@@ -589,7 +588,6 @@ onMounted(() => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="createAt" label="创建时间" width="180" />
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <!-- 只有父节点（有child的）显示编辑按钮 -->
@@ -657,7 +655,7 @@ onMounted(() => {
               <el-form label-width="120px">
                 <el-row :gutter="20">
                   <el-col :span="12">
-                    <el-form-item label="收入">
+                    <el-form-item label="本期累计收入">
                       <el-input-number
                         :model-value="calculateParentSummary()?.currentIncome"
                         :precision="2"
@@ -668,7 +666,7 @@ onMounted(() => {
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item label="占比(%)">
+                    <el-form-item label="收入占比">
                       <el-input-number
                         v-model="parentEditForm.incomeRatio"
                         :precision="2"
@@ -681,7 +679,7 @@ onMounted(() => {
                 </el-row>
                 <el-row :gutter="20">
                   <el-col :span="12">
-                    <el-form-item label="同比变化(%)">
+                    <el-form-item label="同比变化">
                       <el-input-number
                         v-model="parentEditForm.yearOnYearChange"
                         :precision="2"
@@ -692,7 +690,7 @@ onMounted(() => {
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item label="毛利率(%)">
+                    <el-form-item label="毛利率">
                       <el-input-number
                         v-model="parentEditForm.grossProfitRate"
                         :precision="2"
@@ -716,7 +714,7 @@ onMounted(() => {
                     </el-form-item>
                   </el-col>
                   <el-col :span="12">
-                    <el-form-item label="达成进度(%)">
+                    <el-form-item label="达成进度">
                       <div style="padding-top: 8px">
                         <el-progress
                           :percentage="calculateParentSummary()?.completionProgress || 0"
@@ -763,7 +761,7 @@ onMounted(() => {
                   </div>
                 </template>
                 <el-form label-width="120px">
-                  <el-form-item label="收入">
+                  <el-form-item label="本期累计收入">
                     <el-input-number
                       v-model="item.form.currentIncome"
                       :precision="2"
@@ -772,7 +770,7 @@ onMounted(() => {
                       placeholder="请输入收入"
                     />
                   </el-form-item>
-                  <el-form-item label="占比(%)">
+                  <el-form-item label="收入占比">
                     <el-input-number
                       v-model="item.form.incomeRatio"
                       :precision="2"
@@ -781,7 +779,7 @@ onMounted(() => {
                       placeholder="请输入占比"
                     />
                   </el-form-item>
-                  <el-form-item label="同比变化(%)">
+                  <el-form-item label="同比变化">
                     <el-input-number
                       v-model="item.form.yearOnYearChange"
                       :precision="2"
@@ -790,7 +788,7 @@ onMounted(() => {
                       placeholder="请输入同比变化"
                     />
                   </el-form-item>
-                  <el-form-item label="毛利率(%)">
+                  <el-form-item label="毛利率">
                     <el-input-number
                       v-model="item.form.grossProfitRate"
                       :precision="2"
@@ -808,7 +806,7 @@ onMounted(() => {
                       placeholder="请输入年度预算"
                     />
                   </el-form-item>
-                  <el-form-item label="达成进度(%)">
+                  <el-form-item label="达成进度">
                     <el-input-number
                       v-model="item.form.completionProgress"
                       :precision="2"

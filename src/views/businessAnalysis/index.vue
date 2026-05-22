@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
 import IncomeDaily from "@/views/incomeDaily/index.vue";
@@ -7,7 +7,8 @@ import SettingsCard from "./components/settingsCard/index.vue";
 import { storageLocal } from "@pureadmin/utils";
 import NavBar from "./components/navBar/index.vue";
 
-const activeName = ref("incomeDaily");
+const STORAGE_KEY = "businessAnalysis_activeTab";
+const activeName = ref<string>(storageLocal().getItem(STORAGE_KEY) as string || "incomeDaily");
 
 //#region 陀螺仪逻辑
 const USER_ID = (storageLocal().getItem("dataSource") as any)?.id;
@@ -48,6 +49,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   // window.removeEventListener("deviceorientation", handleDeviceOrientation);
+});
+
+// 监听选项卡变化并保存到本地存储
+watch(activeName, (newVal) => {
+  storageLocal().setItem(STORAGE_KEY, newVal);
 });
 </script>
 

@@ -279,7 +279,6 @@ onMounted(() => {
             border
             stripe
           >
-            <el-table-column prop="id" label="ID" width="80" />
             <el-table-column label="指标名称" min-width="150">
               <template #default="{ row }">
                 {{ row.config?.configName }}
@@ -312,22 +311,6 @@ onMounted(() => {
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="lastYearActual" label="去年同期" width="120">
-              <template #default="{ row }">
-                {{ row.lastYearActual?.toFixed(2) }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="growthRate" label="增减率(%)" width="120">
-              <template #default="{ row }">
-                <el-tag
-                  v-if="row.growthRate !== null && row.growthRate !== undefined"
-                  :type="row.growthRate >= 0 ? 'success' : 'danger'"
-                >
-                  {{ row.growthRate > 0 ? "+" : ""
-                  }}{{ row.growthRate?.toFixed(2) }}%
-                </el-tag>
-              </template>
-            </el-table-column>
             <el-table-column prop="annualBudget" label="全年预算" width="120">
               <template #default="{ row }">
                 {{ row.annualBudget?.toFixed(2) }}
@@ -351,7 +334,22 @@ onMounted(() => {
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="createdAt" label="创建时间" width="180" />
+            <el-table-column prop="lastYearActual" label="去年同期" width="120">
+              <template #default="{ row }">
+                {{ row.lastYearActual?.toFixed(2) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="growthRate" label="增减率(%)" width="120">
+              <template #default="{ row }">
+                <el-tag
+                  v-if="row.growthRate !== null && row.growthRate !== undefined"
+                  :type="row.growthRate >= 0 ? 'success' : 'danger'"
+                >
+                  {{ row.growthRate > 0 ? "+" : ""
+                  }}{{ row.growthRate?.toFixed(2) }}%
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button
@@ -421,24 +419,6 @@ onMounted(() => {
                 placeholder="请输入完成率"
               />
             </el-form-item>
-            <el-form-item label="去年同期">
-              <el-input-number
-                v-model="summaryFormData.lastYearActual"
-                :precision="2"
-                :step="1"
-                style="width: 100%"
-                placeholder="请输入去年同期"
-              />
-            </el-form-item>
-            <el-form-item label="增减率(%)">
-              <el-input-number
-                v-model="summaryFormData.growthRate"
-                :precision="2"
-                :step="0.01"
-                style="width: 100%"
-                placeholder="请输入增减率"
-              />
-            </el-form-item>
             <el-form-item label="全年预算">
               <el-input-number
                 v-model="summaryFormData.annualBudget"
@@ -455,6 +435,24 @@ onMounted(() => {
                 :step="0.01"
                 style="width: 100%"
                 placeholder="请输入全年进度"
+              />
+            </el-form-item>
+            <el-form-item label="去年同期">
+              <el-input-number
+                v-model="summaryFormData.lastYearActual"
+                :precision="2"
+                :step="1"
+                style="width: 100%"
+                placeholder="请输入去年同期"
+              />
+            </el-form-item>
+            <el-form-item label="增减率(%)">
+              <el-input-number
+                v-model="summaryFormData.growthRate"
+                :precision="2"
+                :step="0.01"
+                style="width: 100%"
+                placeholder="请输入增减率"
               />
             </el-form-item>
           </el-form>
@@ -493,15 +491,12 @@ onMounted(() => {
             border
             stripe
           >
-            <el-table-column prop="id" label="ID" width="80" />
             <el-table-column
               prop="configName"
               label="配置名称"
               min-width="200"
             />
             <el-table-column prop="sortOrder" label="排序" width="100" />
-            <el-table-column prop="createdAt" label="创建时间" width="180" />
-            <el-table-column prop="updatedAt" label="更新时间" width="180" />
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button

@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { ReSegmented } from "@/components/ReSegmented";
 import type { OptionsType } from "@/components/ReSegmented/src/type";
+import { storageLocal } from "@pureadmin/utils";
 import TeamIndicators from "./team-indicators/index.vue";
 import ProductCategoryTree from "./product-category-tree/index.vue";
 import CostCategoryGroup from "./cost-category-group/index.vue";
 import CoreIndicators from "./core-indicators/index.vue";
 
-const activeSegment = ref(0);
+const STORAGE_KEY = "settingsCard_activeSegment";
+const activeSegment = ref(Number(storageLocal().getItem(STORAGE_KEY)) || 0);
 
 const options: OptionsType[] = [
   { label: "核心指标达成", value: "core-indicators" },
@@ -19,6 +21,10 @@ const options: OptionsType[] = [
 const handleSegmentChange = ({ index, option }) => {
   console.log("切换到:", option.label);
 };
+
+watch(activeSegment, (newVal) => {
+  storageLocal().setItem(STORAGE_KEY, newVal);
+});
 </script>
 
 <template>
