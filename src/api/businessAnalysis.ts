@@ -66,6 +66,16 @@ export interface BiTeamConfig {
   [property: string]: any;
 }
 
+/** 财务收入月份数据 */
+export interface BiFinancialIncomeMonth {
+  id?: number;
+  year?: number;
+  month?: number;
+  channelGroup?: string;
+  channel?: string;
+  income?: string;
+}
+
 /** 团队收入指标表 */
 export interface BiTeamIncomeTarget {
   /** 达成情况(%) = ROUND((本期累计/预算指标)*100,0) */
@@ -93,6 +103,14 @@ export interface BiTeamIncomeTarget {
   updateAt?: string;
   /** 同比(%) = ROUND(((本期累计-去年同期)/去年同期*100),0) */
   yearOnYear?: number;
+  /** 本期累计收入 */
+  currentIncome?: number;
+  /** 渠道 */
+  channel?: string;
+  /** 财务收入月份数据 */
+  biFinancialIncomeMonths?: BiFinancialIncomeMonth[];
+  /** 去年财务收入月份数据 */
+  lastYearBiFinancialIncomeMonths?: BiFinancialIncomeMonth[];
   [property: string]: any;
 }
 
@@ -138,10 +156,10 @@ export const deleteTeamConfig = (data: BiTeamConfig) => {
 };
 
 /** 查询所有团队收入指标列表 */
-export const getTeamIncomeTargetList = () => {
+export const getTeamIncomeTargetList = (params: { year: number }) => {
   return http.request<ApiResponse<BiTeamIncomeTarget[]>>(
     "get",
-    commonUrlApi("/oms/bi/team-income-target/list")
+    commonUrlApi(`/oms/bi/team-income-target/list/${params.year}`)
   );
 };
 
