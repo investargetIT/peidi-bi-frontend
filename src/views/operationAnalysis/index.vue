@@ -9,7 +9,6 @@ import { ElMessage } from "element-plus";
 import { SIZE_CONFIG, DATA_FORMAT } from "./utils/config";
 import {
   getBusinessAnalysisOverviewList,
-  getBusinessAnalysisGroupList,
   getBusinessAnalysisProductList,
   getBusinessAnalysisCostList
 } from "@/api/operationAnalysis";
@@ -68,7 +67,7 @@ const roundNumber = (num: number, precision: number = 0) => {
 //#endregion
 const loadExcelData = async () => {
   // excelData.value = DATA_FORMAT;
-  const { E1, E2, E3, E4 } = DATA_FORMAT;
+  const { E1, E3, E4 } = DATA_FORMAT;
   //#region E1
   if (sourceData.value?.overviewList?.data?.length > 0) {
     const sOverview = sourceData.value.overviewList.data;
@@ -103,26 +102,6 @@ const loadExcelData = async () => {
     E1.profit_bar.series[2].data[0] = roundNumber(
       extractNumber(overview_lirun?.growthRate || 0)
     );
-  }
-  //#endregion
-  //#region E2
-  if (sourceData.value?.groupList?.data?.length > 0) {
-    const sGroup = sourceData.value.groupList.data;
-    E2.indicators_bar.xAxisData.forEach((item, index) => {
-      const temp = sGroup.find(x => x.biGroup === item);
-      E2.indicators_bar.series[0].data[index] = roundNumber(
-        extractNumber(temp?.periodCumulativeActual || 0)
-      );
-      E2.indicators_bar.series[1].data[index] = roundNumber(
-        extractNumber(temp?.priorYearActual || 0)
-      );
-      E2.indicators_bar.series[2].data[index] = roundNumber(
-        extractNumber(temp?.achievementStatus || 0)
-      );
-      E2.indicators_bar.series[3].data[index] = roundNumber(
-        extractNumber(temp?.achievementProgress || 0)
-      );
-    });
   }
   //#endregion
   //#region E3
@@ -214,7 +193,7 @@ const loadExcelData = async () => {
     });
   }
   //#endregion
-  excelData.value = { E1, E2, E3, E4 };
+  excelData.value = { E1, E3, E4 };
 
   return;
 };
@@ -225,22 +204,19 @@ const loadBusinessAnalysisData = async () => {
 
     let targetDate = dayjs().format("YYYY-MM-01");
 
-    let [overviewList, groupList, productList, costList]: any[] =
-      await Promise.all([
-        getBusinessAnalysisOverviewList({ date: targetDate }),
-        getBusinessAnalysisGroupList({ date: targetDate }),
-        getBusinessAnalysisProductList({ date: targetDate }),
-        getBusinessAnalysisCostList({ date: targetDate })
-      ]);
+    let [overviewList, productList, costList]: any[] = await Promise.all([
+      getBusinessAnalysisOverviewList({ date: targetDate }),
+      getBusinessAnalysisProductList({ date: targetDate }),
+      getBusinessAnalysisCostList({ date: targetDate })
+    ]);
 
     console.log("overviewList", overviewList);
 
     if (overviewList?.code === 200 && overviewList?.data?.length === 0) {
       targetDate = dayjs().subtract(1, "month").format("YYYY-MM-01");
 
-      [overviewList, groupList, productList, costList] = await Promise.all([
+      [overviewList, productList, costList] = await Promise.all([
         getBusinessAnalysisOverviewList({ date: targetDate }),
-        getBusinessAnalysisGroupList({ date: targetDate }),
         getBusinessAnalysisProductList({ date: targetDate }),
         getBusinessAnalysisCostList({ date: targetDate })
       ]);
@@ -260,7 +236,6 @@ const loadBusinessAnalysisData = async () => {
 
     sourceData.value = {
       overviewList,
-      groupList,
       productList,
       costList
     };
@@ -306,11 +281,7 @@ onBeforeUnmount(() => {
       />
     </div>
     <div class="mt-4">
-      <E2
-        :excelData="excelData"
-        :sizeConfig="sizeConfig"
-        :dataTime="dataTime"
-      />
+      <E2 :sizeConfig="sizeConfig" />
     </div>
     <div class="mt-4">
       <E3
