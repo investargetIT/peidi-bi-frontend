@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import DailyPerformance from "./components/dailyPerformance/index.vue";
-import ShortVideo from "./components/shortVideo/index.vue";
-import BusinessRelatedExpert from "./components/businessRelatedExpert/index.vue";
-import ProductID from "./components/productID/index.vue";
-import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-circle-20-solid";
+import DouyinReport from "./components/douyinReport/index.vue";
+// 旧模块暂时隐藏
+// import DailyPerformance from "./components/dailyPerformance/index.vue";
+// import ShortVideo from "./components/shortVideo/index.vue";
+// import BusinessRelatedExpert from "./components/businessRelatedExpert/index.vue";
+// import ProductID from "./components/productID/index.vue";
+// import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-circle-20-solid";
 </script>
 
 <template>
   <div class="peidi-douyin">
     <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
+      <el-tab-pane label="抖音管报" lazy>
+        <DouyinReport />
+      </el-tab-pane>
+      <!-- 旧模块暂时隐藏
       <el-tab-pane lazy>
         <template #label>
           <div class="flex items-center justify-center">
@@ -47,6 +53,7 @@ import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-c
       <el-tab-pane label="短视频带货商品ID" lazy>
         <ProductID />
       </el-tab-pane>
+      -->
     </el-tabs>
   </div>
 </template>

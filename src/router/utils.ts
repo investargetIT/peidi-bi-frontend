@@ -228,31 +228,31 @@ function initRouter() {
             const userId = res?.data?.id;
             const routesTemp = [];
             //#region 判断douyin权限
-            // if (hasPermission(userId, "douyin")) {
-            //   routesTemp.push({
-            //     path: "/douyin",
-            //     name: "DouyinLayout",
-            //     redirect: "/douyin/index",
-            //     component: Layout,
-            //     meta: {
-            //       icon: "ri/tiktok-line",
-            //       title: "抖音数据需求",
-            //       showLink: true,
-            //       rank: 12
-            //     },
-            //     children: [
-            //       {
-            //         path: "/douyin/index",
-            //         name: "DouyinIndex",
-            //         component: () => import("@/views/douyin/index.vue"),
-            //         meta: {
-            //           title: "抖音数据需求",
-            //           showLink: true
-            //         }
-            //       }
-            //     ]
-            //   });
-            // }
+            if (hasPermission(userId, "douyin")) {
+              routesTemp.push({
+                path: "/douyin",
+                name: "DouyinLayout",
+                redirect: "/douyin/index",
+                component: Layout,
+                meta: {
+                  icon: "ri/tiktok-line",
+                  title: "抖音数据需求",
+                  showLink: true,
+                  rank: 12
+                },
+                children: [
+                  {
+                    path: "/douyin/index",
+                    name: "DouyinIndex",
+                    component: () => import("@/views/douyin/index.vue"),
+                    meta: {
+                      title: "抖音数据需求",
+                      showLink: true
+                    }
+                  }
+                ]
+              });
+            }
             //#endregion
 
             //#region 判断宠物档案权限

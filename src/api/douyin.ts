@@ -1,9 +1,10 @@
 // import { formatToken, getToken } from "@/utils/auth";
 import { http } from "@/utils/http";
+import { stringify } from "qs";
 
 export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.12:8085"}${url}`;
-  `${"https://api.peidigroup.cn"}${url}`;
+  `${"http://12.18.1.36:8085"}${url}`;
+  // `${"https://api.peidigroup.cn"}${url}`;
 
 /** 获取抖音业绩数据 */
 export const getBiDouyinSales = (params: {
@@ -78,6 +79,25 @@ export const postBiDouyinVideoTypeUpdateType = (data: {
     commonUrlApi("/oms/bi/douyin-video/update-type"),
     {
       data
+    }
+  );
+};
+
+/** 查询销售汇总（按流量类型和业务类型分组） */
+export const getWdtOrderDetailSalesSummary = (params: {
+  endDate: string;
+  selfOperatedInfluencerIds?: string[];
+  startDate: string;
+  [key: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/wdt/order-detail/sales-summary"),
+    {
+      params,
+      paramsSerializer: (params: any) => {
+        return stringify(params, { arrayFormat: "repeat" });
+      }
     }
   );
 };
