@@ -6,9 +6,12 @@ import IncomeDaily from "@/views/incomeDaily/index.vue";
 import SettingsCard from "./components/settingsCard/index.vue";
 import { storageLocal } from "@pureadmin/utils";
 import NavBar from "./components/navBar/index.vue";
+import AIChat from "./components/aiChat/index.vue";
 
 const STORAGE_KEY = "businessAnalysis_activeTab";
-const activeName = ref<string>(storageLocal().getItem(STORAGE_KEY) as string || "incomeDaily");
+const activeName = ref<string>(
+  (storageLocal().getItem(STORAGE_KEY) as string) || "incomeDaily"
+);
 
 //#region 陀螺仪逻辑
 const USER_ID = (storageLocal().getItem("dataSource") as any)?.id;
@@ -17,6 +20,21 @@ const TLY = ref({
   y: 0,
   z: 0
 });
+
+// AI智能助手 权限
+const AI_CHAT_USER_IDS = [
+  // 沈皓钰
+  "1926449443739600965",
+  // 张思宇
+  "1850741012504838145",
+  // Summer
+  "1846392647319093250",
+  // 杨世豪
+  "1926449443739601629"
+];
+const HAS_AI_CHAT_PERMISSION = computed(() =>
+  AI_CHAT_USER_IDS.includes(USER_ID)
+);
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   // console.log("Alpha (Z 轴):", event.alpha);
@@ -31,10 +49,7 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
 // 开发测试
 const IS_DEBUG = computed(() =>
   [
-    "1926449443739600965",
-    "1850741012504838145",
-    "1926449443739601629",
-    "1846392647319093250",
+    ...AI_CHAT_USER_IDS,
     "1874011001523318785" // 王琳
   ].includes(USER_ID)
 );
@@ -52,7 +67,7 @@ onUnmounted(() => {
 });
 
 // 监听选项卡变化并保存到本地存储
-watch(activeName, (newVal) => {
+watch(activeName, newVal => {
   storageLocal().setItem(STORAGE_KEY, newVal);
 });
 </script>
@@ -97,6 +112,7 @@ watch(activeName, (newVal) => {
     </el-tabs>
 
     <NavBar />
+    <AIChat v-if="activeName === 'incomeDaily' && HAS_AI_CHAT_PERMISSION" />
   </div>
 </template>
 
