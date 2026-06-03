@@ -11,7 +11,7 @@ import DouyinReport from "./components/douyinReport/index.vue";
 <template>
   <div class="peidi-douyin">
     <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
-      <el-tab-pane label="抖音管报" lazy>
+      <el-tab-pane label="抖音周报" lazy>
         <DouyinReport />
       </el-tab-pane>
       <!-- 旧模块暂时隐藏

@@ -212,7 +212,7 @@ const exportToExcel = async () => {
   if (tableData.value.length === 0) return;
 
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("抖音管报");
+  const worksheet = workbook.addWorksheet("抖音周报");
 
   // 设置列标题
   const headers = [
@@ -316,7 +316,7 @@ const exportToExcel = async () => {
   const buffer = await workbook.xlsx.writeBuffer();
   saveAs(
     new Blob([buffer]),
-    `抖音管报_${dayjs().format("YYYYMMDDHHmmss")}.xlsx`
+    `抖音周报_${dayjs().format("YYYYMMDDHHmmss")}.xlsx`
   );
 };
 
@@ -336,21 +336,15 @@ const getRowClassName = ({ row }: { row: any }) => {
       <div class="calculation-note">
         <h4>计算逻辑说明</h4>
         <ul>
-          <li>流量来源：trafficFormatName</li>
-          <li>自营/达播：businessType</li>
-          <li>含税收入：taxIncludedAmount</li>
-          <li>未税收入：taxIncludedAmount / 计算比例【未税收入】</li>
-          <li>财务总成本：totalFinancialCost</li>
-          <li>毛利：taxIncludedAmount - totalFinancialCost</li>
+          <li>未税收入：含税收入 / 计算比例【未税收入】</li>
+          <li>毛利：含税收入 - 财务总成本</li>
           <li>毛利率：未税收入 / 毛利</li>
           <li>
-            物流成本：taxIncludedAmount * 计算比例【物流成本1】 /
-            计算比例【物流成本2】
+            物流成本：含税收入 * 计算比例【物流成本1】 / 计算比例【物流成本2】
           </li>
           <li>仓储损耗包材：未税收入 * 计算比例【仓储损耗包材】</li>
           <li>
-            平台费用：taxIncludedAmount * 计算比例【平台费用1】 /
-            计算比例【平台费用2】
+            平台费用：含税收入 * 计算比例【平台费用1】 / 计算比例【平台费用2】
           </li>
         </ul>
       </div>
@@ -388,7 +382,7 @@ const getRowClassName = ({ row }: { row: any }) => {
                 v-model="formData.selfOperatedInfluencerIds"
                 placeholder="多个达人ID用逗号分隔"
               />
-              <div style="color: #909399; font-size: 12px; margin-top: -10px">
+              <div style=" margin-top: -10px; font-size: 12px;color: #909399">
                 多个达人ID用逗号分隔
               </div>
             </el-form-item>
@@ -480,13 +474,13 @@ const getRowClassName = ({ row }: { row: any }) => {
     <!-- 数据表格 -->
     <el-card class="table-card" shadow="never">
       <div class="flex justify-between items-center mb-[10px]">
-        <div class="text-lg font-medium">抖音管报</div>
+        <div class="text-lg font-medium">抖音周报</div>
         <div>
           <el-button
             type="primary"
-            @click="exportToExcel"
             :disabled="tableData.length === 0"
             color="#217346"
+            @click="exportToExcel"
           >
             <el-icon><Download /></el-icon>
             导出Excel
@@ -494,11 +488,11 @@ const getRowClassName = ({ row }: { row: any }) => {
         </div>
       </div>
       <el-table
+        v-loading="loading"
         :data="tableData"
         border
         style="width: 100%"
         :row-class-name="getRowClassName"
-        v-loading="loading"
       >
         <el-table-column prop="date" label="日期" />
         <el-table-column
@@ -571,14 +565,14 @@ const getRowClassName = ({ row }: { row: any }) => {
 }
 
 .calculation-note h4 {
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
   font-size: 14px;
   color: #333;
 }
 
 .calculation-note ul {
-  margin: 0;
   padding-left: 20px;
+  margin: 0;
 }
 
 .calculation-note li {
@@ -594,7 +588,7 @@ const getRowClassName = ({ row }: { row: any }) => {
 }
 
 :deep(.summary-row) {
-  background-color: #f5f7fa !important;
   font-weight: bold;
+  background-color: #f5f7fa !important;
 }
 </style>
