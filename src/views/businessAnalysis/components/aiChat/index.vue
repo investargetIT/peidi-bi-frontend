@@ -9,14 +9,45 @@ const isDragging = ref(false);
 const dragStart = ref({ x: 0, y: 0 });
 const hasMoved = ref(false);
 
+const BUTTON_SIZE = 60;
+const BUTTON_MARGIN = 20;
+const DESKTOP_CHAT_WIDTH = 420;
+const DESKTOP_CHAT_HEIGHT = 600;
+const MOBILE_BREAKPOINT = 768;
+const MOBILE_MARGIN = 12;
+
+const isMobileViewport = () => window.innerWidth <= MOBILE_BREAKPOINT;
+
+const clampButtonPosition = () => {
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  buttonPosition.value = {
+    x: Math.max(
+      BUTTON_MARGIN,
+      Math.min(
+        buttonPosition.value.x,
+        windowWidth - BUTTON_SIZE - BUTTON_MARGIN
+      )
+    ),
+    y: Math.max(
+      BUTTON_MARGIN,
+      Math.min(
+        buttonPosition.value.y,
+        windowHeight - BUTTON_SIZE - BUTTON_MARGIN
+      )
+    )
+  };
+};
+
 onMounted(() => {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
   buttonPosition.value = {
-    x: windowWidth - 80,
-    y: windowHeight - 80
+    x: windowWidth - BUTTON_SIZE - BUTTON_MARGIN,
+    y: windowHeight - BUTTON_SIZE - BUTTON_MARGIN
   };
   document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("resize", clampButtonPosition);
 });
 
 const toggleChat = (e?: MouseEvent) => {
@@ -34,13 +65,26 @@ const closeChat = () => {
   }, 300);
 };
 
-const handleMouseDown = (e: MouseEvent) => {
+const startDrag = (clientX: number, clientY: number) => {
   isDragging.value = true;
   hasMoved.value = false;
   dragStart.value = {
-    x: e.clientX - buttonPosition.value.x,
-    y: e.clientY - buttonPosition.value.y
+    x: clientX - buttonPosition.value.x,
+    y: clientY - buttonPosition.value.y
   };
+};
+
+const updateDragPosition = (clientX: number, clientY: number) => {
+  if (!isDragging.value) return;
+  hasMoved.value = true;
+  buttonPosition.value = {
+    x: clientX - dragStart.value.x,
+    y: clientY - dragStart.value.y
+  };
+};
+
+const handleMouseDown = (e: MouseEvent) => {
+  startDrag(e.clientX, e.clientY);
   document.addEventListener("mousemove", handleMouseMove);
   document.addEventListener("mouseup", handleMouseUp);
   e.preventDefault();
@@ -48,12 +92,28 @@ const handleMouseDown = (e: MouseEvent) => {
 };
 
 const handleMouseMove = (e: MouseEvent) => {
-  if (!isDragging.value) return;
-  hasMoved.value = true;
-  buttonPosition.value = {
-    x: e.clientX - dragStart.value.x,
-    y: e.clientY - dragStart.value.y
-  };
+  updateDragPosition(e.clientX, e.clientY);
+};
+
+const handleTouchStart = (e: TouchEvent) => {
+  const touch = e.touches[0];
+  if (!touch) return;
+  startDrag(touch.clientX, touch.clientY);
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd);
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  const touch = e.touches[0];
+  if (!touch) return;
+  updateDragPosition(touch.clientX, touch.clientY);
+  e.preventDefault();
+};
+
+const handleTouchEnd = () => {
+  handleMouseUp();
+  document.removeEventListener("touchmove", handleTouchMove);
+  document.removeEventListener("touchend", handleTouchEnd);
 };
 
 const handleMouseUp = () => {
@@ -69,38 +129,50 @@ const handleMouseUp = () => {
 };
 
 const snapToEdge = () => {
-  const buttonWidth = 60;
-  const margin = 20;
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
 
   let newX = buttonPosition.value.x;
   let newY = buttonPosition.value.y;
 
-  if (newX > windowWidth / 2 - buttonWidth / 2) {
-    newX = windowWidth - buttonWidth - margin;
+  if (newX > windowWidth / 2 - BUTTON_SIZE / 2) {
+    newX = windowWidth - BUTTON_SIZE - BUTTON_MARGIN;
   } else {
-    newX = margin;
+    newX = BUTTON_MARGIN;
   }
 
-  newY = Math.max(margin, Math.min(newY, windowHeight - buttonWidth - margin));
+  newY = Math.max(
+    BUTTON_MARGIN,
+    Math.min(newY, windowHeight - BUTTON_SIZE - BUTTON_MARGIN)
+  );
 
   buttonPosition.value = { x: newX, y: newY };
 };
 
 const getContainerPosition = () => {
   const windowWidth = window.innerWidth;
-  const containerWidth = 420;
-  const containerHeight = 600;
-  const margin = 20;
+  const windowHeight = window.innerHeight;
 
-  let left = buttonPosition.value.x - containerWidth + 60;
+  if (isMobileViewport()) {
+    return { left: MOBILE_MARGIN, top: MOBILE_MARGIN };
+  }
+
+  const margin = BUTTON_MARGIN;
+  const containerWidth = Math.min(DESKTOP_CHAT_WIDTH, windowWidth - margin * 2);
+  const containerHeight = Math.min(
+    DESKTOP_CHAT_HEIGHT,
+    windowHeight - margin * 2
+  );
+
+  let left = buttonPosition.value.x - containerWidth + BUTTON_SIZE;
   let top = buttonPosition.value.y - containerHeight - margin;
 
   if (left < margin) left = margin;
   if (left + containerWidth > windowWidth - margin)
     left = windowWidth - containerWidth - margin;
   if (top < margin) top = margin;
+  if (top + containerHeight > windowHeight - margin)
+    top = windowHeight - containerHeight - margin;
 
   return { left, top };
 };
@@ -114,7 +186,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
 onUnmounted(() => {
   document.removeEventListener("mousemove", handleMouseMove);
   document.removeEventListener("mouseup", handleMouseUp);
+  document.removeEventListener("touchmove", handleTouchMove);
+  document.removeEventListener("touchend", handleTouchEnd);
   document.removeEventListener("keydown", handleKeyDown);
+  window.removeEventListener("resize", clampButtonPosition);
 });
 </script>
 
@@ -132,6 +207,7 @@ onUnmounted(() => {
         }"
         @click="toggleChat"
         @mousedown="handleMouseDown"
+        @touchstart="handleTouchStart"
       >
         <el-icon :size="32"><ChatDotRound /></el-icon>
       </div>
@@ -211,8 +287,8 @@ onUnmounted(() => {
   position: absolute;
   display: flex;
   flex-direction: column;
-  width: 420px;
-  height: 600px;
+  width: min(420px, calc(100vw - 24px));
+  height: min(600px, calc(100vh - 24px));
   overflow: hidden;
   pointer-events: auto;
   background: white;
