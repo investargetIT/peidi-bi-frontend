@@ -382,7 +382,7 @@ const getRowClassName = ({ row }: { row: any }) => {
                 v-model="formData.selfOperatedInfluencerIds"
                 placeholder="多个达人ID用逗号分隔"
               />
-              <div style=" margin-top: -10px; font-size: 12px;color: #909399">
+              <div style="margin-top: -10px; font-size: 12px; color: #909399">
                 多个达人ID用逗号分隔
               </div>
             </el-form-item>
@@ -557,17 +557,34 @@ const getRowClassName = ({ row }: { row: any }) => {
 
 .note-card {
   margin-bottom: 20px;
+  background: linear-gradient(135deg, #f0f5ff 0%, #e6f4ff 100%);
+  border: 1px solid #adc6ff;
+  border-radius: 8px;
+}
+
+.note-card :deep(.el-card__body) {
+  padding: 16px;
+  background-color: transparent;
 }
 
 .calculation-note {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: #597ef7;
 }
 
 .calculation-note h4 {
-  margin: 0 0 10px;
-  font-size: 14px;
-  color: #333;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2f54eb;
+}
+
+.calculation-note h4::before {
+  font-size: 16px;
+  content: "ℹ️";
 }
 
 .calculation-note ul {
@@ -576,7 +593,9 @@ const getRowClassName = ({ row }: { row: any }) => {
 }
 
 .calculation-note li {
-  line-height: 1.8;
+  margin-bottom: 4px;
+  line-height: 2;
+  color: #4e6ef2;
 }
 
 .search-card {
