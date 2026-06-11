@@ -10,8 +10,11 @@ import { saveAs } from "file-saver";
 const formData = reactive({
   startDate: "2026-01-01",
   endDate: "2026-02-01",
-  selfOperatedInfluencerIds:
-    "1143971292653752,2159871682941675,247837613127280",
+  selfOperatedInfluencerIds: [
+    "1143971292653752",
+    "2159871682941675",
+    "247837613127280"
+  ], // 改为数组存储
   untaxedRatio: 1.09, // 未税收入计算比例
   logisticsRatio1: 0.0474, // 物流成本计算比例1
   logisticsRatio2: 1.06, // 物流成本计算比例2
@@ -19,6 +22,28 @@ const formData = reactive({
   platformRatio1: 0.02226, // 平台费用计算比例1
   platformRatio2: 1.06 // 平台费用计算比例2
 });
+
+// 达人ID输入相关
+const influencerInputValue = ref("");
+const handleInfluencerInputConfirm = () => {
+  const value = influencerInputValue.value.trim();
+  if (value && !formData.selfOperatedInfluencerIds.includes(value)) {
+    formData.selfOperatedInfluencerIds.push(value);
+  }
+  influencerInputValue.value = "";
+};
+const handleInfluencerInputKeydown = (e: KeyboardEvent) => {
+  if (e.key === "Enter" || e.key === ",") {
+    e.preventDefault();
+    handleInfluencerInputConfirm();
+  }
+};
+const removeInfluencerId = (index: number) => {
+  formData.selfOperatedInfluencerIds.splice(index, 1);
+};
+const clearAllInfluencerIds = () => {
+  formData.selfOperatedInfluencerIds = [];
+};
 
 // 存储原始API数据
 const rawData = ref<any[]>([]);
@@ -34,8 +59,8 @@ const calculateRowData = (item: any) => {
   const untaxedIncome = item.taxIncludedAmount / Number(formData.untaxedRatio);
   const grossProfit = untaxedIncome - item.totalFinancialCost;
   const grossProfitRate =
-    grossProfit !== 0
-      ? ((untaxedIncome / grossProfit) * 100).toFixed(2) + "%"
+    untaxedIncome !== 0
+      ? ((grossProfit / untaxedIncome) * 100).toFixed(2) + "%"
       : "0%";
   const logisticsCost =
     (item.taxIncludedAmount * Number(formData.logisticsRatio1)) /
@@ -83,8 +108,8 @@ const calculateGroupSummary = (
     0
   );
   const totalGrossProfitRate =
-    totalGrossProfit !== 0
-      ? ((totalUntaxedIncome / totalGrossProfit) * 100).toFixed(2) + "%"
+    totalUntaxedIncome !== 0
+      ? ((totalGrossProfit / totalUntaxedIncome) * 100).toFixed(2) + "%"
       : "0%";
   const totalLogisticsCost = groupData.reduce(
     (sum, item) => sum + item.logisticsCost,
@@ -176,14 +201,7 @@ const loadData = async () => {
     };
 
     // 处理达人ID列表
-    const ids: string[] = [];
-    if (formData.selfOperatedInfluencerIds) {
-      const parsedIds = formData.selfOperatedInfluencerIds
-        .split(",")
-        .map(id => id.trim())
-        .filter(Boolean);
-      ids.push(...parsedIds);
-    }
+    const ids: string[] = [...formData.selfOperatedInfluencerIds];
     // 无论有没有ID，都加一个空值
     ids.push("");
     params.selfOperatedInfluencerIds = ids;
@@ -338,7 +356,7 @@ const getRowClassName = ({ row }: { row: any }) => {
         <ul>
           <li>未税收入：含税收入 / 计算比例【未税收入】</li>
           <li>毛利：含税收入 - 财务总成本</li>
-          <li>毛利率：未税收入 / 毛利</li>
+          <li>毛利率：毛利 / 未税收入</li>
           <li>
             物流成本：含税收入 * 计算比例【物流成本1】 / 计算比例【物流成本2】
           </li>
@@ -377,13 +395,41 @@ const getRowClassName = ({ row }: { row: any }) => {
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="达人ID列表">
-              <el-input
-                v-model="formData.selfOperatedInfluencerIds"
-                placeholder="多个达人ID用逗号分隔"
-              />
-              <div style="margin-top: -10px; font-size: 12px; color: #909399">
-                多个达人ID用逗号分隔
+            <el-form-item label="自营达人ID">
+              <div class="influencer-input-wrapper">
+                <div
+                  v-if="formData.selfOperatedInfluencerIds.length > 0"
+                  class="tag-list-scroll"
+                >
+                  <div class="tag-list">
+                    <el-tag
+                      v-for="(id, index) in formData.selfOperatedInfluencerIds"
+                      :key="id"
+                      closable
+                      @close="removeInfluencerId(index)"
+                    >
+                      {{ id }}
+                    </el-tag>
+                  </div>
+                </div>
+                <div class="input-row">
+                  <el-input
+                    v-model="influencerInputValue"
+                    placeholder="输入达人ID后按回车添加"
+                    @keydown="handleInfluencerInputKeydown"
+                    @blur="handleInfluencerInputConfirm"
+                  />
+                  <el-button
+                    v-if="formData.selfOperatedInfluencerIds.length > 0"
+                    type="danger"
+                    size="small"
+                    text
+                    style="white-space: nowrap"
+                    @click="clearAllInfluencerIds"
+                  >
+                    清除全部
+                  </el-button>
+                </div>
               </div>
             </el-form-item>
           </el-col>
@@ -609,5 +655,69 @@ const getRowClassName = ({ row }: { row: any }) => {
 :deep(.summary-row) {
   font-weight: bold;
   background-color: #f5f7fa !important;
+}
+
+/* 达人ID输入框容器 */
+.influencer-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.influencer-input-wrapper:focus-within {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgb(64 158 255 / 20%);
+}
+
+/* 输入行布局 */
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 带滚动条的标签容器 */
+.tag-list-scroll {
+  width: 100%;
+  max-height: 100px;
+  overflow: hidden auto;
+}
+
+/* 标签列表样式 */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+/* 滚动条样式 */
+.tag-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tag-list-scroll::-webkit-scrollbar-thumb {
+  background-color: #c0c4cc;
+  border-radius: 3px;
+}
+
+.tag-list-scroll::-webkit-scrollbar-track {
+  background-color: #f5f7fa;
+  border-radius: 3px;
+}
+
+/* 让输入框没有边框，与容器融合 */
+.input-row :deep(.el-input__wrapper) {
+  padding: 0;
+  box-shadow: none;
+}
+
+.input-row :deep(.el-input) {
+  flex: 1;
 }
 </style>
