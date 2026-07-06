@@ -142,8 +142,6 @@ const calculateGroupSummary = (
 
 // 重新计算所有数据（不重新请求API）
 const recalculateData = () => {
-  if (rawData.value.length === 0) return;
-
   // 重新计算各项指标
   const data = rawData.value.map(calculateRowData);
 
@@ -154,6 +152,12 @@ const recalculateData = () => {
 // 构建表格数据
 const buildTableData = (data: any[]) => {
   const fullTableData: any[] = [];
+
+  // 如果没有数据，直接设置空数组并返回
+  if (data.length === 0) {
+    tableData.value = fullTableData;
+    return;
+  }
 
   // 按流量来源分组并添加各自的合计（合计行在前面）
   const trafficFormats = ["短视频", "商品卡", "直播", "其他"];
@@ -207,9 +211,9 @@ const loadData = async () => {
     params.selfOperatedInfluencerIds = ids;
 
     const res: any = await getWdtOrderDetailSalesSummary(params);
-    if (res.success && res.data) {
-      // 保存原始数据
-      rawData.value = res.data;
+    if (res.success) {
+      // 保存原始数据（即使是空数组）
+      rawData.value = res.data || [];
       // 计算并显示数据
       recalculateData();
     }
