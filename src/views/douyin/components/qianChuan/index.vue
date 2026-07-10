@@ -6,7 +6,9 @@ import {
   Delete,
   Plus,
   Search,
-  RefreshLeft
+  RefreshLeft,
+  CirclePlus,
+  Delete as DeleteIcon
 } from "@element-plus/icons-vue";
 import {
   getDyQianChuanPage,
@@ -61,11 +63,12 @@ const loading = ref(false);
 
 // 对话框相关
 const dialogVisible = ref(false);
+const batchDialogVisible = ref(false);
 const dialogTitle = ref("新增千川投流");
 const isEdit = ref(false);
 const currentRow = ref<any>(null);
 
-// 表单数据
+// 单条表单数据
 const formData = reactive({
   accountName: "",
   accountOwnership: undefined as number | undefined,
@@ -75,12 +78,66 @@ const formData = reactive({
   weekNumber: undefined as number | undefined
 });
 
+// 批量新增表单数据
+const batchFormData = ref<any[]>([]);
+
+// 批量新增通用设置
+const batchSettings = reactive({
+  accountName: "",
+  date: "",
+  weekNumber: undefined as number | undefined
+});
+
+// 添加批量行
+const addBatchRow = () => {
+  batchFormData.value.push({
+    accountOwnership: undefined as number | undefined,
+    businessType: 2,
+    deliveryAmount: undefined as number | undefined
+  });
+};
+
+// 删除批量行
+const removeBatchRow = (index: number) => {
+  batchFormData.value.splice(index, 1);
+};
+
+// 打开批量新增对话框
+const handleBatchAdd = () => {
+  // 初始化批量表单
+  batchFormData.value = [];
+  Object.assign(batchSettings, {
+    accountName: "",
+    date: "",
+    weekNumber: undefined
+  });
+  // 默认添加所有账号归属选项：直播(3)、短视频(1)、商品卡(2)，业务类型默认自营(2)
+  [3, 1, 2].forEach(accountOwnership => {
+    batchFormData.value.push({
+      accountOwnership: accountOwnership,
+      businessType: 2,
+      deliveryAmount: undefined as number | undefined
+    });
+  });
+  batchDialogVisible.value = true;
+};
+
 // 监听投放日期变化，自动计算周数
 watch(
   () => formData.date,
   newVal => {
     if (newVal) {
       formData.weekNumber = getWeekNumber(newVal);
+    }
+  }
+);
+
+// 监听批量设置投放日期变化，自动计算周数
+watch(
+  () => batchSettings.date,
+  newVal => {
+    if (newVal) {
+      batchSettings.weekNumber = getWeekNumber(newVal);
     }
   }
 );
@@ -105,9 +162,11 @@ const loadData = async () => {
 
     const res: any = await getDyQianChuanPage(params);
     if (res.success) {
-      // 按账号名称排序
+      // 优先按账号名称排序，其次按周数排序
       tableData.value = (res.data?.records || []).sort((a: any, b: any) => {
-        return a.accountName.localeCompare(b.accountName);
+        const nameCompare = a.accountName.localeCompare(b.accountName);
+        if (nameCompare !== 0) return nameCompare;
+        return a.weekNumber - b.weekNumber;
       });
     }
   } catch (error) {
@@ -120,6 +179,10 @@ const loadData = async () => {
 
 // 搜索
 const handleSearch = () => {
+  if (!selectedMonth.value) {
+    ElMessage.warning("请选择投放日期");
+    return;
+  }
   loadData();
 };
 
@@ -132,7 +195,10 @@ const handleReset = () => {
     dateStart: "",
     dateEnd: ""
   });
-  selectedMonth.value = "";
+  // 重置为当前月份
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  selectedMonth.value = currentMonth;
   handleSearch();
 };
 
@@ -195,6 +261,63 @@ const handleSave = async () => {
   }
 };
 
+// 批量保存
+const handleBatchSave = async () => {
+  try {
+    // 验证数据
+    if (!batchSettings.accountName) {
+      ElMessage.error("请输入账号名称");
+      return;
+    }
+    if (!batchSettings.date) {
+      ElMessage.error("请选择投放日期");
+      return;
+    }
+    if (batchFormData.value.length === 0) {
+      ElMessage.error("请至少添加一条数据");
+      return;
+    }
+
+    for (let i = 0; i < batchFormData.value.length; i++) {
+      const row = batchFormData.value[i];
+      if (!row.accountOwnership) {
+        ElMessage.error(`第${i + 1}行请选择账号归属`);
+        return;
+      }
+      if (!row.businessType) {
+        ElMessage.error(`第${i + 1}行请选择业务类型`);
+        return;
+      }
+      if (row.deliveryAmount === undefined || row.deliveryAmount === null) {
+        ElMessage.error(`第${i + 1}行请输入投放金额`);
+        return;
+      }
+    }
+
+    // 构建提交数据
+    const submitData = batchFormData.value.map(row => ({
+      accountName: batchSettings.accountName,
+      accountOwnership: row.accountOwnership,
+      businessType: row.businessType,
+      date: batchSettings.date,
+      deliveryAmount: row.deliveryAmount,
+      weekNumber: batchSettings.weekNumber
+    }));
+
+    const res = await postDyQianChuanBatch(submitData);
+    if (res.success) {
+      ElMessage.success("批量新增成功");
+      batchDialogVisible.value = false;
+      loadData();
+    } else {
+      ElMessage.error(res.msg || "操作失败");
+    }
+  } catch (error) {
+    console.error("批量保存失败:", error);
+    ElMessage.error("批量保存失败");
+  }
+};
+
 // 删除
 const handleDelete = async (row: any) => {
   try {
@@ -251,6 +374,38 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
       };
     }
   }
+  if (column.property === "weekNumber") {
+    // 找到当前账号名称和周数都相同的起始行和结束行
+    let startRow = rowIndex;
+    let endRow = rowIndex;
+    while (
+      startRow > 0 &&
+      tableData.value[startRow - 1].accountName === row.accountName &&
+      tableData.value[startRow - 1].weekNumber === row.weekNumber
+    ) {
+      startRow--;
+    }
+    while (
+      endRow < tableData.value.length - 1 &&
+      tableData.value[endRow + 1].accountName === row.accountName &&
+      tableData.value[endRow + 1].weekNumber === row.weekNumber
+    ) {
+      endRow++;
+    }
+    const rowspan = endRow - startRow + 1;
+    // 如果是起始行，返回rowspan，否则返回0（隐藏）
+    if (rowIndex === startRow) {
+      return {
+        rowspan: rowspan,
+        colspan: 1
+      };
+    } else {
+      return {
+        rowspan: 0,
+        colspan: 0
+      };
+    }
+  }
   // 其他列不合并
   return {
     rowspan: 1,
@@ -260,6 +415,10 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
 
 // 初始化
 onMounted(() => {
+  // 默认选中当前月份
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  selectedMonth.value = currentMonth;
   loadData();
 });
 </script>
@@ -307,7 +466,7 @@ onMounted(() => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="投放日期">
+            <el-form-item label="投放日期" required>
               <el-date-picker
                 v-model="selectedMonth"
                 type="month"
@@ -340,9 +499,13 @@ onMounted(() => {
       <div class="flex justify-between items-center mb-[10px]">
         <div class="text-lg font-medium">千川投流列表</div>
         <div>
+          <el-button type="primary" @click="handleBatchAdd">
+            <el-icon><CirclePlus /></el-icon>
+            批量新增
+          </el-button>
           <el-button type="primary" @click="handleAdd">
             <el-icon><Plus /></el-icon>
-            新增千川投流
+            单条新增
           </el-button>
         </div>
       </div>
@@ -355,6 +518,9 @@ onMounted(() => {
         style="width: 100%"
       >
         <el-table-column prop="accountName" label="账号名称" min-width="150" />
+        <el-table-column prop="weekNumber" label="周数" width="80">
+          <template #default="{ row }"> 周{{ row.weekNumber }} </template>
+        </el-table-column>
         <el-table-column
           prop="accountOwnershipName"
           label="账号归属"
@@ -366,9 +532,6 @@ onMounted(() => {
           <template #default="{ row }">
             {{ row.deliveryAmount?.toFixed(2) }}
           </template>
-        </el-table-column>
-        <el-table-column prop="weekNumber" label="周数" width="80">
-          <template #default="{ row }"> 周{{ row.weekNumber }} </template>
         </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" width="180" />
         <el-table-column label="操作" width="100" fixed="right">
@@ -465,6 +628,118 @@ onMounted(() => {
         <el-button type="primary" @click="handleSave">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 批量新增对话框 -->
+    <el-dialog
+      v-model="batchDialogVisible"
+      title="批量新增千川投流"
+      width="1000px"
+      :close-on-click-modal="false"
+    >
+      <el-card class="batch-settings-card" shadow="never">
+        <div class="text-sm font-medium mb-3">通用设置（所有行共用）</div>
+        <el-form :model="batchSettings" label-width="100px">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="账号名称" required>
+                <el-input
+                  v-model="batchSettings.accountName"
+                  placeholder="请输入账号名称"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="投放日期" required>
+                <el-date-picker
+                  v-model="batchSettings.date"
+                  type="date"
+                  placeholder="选择日期"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="周数">
+                <el-input
+                  v-model="batchSettings.weekNumber"
+                  disabled
+                  placeholder="自动计算"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </el-card>
+
+      <el-card class="batch-table-card" shadow="never" style="margin-top: 20px">
+        <div class="flex justify-between items-center mb-3">
+          <div class="text-sm font-medium">投放数据</div>
+          <el-button type="primary" link @click="addBatchRow">
+            <el-icon><CirclePlus /></el-icon>
+            添加行
+          </el-button>
+        </div>
+        <el-table :data="batchFormData" border style="width: 100%">
+          <el-table-column type="index" label="序号" width="60" />
+          <el-table-column
+            prop="accountOwnership"
+            label="账号归属"
+            min-width="150"
+          >
+            <template #default="{ row }">
+              <el-select
+                v-model="row.accountOwnership"
+                placeholder="请选择"
+                style="width: 100%"
+              >
+                <el-option label="短视频" :value="1" />
+                <el-option label="商品卡" :value="2" />
+                <el-option label="直播" :value="3" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column prop="businessType" label="业务类型" min-width="120">
+            <template #default="{ row }">
+              <el-select
+                v-model="row.businessType"
+                placeholder="请选择"
+                style="width: 100%"
+              >
+                <el-option label="达播" :value="1" />
+                <el-option label="自营" :value="2" />
+              </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="deliveryAmount"
+            label="投放金额(元)"
+            min-width="150"
+          >
+            <template #default="{ row }">
+              <el-input-number
+                v-model="row.deliveryAmount"
+                :min="0"
+                :precision="2"
+                :step="0.01"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="60" fixed="right">
+            <template #default="{ $index }">
+              <el-button type="danger" link @click="removeBatchRow($index)">
+                <el-icon><DeleteIcon /></el-icon>
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+      <template #footer>
+        <el-button @click="batchDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleBatchSave">批量保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -489,12 +764,12 @@ onMounted(() => {
 
 /* 表格字体变小 */
 :deep(.el-table) {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 :deep(.el-table th),
 :deep(.el-table td) {
-  padding: 8px 0;
+  padding: 6px 0;
 }
 
 /* 间距样式 */
@@ -502,7 +777,20 @@ onMounted(() => {
   font-size: 16px;
 }
 
+.text-sm {
+  font-size: 14px;
+}
+
 .font-medium {
   font-weight: 500;
+}
+
+.mb-3 {
+  margin-bottom: 15px;
+}
+
+.batch-settings-card,
+.batch-table-card {
+  background-color: #f5f7fa;
 }
 </style>
