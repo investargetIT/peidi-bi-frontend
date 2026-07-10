@@ -3,8 +3,8 @@ import { http } from "@/utils/http";
 import { stringify } from "qs";
 
 export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.36:8085"}${url}`;
-  `${"https://api.peidigroup.cn"}${url}`;
+  `${"http://12.18.1.36:8085"}${url}`;
+// `${"https://api.peidigroup.cn"}${url}`;
 
 /** 获取抖音业绩数据 */
 export const getBiDouyinSales = (params: {
@@ -99,5 +99,50 @@ export const getWdtOrderDetailSalesSummary = (params: {
         return stringify(params, { arrayFormat: "repeat" });
       }
     }
+  );
+};
+
+/** 分页查询抖音达人合同（按结算达人UID分组） */
+export const getDyExpertContractPage = (data: {
+  contractEndTimeEnd?: string;
+  contractEndTimeStart?: string;
+  contractStartTimeEnd?: string;
+  contractStartTimeStart?: string;
+  douyinId?: string;
+  expertNickname?: string;
+  pageNum?: number;
+  pageSize?: number;
+  settlementDarrenId?: string;
+  signingUnit?: string;
+  [property: string]: any;
+}) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-expert-contract/page"), {
+    data
+  });
+};
+
+/** 批量新增抖音达人合同 */
+export const postDyExpertContractBatch = (data: any[]) => {
+  return http.request(
+    "post",
+    commonUrlApi("/oms/dy/dy-expert-contract/batch"),
+    {
+      data
+    }
+  );
+};
+
+/** 批量更新抖音达人合同 */
+export const postDyExpertContractUpdate = (data: any[]) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-expert-contract"), {
+    data
+  });
+};
+
+/** 删除抖音达人合同（逻辑删除） */
+export const postDyExpertContractDelete = (id: number) => {
+  return http.request(
+    "post",
+    commonUrlApi(`/oms/dy/dy-expert-contract/delete/${id}`)
   );
 };

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DouyinReport from "./components/douyinReport/index.vue";
+import ExpertContract from "./components/expertContract/index.vue";
 // 旧模块暂时隐藏
 // import DailyPerformance from "./components/dailyPerformance/index.vue";
 // import ShortVideo from "./components/shortVideo/index.vue";
@@ -13,6 +14,9 @@ import DouyinReport from "./components/douyinReport/index.vue";
     <el-tabs type="border-card" class="peidi-el-tabs-modern-tabs">
       <el-tab-pane label="抖音周报" lazy>
         <DouyinReport />
+      </el-tab-pane>
+      <el-tab-pane label="达人合同" lazy>
+        <ExpertContract />
       </el-tab-pane>
       <!-- 旧模块暂时隐藏
       <el-tab-pane lazy>
