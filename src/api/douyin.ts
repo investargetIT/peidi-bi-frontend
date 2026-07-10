@@ -146,3 +146,32 @@ export const postDyExpertContractDelete = (id: number) => {
     commonUrlApi(`/oms/dy/dy-expert-contract/delete/${id}`)
   );
 };
+
+/** 分页查询千川投流数据 */
+export const getDyQianChuanPage = (data: any) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-qian-chuan/page"), {
+    data
+  });
+};
+
+/** 批量新增千川投流数据 */
+export const postDyQianChuanBatch = (data: any[]) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-qian-chuan/batch"), {
+    data
+  });
+};
+
+/** 批量更新千川投流数据 */
+export const postDyQianChuanUpdate = (data: any[]) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-qian-chuan"), {
+    data
+  });
+};
+
+/** 删除千川投流数据（逻辑删除） */
+export const postDyQianChuanDelete = (id: number) => {
+  return http.request(
+    "post",
+    commonUrlApi(`/oms/dy/dy-qian-chuan/delete/${id}`)
+  );
+};

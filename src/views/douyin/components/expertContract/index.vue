@@ -74,7 +74,10 @@ const currentExpert = ref<any>(null);
 const expertForm = reactive({
   settlementDarrenId: "",
   expertNickname: "",
-  douyinId: ""
+  douyinId: "",
+  signingUnit: "",
+  contractStartTime: "",
+  contractEndTime: ""
 });
 
 // 合同历史列表
@@ -85,9 +88,6 @@ const contractDialogVisible = ref(false);
 const isEditContract = ref(false);
 const currentContractIndex = ref(-1);
 const contractForm = reactive({
-  signingUnit: "",
-  contractStartTime: "",
-  contractEndTime: "",
   executionDate: "",
   ratio: undefined,
   taxRate: undefined,
@@ -174,7 +174,10 @@ const handleAdd = () => {
   Object.assign(expertForm, {
     settlementDarrenId: "",
     expertNickname: "",
-    douyinId: ""
+    douyinId: "",
+    signingUnit: "",
+    contractStartTime: "",
+    contractEndTime: ""
   });
   contractHistoryList.value = [];
   dialogVisible.value = true;
@@ -188,7 +191,10 @@ const handleEdit = (row: any) => {
   Object.assign(expertForm, {
     settlementDarrenId: row.settlementDarrenId,
     expertNickname: row.expertNickname,
-    douyinId: row.douyinId
+    douyinId: row.douyinId,
+    signingUnit: row.signingUnit || "",
+    contractStartTime: row.latestContractStartTime || "",
+    contractEndTime: row.latestContractEndTime || ""
   });
   contractHistoryList.value = [...(row.contractList || [])];
   dialogVisible.value = true;
@@ -205,9 +211,6 @@ const handleAddContract = () => {
   isEditContract.value = false;
   currentContractIndex.value = -1;
   Object.assign(contractForm, {
-    signingUnit: "",
-    contractStartTime: "",
-    contractEndTime: "",
     executionDate: "",
     ratio: undefined,
     taxRate: undefined,
@@ -223,9 +226,6 @@ const handleEditContract = (index: number) => {
   currentContractIndex.value = index;
   const contract = contractHistoryList.value[index];
   Object.assign(contractForm, {
-    signingUnit: contract.signingUnit || "",
-    contractStartTime: contract.contractStartTime || "",
-    contractEndTime: contract.contractEndTime || "",
     executionDate: contract.executionDate || "",
     ratio: contract.ratio,
     taxRate: contract.taxRate,
@@ -273,7 +273,10 @@ const handleSave = async () => {
       ...contract,
       settlementDarrenId: expertForm.settlementDarrenId,
       expertNickname: expertForm.expertNickname,
-      douyinId: expertForm.douyinId
+      douyinId: expertForm.douyinId,
+      signingUnit: expertForm.signingUnit,
+      contractStartTime: expertForm.contractStartTime,
+      contractEndTime: expertForm.contractEndTime
     }));
 
     let res: any;
@@ -437,21 +440,6 @@ onMounted(() => {
               >
                 <el-table-column type="index" label="#" width="60" />
                 <el-table-column
-                  prop="signingUnit"
-                  label="签约单位"
-                  min-width="120"
-                />
-                <el-table-column
-                  prop="contractStartTime"
-                  label="合同起始时间"
-                  width="130"
-                />
-                <el-table-column
-                  prop="contractEndTime"
-                  label="合同结束时间"
-                  width="130"
-                />
-                <el-table-column
                   prop="executionDate"
                   label="执行日期"
                   width="120"
@@ -569,6 +557,38 @@ onMounted(() => {
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="签约单位">
+                <el-input
+                  v-model="expertForm.signingUnit"
+                  placeholder="请输入签约单位"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="合同起始时间">
+                <el-date-picker
+                  v-model="expertForm.contractStartTime"
+                  type="date"
+                  placeholder="选择起始日期"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="合同结束时间">
+                <el-date-picker
+                  v-model="expertForm.contractEndTime"
+                  type="date"
+                  placeholder="选择结束日期"
+                  value-format="YYYY-MM-DD"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </el-card>
 
@@ -584,17 +604,6 @@ onMounted(() => {
         </template>
         <el-table :data="contractHistoryList" border style="width: 100%">
           <el-table-column type="index" label="#" width="60" />
-          <el-table-column prop="signingUnit" label="签约单位" width="150" />
-          <el-table-column
-            prop="contractStartTime"
-            label="合同起始时间"
-            width="130"
-          />
-          <el-table-column
-            prop="contractEndTime"
-            label="合同结束时间"
-            width="130"
-          />
           <el-table-column prop="executionDate" label="执行日期" width="120" />
           <el-table-column prop="ratio" label="比值" width="100" />
           <el-table-column prop="taxRate" label="税率" width="100" />
@@ -644,30 +653,6 @@ onMounted(() => {
       :close-on-click-modal="false"
     >
       <el-form :model="contractForm" label-width="120px">
-        <el-form-item label="签约单位" required>
-          <el-input
-            v-model="contractForm.signingUnit"
-            placeholder="请输入签约单位"
-          />
-        </el-form-item>
-        <el-form-item label="合同起始时间" required>
-          <el-date-picker
-            v-model="contractForm.contractStartTime"
-            type="date"
-            placeholder="选择起始日期"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <el-form-item label="合同结束时间" required>
-          <el-date-picker
-            v-model="contractForm.contractEndTime"
-            type="date"
-            placeholder="选择结束日期"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          />
-        </el-form-item>
         <el-form-item label="执行日期">
           <el-date-picker
             v-model="contractForm.executionDate"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DouyinReport from "./components/douyinReport/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
+import QianChuan from "./components/qianChuan/index.vue";
 // 旧模块暂时隐藏
 // import DailyPerformance from "./components/dailyPerformance/index.vue";
 // import ShortVideo from "./components/shortVideo/index.vue";
@@ -17,6 +18,9 @@ import ExpertContract from "./components/expertContract/index.vue";
       </el-tab-pane>
       <el-tab-pane label="达人合同" lazy>
         <ExpertContract />
+      </el-tab-pane>
+      <el-tab-pane label="千川投流" lazy>
+        <QianChuan />
       </el-tab-pane>
       <!-- 旧模块暂时隐藏
       <el-tab-pane lazy>
