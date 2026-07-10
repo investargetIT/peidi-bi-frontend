@@ -175,3 +175,16 @@ export const postDyQianChuanDelete = (id: number) => {
     commonUrlApi(`/oms/dy/dy-qian-chuan/delete/${id}`)
   );
 };
+
+/** 千川投流汇总查询 */
+export const postDyQianChuanSummary = (data: {
+  dateEnd?: string;
+  dateStart?: string;
+  divisor1?: number;
+  divisor2?: number;
+  [property: string]: any;
+}) => {
+  return http.request("post", commonUrlApi("/oms/dy/dy-qian-chuan/summary"), {
+    data
+  });
+};

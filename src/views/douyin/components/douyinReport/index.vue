@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { getWdtOrderDetailSalesSummary } from "@/api/douyin";
+import {
+  getWdtOrderDetailSalesSummary,
+  postDyQianChuanSummary
+} from "@/api/douyin";
 import dayjs from "dayjs";
 import { Refresh, Download } from "@element-plus/icons-vue";
 import ExcelJS from "exceljs";
@@ -20,8 +23,13 @@ const formData = reactive({
   logisticsRatio2: 1.06, // 物流成本计算比例2
   warehouseRatio: 0.04643, // 仓储损耗包材计算比例
   platformRatio1: 0.02226, // 平台费用计算比例1
-  platformRatio2: 1.06 // 平台费用计算比例2
+  platformRatio2: 1.06, // 平台费用计算比例2
+  qianChuanDivisor1: 1.06, // 千川投流除数1
+  qianChuanDivisor2: 1.01 // 千川投流除数2
 });
+
+// 千川投流汇总数据
+const qianChuanSummaryData = ref<any[]>([]);
 
 // 达人ID输入相关
 const influencerInputValue = ref("");
@@ -54,6 +62,19 @@ const summaryData = ref<any>(null);
 // loading状态
 const loading = ref(false);
 
+// 根据流量来源和业务类型获取千川投流金额
+const getQianChuanAmount = (
+  trafficFormatName: string,
+  businessType: string
+) => {
+  const found = qianChuanSummaryData.value.find(
+    item =>
+      item.accountOwnershipName === trafficFormatName &&
+      item.businessTypeName === businessType
+  );
+  return found ? found.amount : 0;
+};
+
 // 计算单条数据的各项指标
 const calculateRowData = (item: any) => {
   const untaxedIncome = item.taxIncludedAmount / Number(formData.untaxedRatio);
@@ -69,16 +90,36 @@ const calculateRowData = (item: any) => {
   const platformCost =
     (item.taxIncludedAmount * Number(formData.platformRatio1)) /
     Number(formData.platformRatio2);
+  const qianChuanAmount = getQianChuanAmount(
+    item.trafficFormatName,
+    item.businessType
+  );
+  const qianChuanRatio =
+    untaxedIncome !== 0 ? (qianChuanAmount / untaxedIncome) * 100 : 0;
+
+  // 紧凑的日期格式
+  const formatCompactDate = (start: string, end: string) => {
+    const startDate = dayjs(start);
+    const endDate = dayjs(end);
+
+    // 使用更紧凑的格式，去掉分隔符中的空格
+    if (startDate.year() === endDate.year()) {
+      return `${startDate.format("MM.DD")}-${endDate.format("MM.DD")}(${startDate.year()})`;
+    }
+    return `${startDate.format("MM.DD")}-${endDate.format("MM.DD")}`;
+  };
 
   return {
     ...item,
-    date: `${formData.startDate} ~ ${formData.endDate}`,
+    date: formatCompactDate(formData.startDate, formData.endDate),
     untaxedIncome,
     grossProfit,
     grossProfitRate,
     logisticsCost,
     warehouseCost,
-    platformCost
+    platformCost,
+    qianChuanAmount,
+    qianChuanRatio
   };
 };
 
@@ -124,6 +165,36 @@ const calculateGroupSummary = (
     0
   );
 
+  // 计算千川投流合计
+  let totalQianChuanAmount = 0;
+  const trafficFormats = ["短视频", "商品卡", "直播"];
+  const businessTypes = ["自营", "达播"];
+
+  if (groupName === "合计") {
+    // 总计：所有数据总和
+    totalQianChuanAmount = qianChuanSummaryData.value.reduce(
+      (sum, item) => sum + (item.amount || 0),
+      0
+    );
+  } else if (trafficFormats.some(format => groupName.includes(format))) {
+    // 按流量来源合计
+    const formatName = groupName.replace("合计", "");
+    totalQianChuanAmount = qianChuanSummaryData.value
+      .filter(item => item.accountOwnershipName === formatName)
+      .reduce((sum, item) => sum + (item.amount || 0), 0);
+  } else if (businessTypes.some(type => groupName.includes(type))) {
+    // 按业务类型合计
+    const typeName = groupName.replace("合计", "");
+    totalQianChuanAmount = qianChuanSummaryData.value
+      .filter(item => item.businessTypeName === typeName)
+      .reduce((sum, item) => sum + (item.amount || 0), 0);
+  }
+
+  const totalQianChuanRatio =
+    totalUntaxedIncome !== 0
+      ? (totalQianChuanAmount / totalUntaxedIncome) * 100
+      : 0;
+
   return {
     date: groupName,
     trafficFormatName: "",
@@ -136,6 +207,8 @@ const calculateGroupSummary = (
     logisticsCost: totalLogisticsCost,
     warehouseCost: totalWarehouseCost,
     platformCost: totalPlatformCost,
+    qianChuanAmount: totalQianChuanAmount,
+    qianChuanRatio: totalQianChuanRatio,
     isSummary: true
   };
 };
@@ -171,13 +244,17 @@ const buildTableData = (data: any[]) => {
         data
       );
       if (summary) fullTableData.push(summary);
-      // 添加该流量来源的所有数据
-      fullTableData.push(...formatData);
+      // 添加该流量来源的所有数据，达播在上，自营在下
+      const dabodata = formatData.filter(item => item.businessType === "达播");
+      const ziyingdata = formatData.filter(
+        item => item.businessType === "自营"
+      );
+      fullTableData.push(...dabodata, ...ziyingdata);
     }
   });
 
-  // 添加按业务类型的合计
-  const businessTypes = ["自营", "达播"];
+  // 添加按业务类型的合计，达播在上，自营在下
+  const businessTypes = ["达播", "自营"];
   businessTypes.forEach(type => {
     const summary = calculateGroupSummary(
       `${type}合计`,
@@ -210,13 +287,29 @@ const loadData = async () => {
     ids.push("");
     params.selfOperatedInfluencerIds = ids;
 
-    const res: any = await getWdtOrderDetailSalesSummary(params);
-    if (res.success) {
+    // 同时请求两个接口
+    const [res1, res2] = await Promise.all([
+      getWdtOrderDetailSalesSummary(params),
+      postDyQianChuanSummary({
+        dateStart: formData.startDate,
+        dateEnd: formData.endDate,
+        divisor1: formData.qianChuanDivisor1,
+        divisor2: formData.qianChuanDivisor2
+      })
+    ]);
+
+    if (res1.success) {
       // 保存原始数据（即使是空数组）
-      rawData.value = res.data || [];
-      // 计算并显示数据
-      recalculateData();
+      rawData.value = res1.data || [];
     }
+
+    if (res2.success) {
+      // 保存千川投流汇总数据
+      qianChuanSummaryData.value = res2.data || [];
+    }
+
+    // 计算并显示数据
+    recalculateData();
   } catch (error) {
     console.error("加载数据失败:", error);
   } finally {
@@ -248,7 +341,9 @@ const exportToExcel = async () => {
     "毛利率",
     "物流成本",
     "仓储损耗包材",
-    "平台费用"
+    "平台费用",
+    "千川投流",
+    "千川投流占比"
   ];
   const headerRow = worksheet.addRow(headers);
 
@@ -292,7 +387,13 @@ const exportToExcel = async () => {
       row.warehouseCost !== undefined
         ? Number(row.warehouseCost).toFixed(2)
         : "",
-      row.platformCost !== undefined ? Number(row.platformCost).toFixed(2) : ""
+      row.platformCost !== undefined ? Number(row.platformCost).toFixed(2) : "",
+      row.qianChuanAmount !== undefined
+        ? Number(row.qianChuanAmount).toFixed(2)
+        : "",
+      row.qianChuanRatio !== undefined
+        ? Number(row.qianChuanRatio).toFixed(2) + "%"
+        : ""
     ]);
 
     // 设置单元格样式
@@ -321,16 +422,18 @@ const exportToExcel = async () => {
 
   // 设置列宽
   worksheet.columns = [
-    { width: 25 },
-    { width: 12 },
-    { width: 12 },
-    { width: 12 },
-    { width: 12 },
-    { width: 12 },
-    { width: 12 },
+    { width: 18 },
     { width: 10 },
+    { width: 10 },
+    { width: 11 },
+    { width: 11 },
+    { width: 11 },
+    { width: 11 },
+    { width: 9 },
+    { width: 11 },
     { width: 12 },
-    { width: 14 },
+    { width: 11 },
+    { width: 11 },
     { width: 12 }
   ];
 
@@ -368,6 +471,8 @@ const getRowClassName = ({ row }: { row: any }) => {
           <li>
             平台费用：含税收入 * 计算比例【平台费用1】 / 计算比例【平台费用2】
           </li>
+          <li>千川投流：根据流量来源和自营/达播从千川投流汇总数据中获取</li>
+          <li>千川投流占比：千川投流 / 未税收入</li>
         </ul>
       </div>
     </el-card>
@@ -510,6 +615,31 @@ const getRowClassName = ({ row }: { row: any }) => {
               />
             </el-form-item>
           </el-col>
+          <el-col :span="6">
+            <el-form-item label="千川投流除数1">
+              <el-input-number
+                v-model="formData.qianChuanDivisor1"
+                :min="0"
+                :precision="3"
+                :step="0.01"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="千川投流除数2">
+              <el-input-number
+                v-model="formData.qianChuanDivisor2"
+                :min="0"
+                :precision="3"
+                :step="0.01"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item>
               <el-button type="primary" :loading="loading" @click="loadData">
@@ -544,19 +674,25 @@ const getRowClassName = ({ row }: { row: any }) => {
         style="width: 100%"
         :row-class-name="getRowClassName"
       >
-        <el-table-column prop="date" label="日期" />
+        <el-table-column prop="date" label="日期" width="140" fixed />
         <el-table-column
           prop="trafficFormatName"
           label="流量来源"
-          width="120"
+          width="80"
+          fixed
         />
-        <el-table-column prop="businessType" label="自营/达播" width="120" />
-        <el-table-column prop="taxIncludedAmount" label="含税收入" width="120">
+        <el-table-column
+          prop="businessType"
+          label="自营/达播"
+          width="80"
+          fixed
+        />
+        <el-table-column prop="taxIncludedAmount" label="含税收入" width="110">
           <template #default="{ row }">
             {{ row.taxIncludedAmount?.toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="未税收入" width="120">
+        <el-table-column label="未税收入" width="110">
           <template #default="{ row }">
             {{ row.untaxedIncome?.toFixed(2) }}
           </template>
@@ -564,35 +700,49 @@ const getRowClassName = ({ row }: { row: any }) => {
         <el-table-column
           prop="totalFinancialCost"
           label="财务总成本"
-          width="120"
+          width="110"
         >
           <template #default="{ row }">
             {{ row.totalFinancialCost?.toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="毛利" width="120">
+        <el-table-column label="毛利" width="110">
           <template #default="{ row }">
             {{ row.grossProfit?.toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="毛利率" width="100">
+        <el-table-column label="毛利率" width="90">
           <template #default="{ row }">
             {{ row.grossProfitRate }}
           </template>
         </el-table-column>
-        <el-table-column label="物流成本" width="120">
+        <el-table-column label="物流成本" width="110">
           <template #default="{ row }">
             {{ row.logisticsCost?.toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="仓储损耗包材" width="140">
+        <el-table-column label="仓储损耗包材" width="130">
           <template #default="{ row }">
             {{ row.warehouseCost?.toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="平台费用" width="120">
+        <el-table-column label="平台费用" width="110">
           <template #default="{ row }">
             {{ row.platformCost?.toFixed(2) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="千川投流" width="110">
+          <template #default="{ row }">
+            {{ row.qianChuanAmount?.toFixed(2) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="千川投流占比" width="120">
+          <template #default="{ row }">
+            {{
+              row.qianChuanRatio !== undefined
+                ? row.qianChuanRatio.toFixed(2) + "%"
+                : ""
+            }}
           </template>
         </el-table-column>
       </el-table>
@@ -659,6 +809,21 @@ const getRowClassName = ({ row }: { row: any }) => {
 :deep(.summary-row) {
   font-weight: bold;
   background-color: #f5f7fa !important;
+}
+
+/* 调整表格整体字体大小 */
+:deep(.el-table) {
+  font-size: 12px;
+}
+
+/* 调整表格表头字体大小 */
+:deep(.el-table th) {
+  font-size: 12px;
+}
+
+/* 调整表格单元格字体大小 */
+:deep(.el-table td) {
+  font-size: 12px;
 }
 
 /* 达人ID输入框容器 */

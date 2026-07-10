@@ -95,6 +95,17 @@ const contractForm = reactive({
   sortOrder: 0
 });
 
+// 按执行日期排序合同历史列表
+const sortContractHistory = () => {
+  contractHistoryList.value.sort((a, b) => {
+    if (!a.executionDate) return 1;
+    if (!b.executionDate) return -1;
+    return (
+      new Date(a.executionDate).getTime() - new Date(b.executionDate).getTime()
+    );
+  });
+};
+
 // 加载数据
 const loadData = async () => {
   loading.value = true;
@@ -197,6 +208,7 @@ const handleEdit = (row: any) => {
     contractEndTime: row.latestContractEndTime || ""
   });
   contractHistoryList.value = [...(row.contractList || [])];
+  sortContractHistory(); // 编辑时也排序
   dialogVisible.value = true;
 };
 
@@ -252,12 +264,18 @@ const handleSaveContract = () => {
       douyinId: expertForm.douyinId
     });
   }
+  sortContractHistory(); // 保存后排序
   contractDialogVisible.value = false;
 };
 
 // 删除合同历史
 const handleDeleteContract = (index: number) => {
   contractHistoryList.value.splice(index, 1);
+  // 删除后重新调整 sortOrder，保持连续性
+  contractHistoryList.value.forEach((contract, i) => {
+    contract.sortOrder = i;
+  });
+  sortContractHistory();
 };
 
 // 保存达人信息和所有合同
@@ -434,7 +452,16 @@ onMounted(() => {
             <div class="expand-content">
               <div class="mb-2 font-medium">合同历史列表：</div>
               <el-table
-                :data="row.contractList || []"
+                :data="
+                  (row.contractList || []).sort((a, b) => {
+                    if (!a.executionDate) return 1;
+                    if (!b.executionDate) return -1;
+                    return (
+                      new Date(a.executionDate).getTime() -
+                      new Date(b.executionDate).getTime()
+                    );
+                  })
+                "
                 border
                 style="width: 100%"
               >
@@ -725,12 +752,13 @@ onMounted(() => {
 
 /* 表格字体变小 */
 :deep(.el-table) {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 :deep(.el-table th),
 :deep(.el-table td) {
   padding: 8px 0;
+  font-size: 12px;
 }
 
 /* 间距样式 */
