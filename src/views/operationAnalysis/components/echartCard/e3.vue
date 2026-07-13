@@ -96,7 +96,9 @@ const productStructure1 = computed(() => ({
           //   { value: 503, name: "好适嘉", itemStyle: { color: "#E66C37" } },
           //   { value: 1, name: "Vivaland", itemStyle: { color: "#E044A7" } }
           // ]
-          props.excelData?.E3?.pd_pie || []
+          (props.excelData?.E3?.pd_pie || []).filter(
+            (item: any) => item.name !== "Vivaland"
+          )
       }
     ]
   },
@@ -145,7 +147,13 @@ const productStructure2 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: props.excelData?.E3?.pd_bar?.xAxisData || [],
+      data: (() => {
+        const xData = props.excelData?.E3?.pd_bar?.xAxisData || [];
+        const vivalandIndex = xData.indexOf("Vivaland");
+        return vivalandIndex !== -1
+          ? xData.filter((_, i) => i !== vivalandIndex)
+          : xData;
+      })(),
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -203,10 +211,15 @@ const productStructure2 = computed(() => ({
       //   }
       // ]
       (props.excelData?.E3?.pd_bar?.series || []).map(item => {
+        const xData = props.excelData?.E3?.pd_bar?.xAxisData || [];
+        const vivalandIndex = xData.indexOf("Vivaland");
         return {
           name: item.name,
           type: "bar",
-          data: item.data,
+          data:
+            vivalandIndex !== -1
+              ? item.data.filter((_, i) => i !== vivalandIndex)
+              : item.data,
           itemStyle: {
             color: item.color
           },

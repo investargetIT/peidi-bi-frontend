@@ -26,8 +26,7 @@ const channelMap: Record<string, string> = {
   销售一组: "线下分销",
   销售二组: "EKA",
   销售三组: "商超",
-  跨境电商: "跨境电商",
-  Vivaland: "Vivaland"
+  跨境电商: "跨境电商"
 };
 
 // X轴数据顺序
@@ -39,8 +38,7 @@ const xAxisData = [
   "线下分销",
   "EKA",
   "商超",
-  "跨境电商",
-  "Vivaland"
+  "跨境电商"
 ];
 
 // 计算百分比

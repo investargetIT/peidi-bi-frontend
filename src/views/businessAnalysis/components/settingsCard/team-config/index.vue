@@ -59,12 +59,15 @@ const handleEdit = (row: BiTeamConfig) => {
 
 const handleDelete = async (row: BiTeamConfig) => {
   try {
-    await ElMessageBox.confirm(`确认删除团队"${row.teamName}"吗？`, "提示", {
+    const teamName = row?.teamName || "未命名团队";
+    await ElMessageBox.confirm(`确认删除团队"${teamName}"吗？`, "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning"
     });
+
     const res: any = await deleteTeamConfig(row);
+
     if (res.success) {
       ElMessage.success("删除成功");
       await fetchList();
@@ -72,7 +75,12 @@ const handleDelete = async (row: BiTeamConfig) => {
       ElMessage.error(res.msg || "删除失败");
     }
   } catch (error) {
-    if (error !== "cancel") {
+    // 检查是否是用户取消操作
+    const isUserCancel =
+      error === "cancel" ||
+      (typeof error === "object" && error !== null && "action" in error);
+
+    if (!isUserCancel) {
       ElMessage.error("删除失败");
     }
   }
@@ -165,7 +173,9 @@ onMounted(() => {
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleSubmit"
+          >确定</el-button
+        >
       </template>
     </el-dialog>
   </div>

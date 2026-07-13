@@ -3,8 +3,8 @@ import { http } from "@/utils/http";
 import { stringify } from "qs";
 
 export const commonUrlApi = (url: string) =>
-  `${"http://12.18.1.36:8085"}${url}`;
-// `${"https://api.peidigroup.cn"}${url}`;
+  // `${"http://12.18.1.36:8085"}${url}`;
+  `${"https://api.peidigroup.cn"}${url}`;
 
 /** 获取抖音业绩数据 */
 export const getBiDouyinSales = (params: {

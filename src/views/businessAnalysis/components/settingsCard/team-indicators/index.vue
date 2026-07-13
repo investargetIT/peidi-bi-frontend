@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   getTeamConfigList,
   addTeamConfig,
@@ -72,7 +72,8 @@ const handleConfigEdit = (row: BiTeamConfig) => {
 
 const handleConfigDelete = async (row: BiTeamConfig) => {
   try {
-    await ElMessageBox.confirm(`确认删除团队"${row.teamName}"吗？`, "提示", {
+    const teamName = row?.teamName || "未命名团队";
+    await ElMessageBox.confirm(`确认删除团队"${teamName}"吗？`, "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning"
@@ -85,7 +86,12 @@ const handleConfigDelete = async (row: BiTeamConfig) => {
       ElMessage.error(res.msg || "删除失败");
     }
   } catch (error) {
-    if (error !== "cancel") {
+    // 检查是否是用户取消操作
+    const isUserCancel =
+      error === "cancel" ||
+      (typeof error === "object" && error !== null && "action" in error);
+
+    if (!isUserCancel) {
       ElMessage.error("删除失败");
     }
   }
