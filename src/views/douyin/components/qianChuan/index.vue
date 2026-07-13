@@ -32,6 +32,7 @@ const getWeekNumber = (dateStr: string): number => {
 // 搜索表单数据
 const searchForm = reactive({
   accountName: "",
+  accountId: "",
   accountOwnership: undefined as number | undefined,
   businessType: undefined as number | undefined,
   dateStart: "",
@@ -71,6 +72,7 @@ const currentRow = ref<any>(null);
 // 单条表单数据
 const formData = reactive({
   accountName: "",
+  accountId: "",
   accountOwnership: undefined as number | undefined,
   businessType: undefined as number | undefined,
   date: "",
@@ -84,6 +86,7 @@ const batchFormData = ref<any[]>([]);
 // 批量新增通用设置
 const batchSettings = reactive({
   accountName: "",
+  accountId: "",
   date: "",
   weekNumber: undefined as number | undefined
 });
@@ -108,6 +111,7 @@ const handleBatchAdd = () => {
   batchFormData.value = [];
   Object.assign(batchSettings, {
     accountName: "",
+    accountId: "",
     date: "",
     weekNumber: undefined
   });
@@ -153,6 +157,7 @@ const loadData = async () => {
     };
 
     if (searchForm.accountName) params.accountName = searchForm.accountName;
+    if (searchForm.accountId) params.accountId = searchForm.accountId;
     if (searchForm.accountOwnership !== undefined)
       params.accountOwnership = searchForm.accountOwnership;
     if (searchForm.businessType !== undefined)
@@ -162,10 +167,10 @@ const loadData = async () => {
 
     const res: any = await getDyQianChuanPage(params);
     if (res.success) {
-      // 优先按账号名称排序，其次按周数排序
+      // 优先按账号ID排序，其次按周数排序
       tableData.value = (res.data?.records || []).sort((a: any, b: any) => {
-        const nameCompare = a.accountName.localeCompare(b.accountName);
-        if (nameCompare !== 0) return nameCompare;
+        const idCompare = (a.accountId || "").localeCompare(b.accountId || "");
+        if (idCompare !== 0) return idCompare;
         return a.weekNumber - b.weekNumber;
       });
     }
@@ -190,15 +195,17 @@ const handleSearch = () => {
 const handleReset = () => {
   Object.assign(searchForm, {
     accountName: "",
+    accountId: "",
     accountOwnership: undefined,
     businessType: undefined,
     dateStart: "",
     dateEnd: ""
   });
-  // 重置为当前月份
+  // 重置为上个月
   const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  selectedMonth.value = currentMonth;
+  now.setMonth(now.getMonth() - 1);
+  const previousMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  selectedMonth.value = previousMonth;
   handleSearch();
 };
 
@@ -209,6 +216,7 @@ const handleAdd = () => {
   currentRow.value = null;
   Object.assign(formData, {
     accountName: "",
+    accountId: "",
     accountOwnership: undefined,
     businessType: undefined,
     date: "",
@@ -225,6 +233,7 @@ const handleEdit = (row: any) => {
   currentRow.value = row;
   Object.assign(formData, {
     accountName: row.accountName,
+    accountId: row.accountId,
     accountOwnership: row.accountOwnership,
     businessType: row.businessType,
     date: row.date,
@@ -269,6 +278,10 @@ const handleBatchSave = async () => {
       ElMessage.error("请输入账号名称");
       return;
     }
+    if (!batchSettings.accountId) {
+      ElMessage.error("请输入账号ID");
+      return;
+    }
     if (!batchSettings.date) {
       ElMessage.error("请选择投放日期");
       return;
@@ -297,6 +310,7 @@ const handleBatchSave = async () => {
     // 构建提交数据
     const submitData = batchFormData.value.map(row => ({
       accountName: batchSettings.accountName,
+      accountId: batchSettings.accountId,
       accountOwnership: row.accountOwnership,
       businessType: row.businessType,
       date: batchSettings.date,
@@ -344,19 +358,19 @@ const handleDelete = async (row: any) => {
 
 // 计算行合并
 const spanMethod = ({ row, column, rowIndex }: any) => {
-  if (column.property === "accountName") {
-    // 找到当前账号名称的起始行和结束行
+  if (column.property === "accountId") {
+    // 找到当前账号ID的起始行和结束行
     let startRow = rowIndex;
     let endRow = rowIndex;
     while (
       startRow > 0 &&
-      tableData.value[startRow - 1].accountName === row.accountName
+      tableData.value[startRow - 1].accountId === row.accountId
     ) {
       startRow--;
     }
     while (
       endRow < tableData.value.length - 1 &&
-      tableData.value[endRow + 1].accountName === row.accountName
+      tableData.value[endRow + 1].accountId === row.accountId
     ) {
       endRow++;
     }
@@ -375,19 +389,19 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
     }
   }
   if (column.property === "weekNumber") {
-    // 找到当前账号名称和周数都相同的起始行和结束行
+    // 找到当前账号ID和周数都相同的起始行和结束行
     let startRow = rowIndex;
     let endRow = rowIndex;
     while (
       startRow > 0 &&
-      tableData.value[startRow - 1].accountName === row.accountName &&
+      tableData.value[startRow - 1].accountId === row.accountId &&
       tableData.value[startRow - 1].weekNumber === row.weekNumber
     ) {
       startRow--;
     }
     while (
       endRow < tableData.value.length - 1 &&
-      tableData.value[endRow + 1].accountName === row.accountName &&
+      tableData.value[endRow + 1].accountId === row.accountId &&
       tableData.value[endRow + 1].weekNumber === row.weekNumber
     ) {
       endRow++;
@@ -415,10 +429,11 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
 
 // 初始化
 onMounted(() => {
-  // 默认选中当前月份
+  // 默认选中上个月
   const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  selectedMonth.value = currentMonth;
+  now.setMonth(now.getMonth() - 1);
+  const previousMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  selectedMonth.value = previousMonth;
   loadData();
 });
 </script>
@@ -430,10 +445,19 @@ onMounted(() => {
       <el-form :model="searchForm" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="6">
+            <el-form-item label="账号ID">
+              <el-input
+                v-model="searchForm.accountId"
+                placeholder="请输入账号ID（精确查询）"
+                clearable
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
             <el-form-item label="账号名称">
               <el-input
                 v-model="searchForm.accountName"
-                placeholder="请输入账号名称"
+                placeholder="请输入账号名称（模糊查询）"
                 clearable
               />
             </el-form-item>
@@ -517,6 +541,7 @@ onMounted(() => {
         border
         style="width: 100%"
       >
+        <el-table-column prop="accountId" label="账号ID" min-width="150" />
         <el-table-column prop="accountName" label="账号名称" min-width="150" />
         <el-table-column prop="weekNumber" label="周数" width="80">
           <template #default="{ row }"> 周{{ row.weekNumber }} </template>
@@ -569,6 +594,9 @@ onMounted(() => {
       :close-on-click-modal="false"
     >
       <el-form :model="formData" label-width="100px">
+        <el-form-item label="账号ID" required>
+          <el-input v-model="formData.accountId" placeholder="请输入账号ID" />
+        </el-form-item>
         <el-form-item label="账号名称" required>
           <el-input
             v-model="formData.accountName"
@@ -640,6 +668,14 @@ onMounted(() => {
         <div class="text-sm font-medium mb-3">通用设置（所有行共用）</div>
         <el-form :model="batchSettings" label-width="100px">
           <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="账号ID" required>
+                <el-input
+                  v-model="batchSettings.accountId"
+                  placeholder="请输入账号ID"
+                />
+              </el-form-item>
+            </el-col>
             <el-col :span="8">
               <el-form-item label="账号名称" required>
                 <el-input

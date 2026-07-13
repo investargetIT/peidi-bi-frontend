@@ -16,7 +16,8 @@ const formData = reactive({
   selfOperatedInfluencerIds: [
     "1143971292653752",
     "2159871682941675",
-    "247837613127280"
+    "247837613127280",
+    "94834518773"
   ], // 改为数组存储
   untaxedRatio: 1.09, // 未税收入计算比例
   logisticsRatio1: 0.0474, // 物流成本计算比例1
@@ -96,6 +97,20 @@ const calculateRowData = (item: any) => {
   );
   const qianChuanRatio =
     untaxedIncome !== 0 ? (qianChuanAmount / untaxedIncome) * 100 : 0;
+  const brokerage = item.brokerage || 0; // 佣金
+  // 渠道净毛利=毛利-（物流成本+仓储损耗包材+平台费用+佣金+千川投流）
+  const channelNetGrossProfit =
+    grossProfit -
+    (logisticsCost +
+      warehouseCost +
+      platformCost +
+      brokerage +
+      qianChuanAmount);
+  // 净毛利率=渠道净毛利/未税收入
+  const netGrossProfitRate =
+    untaxedIncome !== 0
+      ? ((channelNetGrossProfit / untaxedIncome) * 100).toFixed(2) + "%"
+      : "0%";
 
   // 紧凑的日期格式
   const formatCompactDate = (start: string, end: string) => {
@@ -118,8 +133,11 @@ const calculateRowData = (item: any) => {
     logisticsCost,
     warehouseCost,
     platformCost,
+    brokerage,
     qianChuanAmount,
-    qianChuanRatio
+    qianChuanRatio,
+    channelNetGrossProfit,
+    netGrossProfitRate
   };
 };
 
@@ -164,6 +182,10 @@ const calculateGroupSummary = (
     (sum, item) => sum + item.platformCost,
     0
   );
+  const totalBrokerage = groupData.reduce(
+    (sum, item) => sum + (item.brokerage || 0),
+    0
+  );
 
   // 计算千川投流合计
   let totalQianChuanAmount = 0;
@@ -195,6 +217,21 @@ const calculateGroupSummary = (
       ? (totalQianChuanAmount / totalUntaxedIncome) * 100
       : 0;
 
+  // 渠道净毛利合计
+  const totalChannelNetGrossProfit =
+    totalGrossProfit -
+    (totalLogisticsCost +
+      totalWarehouseCost +
+      totalPlatformCost +
+      totalBrokerage +
+      totalQianChuanAmount);
+  // 净毛利率合计
+  const totalNetGrossProfitRate =
+    totalUntaxedIncome !== 0
+      ? ((totalChannelNetGrossProfit / totalUntaxedIncome) * 100).toFixed(2) +
+        "%"
+      : "0%";
+
   return {
     date: groupName,
     trafficFormatName: "",
@@ -207,8 +244,11 @@ const calculateGroupSummary = (
     logisticsCost: totalLogisticsCost,
     warehouseCost: totalWarehouseCost,
     platformCost: totalPlatformCost,
+    brokerage: totalBrokerage,
     qianChuanAmount: totalQianChuanAmount,
     qianChuanRatio: totalQianChuanRatio,
+    channelNetGrossProfit: totalChannelNetGrossProfit,
+    netGrossProfitRate: totalNetGrossProfitRate,
     isSummary: true
   };
 };
@@ -343,7 +383,10 @@ const exportToExcel = async () => {
     "仓储损耗包材",
     "平台费用",
     "千川投流",
-    "千川投流占比"
+    "千川投流占比",
+    "佣金",
+    "渠道净毛利",
+    "净毛利率"
   ];
   const headerRow = worksheet.addRow(headers);
 
@@ -393,7 +436,12 @@ const exportToExcel = async () => {
         : "",
       row.qianChuanRatio !== undefined
         ? Number(row.qianChuanRatio).toFixed(2) + "%"
-        : ""
+        : "",
+      row.brokerage !== undefined ? Number(row.brokerage).toFixed(2) : "",
+      row.channelNetGrossProfit !== undefined
+        ? Number(row.channelNetGrossProfit).toFixed(2)
+        : "",
+      row.netGrossProfitRate
     ]);
 
     // 设置单元格样式
@@ -434,7 +482,10 @@ const exportToExcel = async () => {
     { width: 12 },
     { width: 11 },
     { width: 11 },
-    { width: 12 }
+    { width: 12 },
+    { width: 11 },
+    { width: 13 },
+    { width: 11 }
   ];
 
   // 导出文件
@@ -462,7 +513,7 @@ const getRowClassName = ({ row }: { row: any }) => {
         <h4>计算逻辑说明</h4>
         <ul>
           <li>未税收入：含税收入 / 计算比例【未税收入】</li>
-          <li>毛利：含税收入 - 财务总成本</li>
+          <li>毛利：未税收入 - 财务总成本</li>
           <li>毛利率：毛利 / 未税收入</li>
           <li>
             物流成本：含税收入 * 计算比例【物流成本1】 / 计算比例【物流成本2】
@@ -471,8 +522,14 @@ const getRowClassName = ({ row }: { row: any }) => {
           <li>
             平台费用：含税收入 * 计算比例【平台费用1】 / 计算比例【平台费用2】
           </li>
+          <li>佣金：接口返回的佣金数据</li>
           <li>千川投流：根据流量来源和自营/达播从千川投流汇总数据中获取</li>
           <li>千川投流占比：千川投流 / 未税收入</li>
+          <li>
+            渠道净毛利：毛利 - (物流成本 + 仓储损耗包材 + 平台费用 + 佣金 +
+            千川投流)
+          </li>
+          <li>净毛利率：渠道净毛利 / 未税收入</li>
         </ul>
       </div>
     </el-card>
@@ -743,6 +800,25 @@ const getRowClassName = ({ row }: { row: any }) => {
                 ? row.qianChuanRatio.toFixed(2) + "%"
                 : ""
             }}
+          </template>
+        </el-table-column>
+        <el-table-column label="佣金" width="110">
+          <template #default="{ row }">
+            {{ row.brokerage?.toFixed(2) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="渠道净毛利" width="130">
+          <template #default="{ row }">
+            <span
+              :style="{ color: row.channelNetGrossProfit < 0 ? '#f56c6c' : '' }"
+            >
+              {{ row.channelNetGrossProfit?.toFixed(2) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="净毛利率" width="110">
+          <template #default="{ row }">
+            {{ row.netGrossProfitRate }}
           </template>
         </el-table-column>
       </el-table>
