@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Edit,
@@ -61,6 +61,13 @@ watch(selectedMonth, newVal => {
 // 表格数据
 const tableData = ref<any[]>([]);
 const loading = ref(false);
+
+// 计算当前页投放金额总和
+const totalDeliveryAmount = computed(() => {
+  return tableData.value.reduce((sum, row) => {
+    return sum + (row.deliveryAmount || 0);
+  }, 0);
+});
 
 // 对话框相关
 const dialogVisible = ref(false);
@@ -521,7 +528,13 @@ onMounted(() => {
     <!-- 表格卡片 -->
     <el-card class="table-card" shadow="never">
       <div class="flex justify-between items-center mb-[10px]">
-        <div class="text-lg font-medium">千川投流列表</div>
+        <div class="text-lg font-medium">
+          千川投流列表
+          <span class="ml-4 text-base font-normal text-primary">
+            当前页投放金额(元):
+            <strong>{{ totalDeliveryAmount.toFixed(2) }}</strong>
+          </span>
+        </div>
         <div>
           <el-button type="primary" @click="handleBatchAdd">
             <el-icon><CirclePlus /></el-icon>
@@ -815,6 +828,18 @@ onMounted(() => {
 
 .text-sm {
   font-size: 14px;
+}
+
+.text-base {
+  font-size: 14px;
+}
+
+.text-primary {
+  color: #409eff;
+}
+
+.ml-4 {
+  margin-left: 16px;
 }
 
 .font-medium {
