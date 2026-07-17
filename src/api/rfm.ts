@@ -2,7 +2,7 @@
 import { http } from "@/utils/http";
 
 export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.12:8085"}${url}`;
+  // `${"http://12.18.1.36:8085"}${url}`;
   `${"https://api.peidigroup.cn"}${url}`;
 
 export interface GetBiRfmParams {
