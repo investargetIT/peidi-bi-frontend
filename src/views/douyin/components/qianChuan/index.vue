@@ -29,34 +29,38 @@ const getWeekNumber = (dateStr: string): number => {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 };
 
+// 数据来源类型选项（1:千川投流全域数据 2:千川投流商品竞价）
+const fromTypeOptions = [
+  { label: "千川投流全域数据", value: 1 },
+  { label: "千川投流商品竞价", value: 2 }
+];
+
 // 搜索表单数据
 const searchForm = reactive({
   accountName: "",
   accountId: "",
   accountOwnership: undefined as number | undefined,
   businessType: undefined as number | undefined,
+  fromType: undefined as number | undefined,
   dateStart: "",
   dateEnd: ""
 });
 
-// 月份选择的单独引用
-const selectedMonth = ref<string>("");
-
-// 监听月份变化，自动设置当月1号~当月最后一天
-watch(selectedMonth, newVal => {
-  if (newVal) {
-    const year = Number(newVal.split("-")[0]);
-    const month = Number(newVal.split("-")[1]);
-    const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const lastDayStr = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-    searchForm.dateStart = firstDay;
-    searchForm.dateEnd = lastDayStr;
-  } else {
-    searchForm.dateStart = "";
-    searchForm.dateEnd = "";
-  }
-});
+// 设置默认日期范围为上个月1号~上个月最后一天
+const setDefaultDateRange = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 当前月（0-11），即上个月为 month-1，但用 month 作为上个月最后一天的计算
+  // 上个月
+  const prevMonthDate = new Date(year, month - 1, 1);
+  const prevYear = prevMonthDate.getFullYear();
+  const prevMonth = prevMonthDate.getMonth() + 1;
+  const firstDay = `${prevYear}-${String(prevMonth).padStart(2, "0")}-01`;
+  const lastDay = new Date(prevYear, prevMonth, 0).getDate();
+  const lastDayStr = `${prevYear}-${String(prevMonth).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  searchForm.dateStart = firstDay;
+  searchForm.dateEnd = lastDayStr;
+};
 
 // 表格数据
 const tableData = ref<any[]>([]);
@@ -82,6 +86,7 @@ const formData = reactive({
   accountId: "",
   accountOwnership: undefined as number | undefined,
   businessType: undefined as number | undefined,
+  fromType: undefined as number | undefined,
   date: "",
   deliveryAmount: undefined as number | undefined,
   weekNumber: undefined as number | undefined
@@ -94,6 +99,7 @@ const batchFormData = ref<any[]>([]);
 const batchSettings = reactive({
   accountName: "",
   accountId: "",
+  fromType: undefined as number | undefined,
   date: "",
   weekNumber: undefined as number | undefined
 });
@@ -119,6 +125,7 @@ const handleBatchAdd = () => {
   Object.assign(batchSettings, {
     accountName: "",
     accountId: "",
+    fromType: undefined,
     date: "",
     weekNumber: undefined
   });
@@ -169,6 +176,8 @@ const loadData = async () => {
       params.accountOwnership = searchForm.accountOwnership;
     if (searchForm.businessType !== undefined)
       params.businessType = searchForm.businessType;
+    if (searchForm.fromType !== undefined)
+      params.fromType = searchForm.fromType;
     if (searchForm.dateStart) params.dateStart = searchForm.dateStart;
     if (searchForm.dateEnd) params.dateEnd = searchForm.dateEnd;
 
@@ -191,8 +200,12 @@ const loadData = async () => {
 
 // 搜索
 const handleSearch = () => {
-  if (!selectedMonth.value) {
-    ElMessage.warning("请选择投放日期");
+  if (!searchForm.dateStart || !searchForm.dateEnd) {
+    ElMessage.warning("请选择开始日期和结束日期");
+    return;
+  }
+  if (searchForm.dateStart > searchForm.dateEnd) {
+    ElMessage.warning("开始日期不能晚于结束日期");
     return;
   }
   loadData();
@@ -205,14 +218,12 @@ const handleReset = () => {
     accountId: "",
     accountOwnership: undefined,
     businessType: undefined,
+    fromType: undefined,
     dateStart: "",
     dateEnd: ""
   });
-  // 重置为上个月
-  const now = new Date();
-  now.setMonth(now.getMonth() - 1);
-  const previousMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  selectedMonth.value = previousMonth;
+  // 重置为上个月日期范围
+  setDefaultDateRange();
   handleSearch();
 };
 
@@ -226,6 +237,7 @@ const handleAdd = () => {
     accountId: "",
     accountOwnership: undefined,
     businessType: undefined,
+    fromType: undefined,
     date: "",
     deliveryAmount: undefined,
     weekNumber: undefined
@@ -243,6 +255,7 @@ const handleEdit = (row: any) => {
     accountId: row.accountId,
     accountOwnership: row.accountOwnership,
     businessType: row.businessType,
+    fromType: row.fromType,
     date: row.date,
     deliveryAmount: row.deliveryAmount,
     weekNumber: row.weekNumber
@@ -289,6 +302,10 @@ const handleBatchSave = async () => {
       ElMessage.error("请输入账号ID");
       return;
     }
+    if (batchSettings.fromType === undefined) {
+      ElMessage.error("请选择数据来源");
+      return;
+    }
     if (!batchSettings.date) {
       ElMessage.error("请选择投放日期");
       return;
@@ -320,6 +337,7 @@ const handleBatchSave = async () => {
       accountId: batchSettings.accountId,
       accountOwnership: row.accountOwnership,
       businessType: row.businessType,
+      fromType: batchSettings.fromType,
       date: batchSettings.date,
       deliveryAmount: row.deliveryAmount,
       weekNumber: batchSettings.weekNumber
@@ -436,11 +454,8 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
 
 // 初始化
 onMounted(() => {
-  // 默认选中上个月
-  const now = new Date();
-  now.setMonth(now.getMonth() - 1);
-  const previousMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  selectedMonth.value = previousMonth;
+  // 默认选中上个月日期范围
+  setDefaultDateRange();
   loadData();
 });
 </script>
@@ -497,12 +512,42 @@ onMounted(() => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="投放日期" required>
+            <el-form-item label="数据来源">
+              <el-select
+                v-model="searchForm.fromType"
+                placeholder="请选择数据来源"
+                clearable
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="item in fromTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="开始日期" required>
               <el-date-picker
-                v-model="selectedMonth"
-                type="month"
-                placeholder="选择月份"
-                value-format="YYYY-MM"
+                v-model="searchForm.dateStart"
+                type="date"
+                placeholder="选择开始日期"
+                value-format="YYYY-MM-DD"
+                :clearable="false"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="结束日期" required>
+              <el-date-picker
+                v-model="searchForm.dateEnd"
+                type="date"
+                placeholder="选择结束日期"
+                value-format="YYYY-MM-DD"
+                :clearable="false"
                 style="width: 100%"
               />
             </el-form-item>
@@ -565,6 +610,7 @@ onMounted(() => {
           width="120"
         />
         <el-table-column prop="businessTypeName" label="业务类型" width="120" />
+        <el-table-column prop="fromTypeName" label="数据来源" min-width="150" />
         <el-table-column prop="date" label="投放日期" width="120" />
         <el-table-column prop="deliveryAmount" label="投放金额(元)" width="150">
           <template #default="{ row }">
@@ -574,26 +620,24 @@ onMounted(() => {
         <el-table-column prop="createdAt" label="创建时间" width="180" />
         <el-table-column label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <el-tooltip content="编辑" placement="top">
-              <el-button
-                type="primary"
-                link
-                size="small"
-                @click="handleEdit(row)"
-              >
-                <el-icon><Edit /></el-icon>
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="删除" placement="top">
-              <el-button
-                type="danger"
-                link
-                size="small"
-                @click="handleDelete(row)"
-              >
-                <el-icon><Delete /></el-icon>
-              </el-button>
-            </el-tooltip>
+            <el-button
+              type="primary"
+              link
+              size="small"
+              title="编辑"
+              @click="handleEdit(row)"
+            >
+              <el-icon><Edit /></el-icon>
+            </el-button>
+            <el-button
+              type="danger"
+              link
+              size="small"
+              title="删除"
+              @click="handleDelete(row)"
+            >
+              <el-icon><Delete /></el-icon>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -635,6 +679,20 @@ onMounted(() => {
           >
             <el-option label="达播" :value="1" />
             <el-option label="自营" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数据来源" required>
+          <el-select
+            v-model="formData.fromType"
+            placeholder="请选择数据来源"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in fromTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="投放日期" required>
@@ -706,6 +764,22 @@ onMounted(() => {
                   value-format="YYYY-MM-DD"
                   style="width: 100%"
                 />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="数据来源" required>
+                <el-select
+                  v-model="batchSettings.fromType"
+                  placeholder="请选择数据来源"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in fromTypeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="8">
