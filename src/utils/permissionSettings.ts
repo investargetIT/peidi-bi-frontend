@@ -3,7 +3,10 @@
 const SHY_ID = "1926449443739600965";
 
 // 管理员 id
-const ADMIN_USER_IDS = [];
+const ADMIN_USER_IDS = [
+  // 金洪旭
+  "1926449443739598852"
+];
 
 // 开发人员 id
 const DEV_USER_IDS = [
@@ -15,11 +18,8 @@ const DEV_USER_IDS = [
   "1850741012504838145",
   // Summer
   "1846392647319093250",
-  // 余建飞
-  "1926449443739601619",
   // 杨世豪
-  "1926449443739601629",
-  ...ADMIN_USER_IDS
+  "1926449443739601629"
 ];
 
 /**
@@ -30,6 +30,7 @@ export const permissionSettings = {
   // 抖音数据需求 模块权限
   douyin: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // // 梁钰
     // "1926449443739598911",
     // // 段英姿
@@ -40,6 +41,7 @@ export const permissionSettings = {
   // 宠物档案 模块权限
   petProfiles: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 张梦雅
     "1872157829894832129",
     // 公艳菲
@@ -52,6 +54,7 @@ export const permissionSettings = {
   // 产品控价 模块权限
   priceControl: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 潘明旺
     "1904055363841863682",
     // 蔡笑笑
@@ -60,6 +63,7 @@ export const permissionSettings = {
   // 产品评价数据系统 模块权限
   productReview: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 陶莹
     "1887398864008818690",
     // 乐丽霞
@@ -88,14 +92,16 @@ export const permissionSettings = {
   // 站内推广效能看板 模块权限
   sitePromotion: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS
     // 范振吉
-    "1874711258007646210",
+    // "1874711258007646210",
     // 邓苏
-    "1879443024278761474"
+    // "1879443024278761474"
   ],
   // 旧bi模块权限
   metabase: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 陈董
     "1926449443739598857",
     // Lucy 廖丽萍
@@ -147,6 +153,7 @@ export const permissionSettings = {
   // incomePro: [SHY_ID],
   littleRedBook: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 范振吉
     "1874711258007646210",
     // 缪欣瑶
