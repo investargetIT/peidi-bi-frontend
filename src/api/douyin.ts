@@ -176,6 +176,22 @@ export const postDyQianChuanDelete = (id: number) => {
   );
 };
 
+/** 千川投流汇总行（按周分组） */
+export interface DyQianChuanSummaryItem {
+  /** 日期区间，如 "8.01-8.02" */
+  datePeriod: string;
+  /** 周数 */
+  weekNumber: number;
+  /** 流量来源：明细为 短视频/商品卡/直播，合计行为 XX合计/合计 */
+  flowSource: string;
+  /** 业务类型：明细为 自营/达播，合计行为空字符串 */
+  segment: string;
+  /** 千川投流金额 */
+  qianChuanCost: number;
+  /** 千川投流占比（后端未计算，固定为 null） */
+  qianChuanRatio: number | null;
+}
+
 /** 千川投流汇总查询 */
 export const postDyQianChuanSummary = (data: {
   dateEnd?: string;

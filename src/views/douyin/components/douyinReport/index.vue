@@ -2,17 +2,23 @@
 import { ref, reactive, onMounted } from "vue";
 import {
   getWdtOrderDetailSalesSummary,
-  postDyQianChuanSummary
+  postDyQianChuanSummary,
+  type DyQianChuanSummaryItem
 } from "@/api/douyin";
 import dayjs from "dayjs";
 import { Refresh, Download } from "@element-plus/icons-vue";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
+// 默认日期：上个月月初到月末
+const lastMonth = dayjs().subtract(1, "month");
+const defaultStartDate = lastMonth.startOf("month").format("YYYY-MM-DD");
+const defaultEndDate = lastMonth.endOf("month").format("YYYY-MM-DD");
+
 // 表单数据
 const formData = reactive({
-  startDate: "2026-01-01",
-  endDate: "2026-02-01",
+  startDate: defaultStartDate,
+  endDate: defaultEndDate,
   selfOperatedInfluencerIds: [
     "1143971292653752",
     "2159871682941675",
@@ -29,8 +35,8 @@ const formData = reactive({
   qianChuanDivisor2: 1.01 // 千川投流除数2
 });
 
-// 千川投流汇总数据
-const qianChuanSummaryData = ref<any[]>([]);
+// 千川投流汇总数据（按周分组）
+const qianChuanSummaryData = ref<DyQianChuanSummaryItem[]>([]);
 
 // 达人ID输入相关
 const influencerInputValue = ref("");
@@ -63,17 +69,17 @@ const summaryData = ref<any>(null);
 // loading状态
 const loading = ref(false);
 
-// 根据流量来源和业务类型获取千川投流金额
+// 根据流量来源和业务类型获取千川投流金额（接口按周返回，跨周求和）
 const getQianChuanAmount = (
   trafficFormatName: string,
   businessType: string
 ) => {
-  const found = qianChuanSummaryData.value.find(
-    item =>
-      item.accountOwnershipName === trafficFormatName &&
-      item.businessTypeName === businessType
-  );
-  return found ? found.amount : 0;
+  return qianChuanSummaryData.value
+    .filter(
+      item =>
+        item.flowSource === trafficFormatName && item.segment === businessType
+    )
+    .reduce((sum, item) => sum + (item.qianChuanCost || 0), 0);
 };
 
 // 计算单条数据的各项指标
@@ -187,29 +193,28 @@ const calculateGroupSummary = (
     0
   );
 
-  // 计算千川投流合计
+  // 计算千川投流合计（接口按周返回，取对应的合计行跨周求和）
   let totalQianChuanAmount = 0;
   const trafficFormats = ["短视频", "商品卡", "直播"];
   const businessTypes = ["自营", "达播"];
 
   if (groupName === "合计") {
-    // 总计：所有数据总和
-    totalQianChuanAmount = qianChuanSummaryData.value.reduce(
-      (sum, item) => sum + (item.amount || 0),
-      0
-    );
+    // 总计：取接口返回的"合计"行跨周求和
+    totalQianChuanAmount = qianChuanSummaryData.value
+      .filter(item => item.flowSource === "合计")
+      .reduce((sum, item) => sum + (item.qianChuanCost || 0), 0);
   } else if (trafficFormats.some(format => groupName.includes(format))) {
-    // 按流量来源合计
+    // 按流量来源合计：取接口返回的"XX合计"行跨周求和
     const formatName = groupName.replace("合计", "");
     totalQianChuanAmount = qianChuanSummaryData.value
-      .filter(item => item.accountOwnershipName === formatName)
-      .reduce((sum, item) => sum + (item.amount || 0), 0);
+      .filter(item => item.flowSource === `${formatName}合计`)
+      .reduce((sum, item) => sum + (item.qianChuanCost || 0), 0);
   } else if (businessTypes.some(type => groupName.includes(type))) {
-    // 按业务类型合计
+    // 按业务类型合计：取接口返回的"XX合计"行跨周求和
     const typeName = groupName.replace("合计", "");
     totalQianChuanAmount = qianChuanSummaryData.value
-      .filter(item => item.businessTypeName === typeName)
-      .reduce((sum, item) => sum + (item.amount || 0), 0);
+      .filter(item => item.flowSource === `${typeName}合计`)
+      .reduce((sum, item) => sum + (item.qianChuanCost || 0), 0);
   }
 
   const totalQianChuanRatio =
