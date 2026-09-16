@@ -30,7 +30,9 @@ const AI_CHAT_USER_IDS = [
   // Summer
   "1846392647319093250",
   // 杨世豪
-  "1926449443739601629"
+  "1926449443739601629",
+  // 刘汪洋
+  "1926449443739601753"
 ];
 const HAS_AI_CHAT_PERMISSION = computed(() =>
   AI_CHAT_USER_IDS.includes(USER_ID)
