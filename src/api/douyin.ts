@@ -102,6 +102,25 @@ export const getWdtOrderDetailSalesSummary = (params: {
   );
 };
 
+/** 利润表（达人）—— 按 日期×达人ID 分组，对齐人工表『利润表（达人）』sheet */
+export const getInfluencerProfit = (params: {
+  endDate: string;
+  selfOperatedInfluencerIds?: string[];
+  startDate: string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/wdt/order-detail/influencer-profit"),
+    {
+      params,
+      paramsSerializer: (params: any) => {
+        return stringify(params, { arrayFormat: "repeat" });
+      }
+    }
+  );
+};
+
 /** 分页查询抖音达人合同（按结算达人UID分组） */
 export const getDyExpertContractPage = (data: {
   contractEndTimeEnd?: string;

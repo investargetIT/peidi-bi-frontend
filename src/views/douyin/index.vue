@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import DouyinReport from "./components/douyinReport/index.vue";
+import InfluencerProfit from "./components/influencerProfit/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
 import QianChuan from "./components/qianChuan/index.vue";
 // 旧模块暂时隐藏
@@ -11,7 +12,7 @@ import QianChuan from "./components/qianChuan/index.vue";
 // import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-circle-20-solid";
 
 const STORAGE_KEY = "douyin-active-tab";
-const tabs = ["抖音周报", "达人合同", "千川投流"] as const;
+const tabs = ["抖音周报", "利润表", "达人合同", "千川投流"] as const;
 const activeTab = ref<string>(tabs[0]);
 
 // 初始化时从本地存储获取tab
@@ -44,6 +45,9 @@ onMounted(() => {
     >
       <el-tab-pane label="抖音周报" name="抖音周报" lazy>
         <DouyinReport />
+      </el-tab-pane>
+      <el-tab-pane label="利润表" name="利润表" lazy>
+        <InfluencerProfit />
       </el-tab-pane>
       <el-tab-pane label="达人合同" name="达人合同" lazy>
         <ExpertContract />
