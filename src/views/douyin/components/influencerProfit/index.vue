@@ -158,10 +158,10 @@ const exportToExcel = async () => {
         return v !== undefined && v !== null ? Number(v).toFixed(2) : "";
       }),
       row.grossMargin !== undefined && row.grossMargin !== null
-        ? Number(row.grossMargin).toFixed(2) + "%"
+        ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
         : "",
       row.netMargin !== undefined && row.netMargin !== null
-        ? Number(row.netMargin).toFixed(2) + "%"
+        ? (Number(row.netMargin) * 100).toFixed(2) + "%"
         : ""
     ]);
     dataRow.eachCell(cell => {
@@ -327,7 +327,7 @@ const exportToExcel = async () => {
           <template #default="{ row }">
             {{
               row.grossMargin !== undefined && row.grossMargin !== null
-                ? Number(row.grossMargin).toFixed(2) + "%"
+                ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
                 : ""
             }}
           </template>
@@ -336,7 +336,7 @@ const exportToExcel = async () => {
           <template #default="{ row }">
             {{
               row.netMargin !== undefined && row.netMargin !== null
-                ? Number(row.netMargin).toFixed(2) + "%"
+                ? (Number(row.netMargin) * 100).toFixed(2) + "%"
                 : ""
             }}
           </template>
