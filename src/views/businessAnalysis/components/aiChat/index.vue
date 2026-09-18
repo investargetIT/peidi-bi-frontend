@@ -237,7 +237,7 @@ onUnmounted(() => {
         <!-- 内容区 -->
         <div class="ai-chat-body">
           <iframe
-            src="https://chat.peidigroup.cn"
+            src="http://chat.peidigroup.cn/chat"
             class="ai-chat-iframe"
             frameborder="0"
             title="AI Assistant"
