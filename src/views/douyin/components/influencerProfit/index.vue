@@ -298,6 +298,7 @@ const exportToExcel = async () => {
         v-loading="loading"
         :data="pagedData"
         border
+        size="small"
         style="width: 100%"
         height="600"
       >
@@ -403,7 +404,14 @@ const exportToExcel = async () => {
 
 :deep(.el-table th),
 :deep(.el-table td) {
+  padding: 6px 0;
   font-size: 12px;
+  line-height: 1.2;
+}
+
+/* 表头文字居中 */
+:deep(.el-table th.el-table__cell) {
+  text-align: center;
 }
 
 /* 达人ID输入框容器 */
