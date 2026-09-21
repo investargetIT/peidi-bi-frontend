@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive } from "vue";
 import { ElMessage } from "element-plus";
 import { getInfluencerProfit } from "@/api/douyin";
 import dayjs from "dayjs";
@@ -45,16 +45,12 @@ const clearAllInfluencerIds = () => {
 const tableData = ref<any[]>([]);
 const loading = ref(false);
 
-// 分页
+// 分页（后端分页）
 const currentPage = ref(1);
 const pageSize = ref(50);
-// 当前页展示数据（前端分页）
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  return tableData.value.slice(start, start + pageSize.value);
-});
+const total = ref(0);
 
-// 含税收入合计
+// 含税收入合计（当前页合计）
 const totalProfit = ref(0);
 
 // 金额字段定义（渲染顺序）
@@ -75,6 +71,26 @@ const amountColumns = [
   { prop: "channelNetProfit", label: "渠道净毛利" }
 ];
 
+// 页码变化时重新加载
+const handlePageChange = () => {
+  if (loading.value) return;
+  loadData();
+};
+
+// 每页条数变化时回到第一页并重新加载
+const handleSizeChange = () => {
+  if (loading.value) return;
+  currentPage.value = 1;
+  loadData();
+};
+
+// 查询：回到第一页并加载
+const handleSearch = () => {
+  if (loading.value) return;
+  currentPage.value = 1;
+  loadData();
+};
+
 // 加载数据
 const loadData = async () => {
   if (!formData.startDate || !formData.endDate) {
@@ -89,26 +105,28 @@ const loadData = async () => {
   try {
     const params: any = {
       startDate: formData.startDate,
-      endDate: formData.endDate
+      endDate: formData.endDate,
+      pageNo: currentPage.value,
+      pageSize: pageSize.value
     };
     // 需要限定达人ID时传入，否则传空数组（无达人ID的记录归为"无ID"）
     params.selfOperatedInfluencerIds = formData.selfOperatedInfluencerIds;
     const res: any = await getInfluencerProfit(params);
     if (res.success) {
-      const data = (res.data || []).slice();
+      const page = res.data || {};
       // 按日期升序、达人ID升序排列
+      const data = ((page.records as any[]) || []).slice();
       data.sort((a: any, b: any) => {
         const dateCmp = (a.profitDate || "").localeCompare(b.profitDate || "");
         if (dateCmp !== 0) return dateCmp;
         return (a.influencerId || "").localeCompare(b.influencerId || "");
       });
       tableData.value = data;
+      total.value = page.total || 0;
       totalProfit.value = data.reduce(
         (sum: number, item: any) => sum + (item.taxIncludedAmount || 0),
         0
       );
-      // 重新查询后回到第一页
-      currentPage.value = 1;
     }
   } catch (error) {
     console.error("加载数据失败:", error);
@@ -262,7 +280,11 @@ const exportToExcel = async () => {
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item>
-              <el-button type="primary" :loading="loading" @click="loadData">
+              <el-button
+                type="primary"
+                :loading="loading"
+                @click="handleSearch"
+              >
                 <el-icon><Search /></el-icon>
                 查询
               </el-button>
@@ -296,7 +318,7 @@ const exportToExcel = async () => {
       </div>
       <el-table
         v-loading="loading"
-        :data="pagedData"
+        :data="tableData"
         border
         size="small"
         style="width: 100%"
@@ -343,15 +365,18 @@ const exportToExcel = async () => {
         </el-table-column>
       </el-table>
 
-      <!-- 前端分页 -->
+      <!-- 后端分页 -->
       <div class="pagination-wrapper">
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
-          :total="tableData.length"
+          :total="total"
           :page-sizes="[20, 50, 100, 200, 500]"
           layout="total, sizes, prev, pager, next, jumper"
+          :disabled="loading"
           background
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
         />
       </div>
     </el-card>

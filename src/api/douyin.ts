@@ -103,12 +103,71 @@ export const getWdtOrderDetailSalesSummary = (params: {
 };
 
 /** 利润表（达人）—— 按 日期×达人ID 分组，对齐人工表『利润表（达人）』sheet */
-export const getInfluencerProfit = (params: {
+export interface InfluencerProfitRequest {
   endDate: string;
+  pageNo?: number;
+  pageSize?: number;
   selfOperatedInfluencerIds?: string[];
   startDate: string;
   [property: string]: any;
-}) => {
+}
+
+/** 利润表（达人）单行，与人工表『利润表（达人）』sheet 对齐 */
+export interface DyInfluencerProfitVo {
+  /** 营业税金及附加 = 未税*0.09*0.12 */
+  businessTaxSurcharge?: number;
+  /** 渠道净毛利 = 毛利 - (千川推直播+千川推商品+千川推商品无ID+税金+物流+仓储+平台+站内+站外) */
+  channelNetProfit?: number;
+  /** 毛利率 = 毛利/未税收入 */
+  grossMargin?: number;
+  /** 毛利 = 未税收入 - 财务总成本 */
+  grossProfit?: number;
+  /** 达人ID（无达人ID归"无ID"） */
+  influencerId?: string;
+  /** 站内佣金 */
+  innerCommission?: number;
+  /** 物流成本 = 含税*0.0474/1.06 */
+  logisticsCost?: number;
+  /** 净毛利率 = 渠道净毛利/未税收入 */
+  netMargin?: number;
+  /** 站外佣金 */
+  outerCommission?: number;
+  /** 订单提交日期 */
+  profitDate?: string;
+  /** 千川推直播（整体消耗/1.06） */
+  qcLive?: number;
+  /** 千川推商品（整体消耗，特殊账号 /1.01/1.06，否则 /1.06） */
+  qcProduct?: number;
+  /** 千川推商品（无ID） */
+  qcProductNoId?: number;
+  /** 未税收入 = 含税/1.09 */
+  taxExcludedAmount?: number;
+  /** 含税收入 */
+  taxIncludedAmount?: number;
+  /** 财务总成本 */
+  totalFinancialCost?: number;
+  /** 仓储损耗包材 = 未税*0.04643 */
+  warehouseCost?: number;
+  [property: string]: any;
+}
+
+/** 分页查询利润表（达人）返回 */
+export interface InfluencerProfitPage {
+  /** 当前页 */
+  current?: number;
+  /** 查询数据列表 */
+  records?: DyInfluencerProfitVo[];
+  /** 当前分页总页数 */
+  pages?: number;
+  /** 每页显示条数，默认 10 */
+  size?: number;
+  /** 总数 */
+  total?: number;
+  [property: string]: any;
+}
+
+/** 分页查询利润表（达人） */
+export const getInfluencerProfit = (params: InfluencerProfitRequest) => {
   return http.request(
     "get",
     commonUrlApi("/oms/wdt/order-detail/influencer-profit"),
