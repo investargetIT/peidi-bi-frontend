@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { getInfluencerProfit } from "@/api/douyin";
 import dayjs from "dayjs";
@@ -45,12 +45,18 @@ const clearAllInfluencerIds = () => {
 const tableData = ref<any[]>([]);
 const loading = ref(false);
 
-// 分页（后端分页）
+// 分页（前端分页，先全量查询后本地分页）
 const currentPage = ref(1);
 const pageSize = ref(50);
 const total = ref(0);
 
-// 含税收入合计（当前页合计）
+// 当前页展示数据（前端分页切片）
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return tableData.value.slice(start, start + pageSize.value);
+});
+
+// 含税收入合计（全量数据合计）
 const totalProfit = ref(0);
 
 // 金额字段定义（渲染顺序）
@@ -71,17 +77,15 @@ const amountColumns = [
   { prop: "channelNetProfit", label: "渠道净毛利" }
 ];
 
-// 页码变化时重新加载
+// 页码变化（前端分页，无需重新加载数据）
 const handlePageChange = () => {
   if (loading.value) return;
-  loadData();
 };
 
-// 每页条数变化时回到第一页并重新加载
+// 每页条数变化时回到第一页
 const handleSizeChange = () => {
   if (loading.value) return;
   currentPage.value = 1;
-  loadData();
 };
 
 // 查询：回到第一页并加载
@@ -106,13 +110,15 @@ const loadData = async () => {
     const params: any = {
       startDate: formData.startDate,
       endDate: formData.endDate,
-      pageNo: currentPage.value,
-      pageSize: pageSize.value
+      // 全量查询：只取第1页并传足够大的每页条数
+      pageNo: 1,
+      pageSize: 9999999
     };
     // 需要限定达人ID时传入，否则传空数组（无达人ID的记录归为"无ID"）
     params.selfOperatedInfluencerIds = formData.selfOperatedInfluencerIds;
     const res: any = await getInfluencerProfit(params);
     if (res.success) {
+      // 全量查询，前端分页
       const page = res.data || {};
       // 按日期升序、达人ID升序排列
       const data = ((page.records as any[]) || []).slice();
@@ -122,7 +128,8 @@ const loadData = async () => {
         return (a.influencerId || "").localeCompare(b.influencerId || "");
       });
       tableData.value = data;
-      total.value = page.total || 0;
+      total.value = data.length;
+      currentPage.value = 1;
       totalProfit.value = data.reduce(
         (sum: number, item: any) => sum + (item.taxIncludedAmount || 0),
         0
@@ -318,7 +325,7 @@ const exportToExcel = async () => {
       </div>
       <el-table
         v-loading="loading"
-        :data="tableData"
+        :data="pagedData"
         border
         size="small"
         style="width: 100%"
@@ -365,7 +372,7 @@ const exportToExcel = async () => {
         </el-table-column>
       </el-table>
 
-      <!-- 后端分页 -->
+      <!-- 前端分页 -->
       <div class="pagination-wrapper">
         <el-pagination
           v-model:current-page="currentPage"
