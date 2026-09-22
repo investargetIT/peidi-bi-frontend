@@ -5,61 +5,57 @@ import {
   postDyQianChuanSummary,
   type DyQianChuanSummaryItem
 } from "@/api/douyin";
+import { ElMessage } from "element-plus";
 import dayjs from "dayjs";
-import { Refresh, Download } from "@element-plus/icons-vue";
+import { Refresh, Download, Operation } from "@element-plus/icons-vue";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import ConfigSelector from "../configSelector/index.vue";
 
 // 默认日期：上个月月初到月末
 const lastMonth = dayjs().subtract(1, "month");
 const defaultStartDate = lastMonth.startOf("month").format("YYYY-MM-DD");
 const defaultEndDate = lastMonth.endOf("month").format("YYYY-MM-DD");
 
-// 表单数据
+// 表单数据（只剩日期范围，比例/自营名单/除数已下沉到配置，只传 configName）
 const formData = reactive({
   startDate: defaultStartDate,
-  endDate: defaultEndDate,
-  selfOperatedInfluencerIds: [
-    "1143971292653752",
-    "2159871682941675",
-    "247837613127280",
-    "94834518773",
-    "3467216973730666"
-  ], // 改为数组存储
-  untaxedRatio: 1.09, // 未税收入计算比例
-  logisticsRatio1: 0.0474, // 物流成本计算比例1
-  logisticsRatio2: 1.06, // 物流成本计算比例2
-  warehouseRatio: 0.04643, // 仓储损耗包材计算比例
-  platformRatio1: 0.02226, // 平台费用计算比例1
-  platformRatio2: 1.06, // 平台费用计算比例2
-  qianChuanDivisor1: 1.06, // 千川投流除数1
-  qianChuanDivisor2: 1.01 // 千川投流除数2
+  endDate: defaultEndDate
 });
+
+// 配置名称（全局共享，存 localStorage）
+const configName = ref(localStorage.getItem("douyin-active-config") || "");
+// 当前选中配置详情（从配置接口回显，用于前端计算比例，含默认兜底）
+const activeConfig = ref<any>(null);
+
+// 从配置中取比例，缺省用默认值
+const DEFAULT_RATIOS: Record<string, number> = {
+  untaxedRatio: 1.09,
+  logisticsRatio1: 0.0474,
+  logisticsRatio2: 1.06,
+  warehouseRatio: 0.04643,
+  platformRatio1: 0.02226,
+  platformRatio2: 1.06,
+  qianChuanDivisor1: 1.06,
+  qianChuanDivisor2: 1.01
+};
+// 内部 key -> 配置接口字段名 映射（配置字段：taxRate/platformFeeRatio1/qcDivisor1 等）
+const RATIO_KEY_MAP: Record<string, string> = {
+  untaxedRatio: "taxRate",
+  logisticsRatio1: "logisticsRatio1",
+  logisticsRatio2: "logisticsRatio2",
+  warehouseRatio: "warehouseRatio",
+  platformRatio1: "platformFeeRatio1",
+  platformRatio2: "platformFeeRatio2"
+};
+const getRatio = (key: string): number => {
+  const field = RATIO_KEY_MAP[key] ?? key;
+  const v = activeConfig.value?.[field];
+  return v !== undefined && v !== null ? Number(v) : DEFAULT_RATIOS[key];
+};
 
 // 千川投流汇总数据（按周分组）
 const qianChuanSummaryData = ref<DyQianChuanSummaryItem[]>([]);
-
-// 达人ID输入相关
-const influencerInputValue = ref("");
-const handleInfluencerInputConfirm = () => {
-  const value = influencerInputValue.value.trim();
-  if (value && !formData.selfOperatedInfluencerIds.includes(value)) {
-    formData.selfOperatedInfluencerIds.push(value);
-  }
-  influencerInputValue.value = "";
-};
-const handleInfluencerInputKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Enter" || e.key === ",") {
-    e.preventDefault();
-    handleInfluencerInputConfirm();
-  }
-};
-const removeInfluencerId = (index: number) => {
-  formData.selfOperatedInfluencerIds.splice(index, 1);
-};
-const clearAllInfluencerIds = () => {
-  formData.selfOperatedInfluencerIds = [];
-};
 
 // 存储原始API数据
 const rawData = ref<any[]>([]);
@@ -83,28 +79,31 @@ const getQianChuanAmount = (
     .reduce((sum, item) => sum + (item.qianChuanCost || 0), 0);
 };
 
-// 计算单条数据的各项指标
+// 计算单条数据的各项指标（比例取自当前选中的配置）
 const calculateRowData = (item: any) => {
-  const untaxedIncome = item.taxIncludedAmount / Number(formData.untaxedRatio);
+  const untaxedIncome = item.taxIncludedAmount / getRatio("untaxedRatio");
   const grossProfit = untaxedIncome - item.totalFinancialCost;
   const grossProfitRate =
     untaxedIncome !== 0
       ? ((grossProfit / untaxedIncome) * 100).toFixed(2) + "%"
       : "0%";
   const logisticsCost =
-    (item.taxIncludedAmount * Number(formData.logisticsRatio1)) /
-    Number(formData.logisticsRatio2);
-  const warehouseCost = untaxedIncome * Number(formData.warehouseRatio);
+    (item.taxIncludedAmount * getRatio("logisticsRatio1")) /
+    getRatio("logisticsRatio2");
+  const warehouseCost = untaxedIncome * getRatio("warehouseRatio");
   const platformCost =
-    (item.taxIncludedAmount * Number(formData.platformRatio1)) /
-    Number(formData.platformRatio2);
+    (item.taxIncludedAmount * getRatio("platformRatio1")) /
+    getRatio("platformRatio2");
   const qianChuanAmount = getQianChuanAmount(
     item.trafficFormatName,
     item.businessType
   );
   const qianChuanRatio =
     untaxedIncome !== 0 ? (qianChuanAmount / untaxedIncome) * 100 : 0;
-  const brokerage = item.brokerage || 0; // 佣金
+  // 佣金 = 站内(totalA1) + 站外(totalContractAmount)；接口已给 brokerage 则直接使用
+  const brokerage =
+    (item.brokerage ?? (item.totalA1 || 0) + (item.totalContractAmount || 0)) ||
+    0;
   // 渠道净毛利=毛利-（物流成本+仓储损耗包材+平台费用+佣金+千川投流）
   const channelNetGrossProfit =
     grossProfit -
@@ -317,21 +316,28 @@ const buildTableData = (data: any[]) => {
   tableData.value = fullTableData;
 };
 
-// 加载数据（请求API）
+// 加载数据（请求API，传 configName）
 const loadData = async () => {
+  if (!formData.startDate || !formData.endDate) {
+    ElMessage.warning("请选择开始日期和结束日期");
+    return;
+  }
+  if (formData.startDate > formData.endDate) {
+    ElMessage.warning("开始日期不能晚于结束日期");
+    return;
+  }
+  if (!configName.value) {
+    ElMessage.warning("请先选择费用配置（configName）");
+    return;
+  }
   loading.value = true;
   try {
     // 先初始化参数
     const params: any = {
       startDate: formData.startDate,
-      endDate: formData.endDate
+      endDate: formData.endDate,
+      configName: configName.value
     };
-
-    // 处理达人ID列表
-    const ids: string[] = [...formData.selfOperatedInfluencerIds];
-    // 无论有没有ID，都加一个空值
-    ids.push("");
-    params.selfOperatedInfluencerIds = ids;
 
     // 同时请求两个接口
     const [res1, res2] = await Promise.all([
@@ -339,8 +345,7 @@ const loadData = async () => {
       postDyQianChuanSummary({
         dateStart: formData.startDate,
         dateEnd: formData.endDate,
-        divisor1: formData.qianChuanDivisor1,
-        divisor2: formData.qianChuanDivisor2
+        configName: configName.value
       })
     ]);
 
@@ -367,6 +372,12 @@ const loadData = async () => {
 onMounted(() => {
   loadData();
 });
+
+// 配置详情变化时，用新配置的比例重新计算表格
+const onConfigDetailChange = (detail: any) => {
+  activeConfig.value = detail;
+  recalculateData();
+};
 
 // 导出Excel
 const exportToExcel = async () => {
@@ -542,175 +553,39 @@ const getRowClassName = ({ row }: { row: any }) => {
 
     <!-- 查询条件 -->
     <el-card class="search-card" shadow="never">
-      <el-form :model="formData" label-width="120px">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="开始日期">
-              <el-date-picker
-                v-model="formData.startDate"
-                type="date"
-                placeholder="选择开始日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="结束日期">
-              <el-date-picker
-                v-model="formData.endDate"
-                type="date"
-                placeholder="选择结束日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="自营达人ID">
-              <div class="influencer-input-wrapper">
-                <div
-                  v-if="formData.selfOperatedInfluencerIds.length > 0"
-                  class="tag-list-scroll"
-                >
-                  <div class="tag-list">
-                    <el-tag
-                      v-for="(id, index) in formData.selfOperatedInfluencerIds"
-                      :key="id"
-                      closable
-                      @close="removeInfluencerId(index)"
-                    >
-                      {{ id }}
-                    </el-tag>
-                  </div>
-                </div>
-                <div class="input-row">
-                  <el-input
-                    v-model="influencerInputValue"
-                    placeholder="输入达人ID后按回车添加"
-                    @keydown="handleInfluencerInputKeydown"
-                    @blur="handleInfluencerInputConfirm"
-                  />
-                  <el-button
-                    v-if="formData.selfOperatedInfluencerIds.length > 0"
-                    type="danger"
-                    size="small"
-                    text
-                    style="white-space: nowrap"
-                    @click="clearAllInfluencerIds"
-                  >
-                    清除全部
-                  </el-button>
-                </div>
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- 计算比例 -->
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="未税收入比例">
-              <el-input-number
-                v-model="formData.untaxedRatio"
-                :min="0"
-                :precision="3"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="物流成本比例1">
-              <el-input-number
-                v-model="formData.logisticsRatio1"
-                :min="0"
-                :precision="4"
-                :step="0.001"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="物流成本比例2">
-              <el-input-number
-                v-model="formData.logisticsRatio2"
-                :min="0"
-                :precision="3"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="仓储损耗比例">
-              <el-input-number
-                v-model="formData.warehouseRatio"
-                :min="0"
-                :precision="5"
-                :step="0.0001"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="平台费用比例1">
-              <el-input-number
-                v-model="formData.platformRatio1"
-                :min="0"
-                :precision="5"
-                :step="0.0001"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="平台费用比例2">
-              <el-input-number
-                v-model="formData.platformRatio2"
-                :min="0"
-                :precision="3"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="千川投流除数1">
-              <el-input-number
-                v-model="formData.qianChuanDivisor1"
-                :min="0"
-                :precision="3"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="千川投流除数2">
-              <el-input-number
-                v-model="formData.qianChuanDivisor2"
-                :min="0"
-                :precision="3"
-                :step="0.01"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item>
-              <el-button type="primary" :loading="loading" @click="loadData">
-                处理
-              </el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form
+        :model="formData"
+        :inline="true"
+        class="peidi-douyin-report-search"
+      >
+        <el-form-item label="开始日期" required>
+          <el-date-picker
+            v-model="formData.startDate"
+            type="date"
+            placeholder="选择开始日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="结束日期" required>
+          <el-date-picker
+            v-model="formData.endDate"
+            type="date"
+            placeholder="选择结束日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="费用配置">
+          <ConfigSelector
+            v-model="configName"
+            @detail-change="onConfigDetailChange"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="loading" @click="loadData">
+            <el-icon class="mr-[4px]"><Operation /></el-icon>
+            处理
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -882,6 +757,13 @@ const getRowClassName = ({ row }: { row: any }) => {
 
 .search-card {
   margin-bottom: 20px;
+}
+
+/* 固定日期选择器宽度（参考 petProfiles 搜索栏） */
+.peidi-douyin-report-search .el-date-editor {
+  --el-date-editor-width: 220px;
+
+  width: 220px;
 }
 
 .table-card {

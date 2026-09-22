@@ -225,6 +225,41 @@ export const postDyExpertContractDelete = (id: number) => {
   );
 };
 
+/** 保存/覆盖抖音周报费用配置（同名同月覆盖） */
+export const postDyWeeklyConfigSave = (data: any) => {
+  return http.request("post", commonUrlApi("/oms/dy-weekly-config/save"), {
+    data
+  });
+};
+
+/** 回显配置（按 月份+名称） */
+export const getDyWeeklyConfig = (params: {
+  configName?: string;
+  yearMonth?: string;
+  [property: string]: any;
+}) => {
+  return http.request("get", commonUrlApi("/oms/dy-weekly-config/get"), {
+    params
+  });
+};
+
+/** 回显配置（按名称取最新一套） */
+export const getDyWeeklyConfigByName = (params: {
+  configName?: string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/dy-weekly-config/get-by-name"),
+    { params }
+  );
+};
+
+/** 查询全部已保存配置（按月份倒序，供下拉/修改已有配置） */
+export const getDyWeeklyConfigList = () => {
+  return http.request("get", commonUrlApi("/oms/dy-weekly-config/list"), {});
+};
+
 /** 分页查询千川投流数据 */
 export const getDyQianChuanPage = (data: any) => {
   return http.request("post", commonUrlApi("/oms/dy/dy-qian-chuan/page"), {

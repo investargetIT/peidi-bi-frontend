@@ -4,6 +4,7 @@ import DouyinReport from "./components/douyinReport/index.vue";
 import InfluencerProfit from "./components/influencerProfit/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
 import QianChuan from "./components/qianChuan/index.vue";
+import WeeklyConfig from "./components/weeklyConfig/index.vue";
 // 旧模块暂时隐藏
 // import DailyPerformance from "./components/dailyPerformance/index.vue";
 // import ShortVideo from "./components/shortVideo/index.vue";
@@ -12,7 +13,13 @@ import QianChuan from "./components/qianChuan/index.vue";
 // import HeroiconsQuestionMarkCircle20Solid from "~icons/heroicons/question-mark-circle-20-solid";
 
 const STORAGE_KEY = "douyin-active-tab";
-const tabs = ["抖音周报", "利润表", "达人合同", "千川投流"] as const;
+const tabs = [
+  "抖音周报",
+  "利润表",
+  "达人合同",
+  "千川投流",
+  "费用配置"
+] as const;
 const activeTab = ref<string>(tabs[0]);
 
 // 初始化时从本地存储获取tab
@@ -43,17 +50,20 @@ onMounted(() => {
       type="border-card"
       class="peidi-el-tabs-modern-tabs"
     >
-      <el-tab-pane label="抖音周报" name="抖音周报" lazy>
-        <DouyinReport />
+      <el-tab-pane label="抖音周报" name="抖音周报">
+        <DouyinReport v-if="activeTab === '抖音周报'" />
       </el-tab-pane>
-      <el-tab-pane label="利润表" name="利润表" lazy>
-        <InfluencerProfit />
+      <el-tab-pane label="利润表" name="利润表">
+        <InfluencerProfit v-if="activeTab === '利润表'" />
       </el-tab-pane>
-      <el-tab-pane label="达人合同" name="达人合同" lazy>
-        <ExpertContract />
+      <el-tab-pane label="达人合同" name="达人合同">
+        <ExpertContract v-if="activeTab === '达人合同'" />
       </el-tab-pane>
-      <el-tab-pane label="千川投流" name="千川投流" lazy>
-        <QianChuan />
+      <el-tab-pane label="千川投流" name="千川投流">
+        <QianChuan v-if="activeTab === '千川投流'" />
+      </el-tab-pane>
+      <el-tab-pane label="费用配置" name="费用配置">
+        <WeeklyConfig v-if="activeTab === '费用配置'" />
       </el-tab-pane>
       <!-- 旧模块暂时隐藏
       <el-tab-pane lazy>

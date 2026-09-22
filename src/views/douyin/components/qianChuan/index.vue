@@ -464,109 +464,88 @@ onMounted(() => {
   <div class="qian-chuan">
     <!-- 搜索卡片 -->
     <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" label-width="100px">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="账号ID">
-              <el-input
-                v-model="searchForm.accountId"
-                placeholder="请输入账号ID（精确查询）"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="账号名称">
-              <el-input
-                v-model="searchForm.accountName"
-                placeholder="请输入账号名称（模糊查询）"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="账号归属">
-              <el-select
-                v-model="searchForm.accountOwnership"
-                placeholder="请选择账号归属"
-                clearable
-                style="width: 100%"
-              >
-                <el-option label="短视频" :value="1" />
-                <el-option label="商品卡" :value="2" />
-                <el-option label="直播" :value="3" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="业务类型">
-              <el-select
-                v-model="searchForm.businessType"
-                placeholder="请选择业务类型"
-                clearable
-                style="width: 100%"
-              >
-                <el-option label="达播" :value="1" />
-                <el-option label="自营" :value="2" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="数据来源">
-              <el-select
-                v-model="searchForm.fromType"
-                placeholder="请选择数据来源"
-                clearable
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="item in fromTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="开始日期" required>
-              <el-date-picker
-                v-model="searchForm.dateStart"
-                type="date"
-                placeholder="选择开始日期"
-                value-format="YYYY-MM-DD"
-                :clearable="false"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="结束日期" required>
-              <el-date-picker
-                v-model="searchForm.dateEnd"
-                type="date"
-                placeholder="选择结束日期"
-                value-format="YYYY-MM-DD"
-                :clearable="false"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item>
-              <el-button type="primary" @click="handleSearch">
-                <el-icon><Search /></el-icon>
-                搜索
-              </el-button>
-              <el-button @click="handleReset">
-                <el-icon><RefreshLeft /></el-icon>
-                重置
-              </el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form
+        :model="searchForm"
+        :inline="true"
+        class="peidi-qian-chuan-search"
+      >
+        <el-form-item label="账号ID">
+          <el-input
+            v-model="searchForm.accountId"
+            placeholder="请输入账号ID（精确查询）"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="账号名称">
+          <el-input
+            v-model="searchForm.accountName"
+            placeholder="请输入账号名称（模糊查询）"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="账号归属">
+          <el-select
+            v-model="searchForm.accountOwnership"
+            placeholder="请选择账号归属"
+            clearable
+          >
+            <el-option label="短视频" :value="1" />
+            <el-option label="商品卡" :value="2" />
+            <el-option label="直播" :value="3" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="业务类型">
+          <el-select
+            v-model="searchForm.businessType"
+            placeholder="请选择业务类型"
+            clearable
+          >
+            <el-option label="达播" :value="1" />
+            <el-option label="自营" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数据来源">
+          <el-select
+            v-model="searchForm.fromType"
+            placeholder="请选择数据来源"
+            clearable
+          >
+            <el-option
+              v-for="item in fromTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="开始日期" required>
+          <el-date-picker
+            v-model="searchForm.dateStart"
+            type="date"
+            placeholder="选择开始日期"
+            value-format="YYYY-MM-DD"
+            :clearable="false"
+          />
+        </el-form-item>
+        <el-form-item label="结束日期" required>
+          <el-date-picker
+            v-model="searchForm.dateEnd"
+            type="date"
+            placeholder="选择结束日期"
+            value-format="YYYY-MM-DD"
+            :clearable="false"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            <el-icon><RefreshLeft /></el-icon>
+            重置
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -873,6 +852,21 @@ onMounted(() => {
 
 .search-card {
   margin-bottom: 20px;
+}
+
+/* 固定搜索栏控件宽度（参考 petProfiles 搜索栏） */
+.peidi-qian-chuan-search .el-input {
+  --el-input-width: 200px;
+}
+
+.peidi-qian-chuan-search .el-select {
+  --el-select-width: 160px;
+}
+
+.peidi-qian-chuan-search .el-date-editor {
+  --el-date-editor-width: 160px;
+
+  width: 160px;
 }
 
 .table-card {

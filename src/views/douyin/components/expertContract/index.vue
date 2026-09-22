@@ -355,76 +355,62 @@ onMounted(() => {
   <div class="expert-contract">
     <!-- 搜索卡片 -->
     <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" label-width="100px">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="达人昵称">
-              <el-input
-                v-model="searchForm.expertNickname"
-                placeholder="请输入达人昵称"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="抖音号">
-              <el-input
-                v-model="searchForm.douyinId"
-                placeholder="请输入抖音号"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="签约单位">
-              <el-input
-                v-model="searchForm.signingUnit"
-                placeholder="请输入签约单位"
-                clearable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="合同起始时间">
-              <el-date-picker
-                v-model="contractStartDateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="合同结束时间">
-              <el-date-picker
-                v-model="contractEndDateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="18">
-            <el-form-item>
-              <el-button type="primary" @click="handleSearch">
-                <el-icon><Search /></el-icon>
-                搜索
-              </el-button>
-              <el-button @click="handleReset">
-                <el-icon><RefreshLeft /></el-icon>
-                重置
-              </el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form
+        :model="searchForm"
+        :inline="true"
+        class="peidi-expert-contract-search"
+      >
+        <el-form-item label="达人昵称">
+          <el-input
+            v-model="searchForm.expertNickname"
+            placeholder="请输入达人昵称"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="抖音号">
+          <el-input
+            v-model="searchForm.douyinId"
+            placeholder="请输入抖音号"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="签约单位">
+          <el-input
+            v-model="searchForm.signingUnit"
+            placeholder="请输入签约单位"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="合同起始时间">
+          <el-date-picker
+            v-model="contractStartDateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="合同结束时间">
+          <el-date-picker
+            v-model="contractEndDateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            <el-icon><RefreshLeft /></el-icon>
+            重置
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -738,6 +724,17 @@ onMounted(() => {
 
 .search-card {
   margin-bottom: 20px;
+}
+
+/* 固定搜索栏控件宽度（参考 petProfiles 搜索栏） */
+.peidi-expert-contract-search .el-input {
+  --el-input-width: 200px;
+}
+
+.peidi-expert-contract-search .el-date-editor--daterange {
+  --el-date-editor-width: 340px;
+
+  width: 340px;
 }
 
 .table-card {

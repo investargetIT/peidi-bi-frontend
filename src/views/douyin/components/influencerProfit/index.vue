@@ -6,40 +6,21 @@ import dayjs from "dayjs";
 import { Download, Search } from "@element-plus/icons-vue";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import ConfigSelector from "../configSelector/index.vue";
 
 // 默认日期：上个月月初到月末
 const lastMonth = dayjs().subtract(1, "month");
 const defaultStartDate = lastMonth.startOf("month").format("YYYY-MM-DD");
 const defaultEndDate = lastMonth.endOf("month").format("YYYY-MM-DD");
 
-// 查询条件
+// 查询条件（只有日期范围，自营名单已下沉到配置，只传 configName）
 const formData = reactive({
   startDate: defaultStartDate,
-  endDate: defaultEndDate,
-  selfOperatedInfluencerIds: ["1143971292653752", "2159871682941675"]
+  endDate: defaultEndDate
 });
 
-// 达人ID输入相关
-const influencerInputValue = ref("");
-const handleInfluencerInputConfirm = () => {
-  const value = influencerInputValue.value.trim();
-  if (value && !formData.selfOperatedInfluencerIds.includes(value)) {
-    formData.selfOperatedInfluencerIds.push(value);
-  }
-  influencerInputValue.value = "";
-};
-const handleInfluencerInputKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Enter" || e.key === ",") {
-    e.preventDefault();
-    handleInfluencerInputConfirm();
-  }
-};
-const removeInfluencerId = (index: number) => {
-  formData.selfOperatedInfluencerIds.splice(index, 1);
-};
-const clearAllInfluencerIds = () => {
-  formData.selfOperatedInfluencerIds = [];
-};
+// 配置名称（全局共享，存 localStorage）
+const configName = ref(localStorage.getItem("douyin-active-config") || "");
 
 // 表格数据
 const tableData = ref<any[]>([]);
@@ -105,6 +86,10 @@ const loadData = async () => {
     ElMessage.warning("开始日期不能晚于结束日期");
     return;
   }
+  if (!configName.value) {
+    ElMessage.warning("请先选择费用配置（configName）");
+    return;
+  }
   loading.value = true;
   try {
     const params: any = {
@@ -112,10 +97,9 @@ const loadData = async () => {
       endDate: formData.endDate,
       // 全量查询：只取第1页并传足够大的每页条数
       pageNo: 1,
-      pageSize: 9999999
+      pageSize: 9999999,
+      configName: configName.value
     };
-    // 需要限定达人ID时传入，否则传空数组（无达人ID的记录归为"无ID"）
-    params.selfOperatedInfluencerIds = formData.selfOperatedInfluencerIds;
     const res: any = await getInfluencerProfit(params);
     if (res.success) {
       // 全量查询，前端分页
@@ -220,84 +204,36 @@ const exportToExcel = async () => {
   <div class="influencer-profit">
     <!-- 查询条件 -->
     <el-card class="search-card" shadow="never">
-      <el-form label-width="120px">
-        <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="开始日期">
-              <el-date-picker
-                v-model="formData.startDate"
-                type="date"
-                placeholder="选择开始日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="结束日期">
-              <el-date-picker
-                v-model="formData.endDate"
-                type="date"
-                placeholder="选择结束日期"
-                value-format="YYYY-MM-DD"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="达人ID">
-              <div class="influencer-input-wrapper">
-                <div
-                  v-if="formData.selfOperatedInfluencerIds.length > 0"
-                  class="tag-list-scroll"
-                >
-                  <div class="tag-list">
-                    <el-tag
-                      v-for="(id, index) in formData.selfOperatedInfluencerIds"
-                      :key="id"
-                      closable
-                      @close="removeInfluencerId(index)"
-                    >
-                      {{ id }}
-                    </el-tag>
-                  </div>
-                </div>
-                <div class="input-row">
-                  <el-input
-                    v-model="influencerInputValue"
-                    placeholder="输入达人ID后按回车添加"
-                    @keydown="handleInfluencerInputKeydown"
-                    @blur="handleInfluencerInputConfirm"
-                  />
-                  <el-button
-                    v-if="formData.selfOperatedInfluencerIds.length > 0"
-                    type="danger"
-                    size="small"
-                    text
-                    style="white-space: nowrap"
-                    @click="clearAllInfluencerIds"
-                  >
-                    清除全部
-                  </el-button>
-                </div>
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item>
-              <el-button
-                type="primary"
-                :loading="loading"
-                @click="handleSearch"
-              >
-                <el-icon><Search /></el-icon>
-                查询
-              </el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
+      <el-form
+        :model="formData"
+        :inline="true"
+        class="peidi-influencer-profit-search"
+      >
+        <el-form-item label="开始日期" required>
+          <el-date-picker
+            v-model="formData.startDate"
+            type="date"
+            placeholder="选择开始日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="结束日期" required>
+          <el-date-picker
+            v-model="formData.endDate"
+            type="date"
+            placeholder="选择结束日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+        <el-form-item label="费用配置">
+          <ConfigSelector v-model="configName" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="loading" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -397,6 +333,13 @@ const exportToExcel = async () => {
 
 .search-card {
   margin-bottom: 20px;
+}
+
+/* 固定日期选择器宽度（参考 petProfiles 搜索栏） */
+.peidi-influencer-profit-search .el-date-editor {
+  --el-date-editor-width: 220px;
+
+  width: 220px;
 }
 
 .table-card {
