@@ -343,7 +343,7 @@ const handleBatchSave = async () => {
       weekNumber: batchSettings.weekNumber
     }));
 
-    const res = await postDyQianChuanBatch(submitData);
+    const res: any = await postDyQianChuanBatch(submitData);
     if (res.success) {
       ElMessage.success("批量新增成功");
       batchDialogVisible.value = false;

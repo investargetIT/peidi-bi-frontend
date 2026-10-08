@@ -17,14 +17,21 @@ const lastMonth = dayjs().subtract(1, "month");
 const defaultStartDate = lastMonth.startOf("month").format("YYYY-MM-DD");
 const defaultEndDate = lastMonth.endOf("month").format("YYYY-MM-DD");
 
-// 表单数据（只剩日期范围，比例/自营名单/除数已下沉到配置，只传 configName）
+// 表单数据（只剩日期范围，比例/自营名单/除数已下沉到配置，只传 configId）
 const formData = reactive({
   startDate: defaultStartDate,
   endDate: defaultEndDate
 });
 
-// 配置名称（全局共享，存 localStorage）
-const configName = ref(localStorage.getItem("douyin-active-config") || "");
+// 配置 id（全局共享，存 localStorage；非数字视为未选）
+const configId = ref<number | string | null>(
+  (() => {
+    const raw = localStorage.getItem("douyin-active-config");
+    if (!raw) return null;
+    const num = Number(raw);
+    return Number.isNaN(num) ? null : num;
+  })()
+);
 // 当前选中配置详情（从配置接口回显，用于前端计算比例，含默认兜底）
 const activeConfig = ref<any>(null);
 
@@ -316,7 +323,16 @@ const buildTableData = (data: any[]) => {
   tableData.value = fullTableData;
 };
 
-// 加载数据（请求API，传 configName）
+// 兼容多种返回结构，提取行数据（直接数组 / { data: [] } / { success, data: { records: [] } }）
+const extractRows = (res: any): any[] => {
+  if (!res) return [];
+  const body = res.data !== undefined ? res.data : res;
+  if (Array.isArray(body)) return body;
+  if (body && Array.isArray(body.records)) return body.records;
+  return [];
+};
+
+// 加载数据（请求API，传 configId）
 const loadData = async () => {
   if (!formData.startDate || !formData.endDate) {
     ElMessage.warning("请选择开始日期和结束日期");
@@ -326,8 +342,12 @@ const loadData = async () => {
     ElMessage.warning("开始日期不能晚于结束日期");
     return;
   }
-  if (!configName.value) {
-    ElMessage.warning("请先选择费用配置（configName）");
+  if (
+    configId.value === null ||
+    configId.value === undefined ||
+    configId.value === ""
+  ) {
+    ElMessage.warning("请先选择费用配置");
     return;
   }
   loading.value = true;
@@ -336,33 +356,29 @@ const loadData = async () => {
     const params: any = {
       startDate: formData.startDate,
       endDate: formData.endDate,
-      configName: configName.value
+      configId: configId.value
     };
 
     // 同时请求两个接口
-    const [res1, res2] = await Promise.all([
+    const [res1, res2] = (await Promise.all([
       getWdtOrderDetailSalesSummary(params),
       postDyQianChuanSummary({
         dateStart: formData.startDate,
         dateEnd: formData.endDate,
-        configName: configName.value
+        configId: configId.value
       })
-    ]);
+    ])) as [any, any];
 
-    if (res1.success) {
-      // 保存原始数据（即使是空数组）
-      rawData.value = res1.data || [];
-    }
-
-    if (res2.success) {
-      // 保存千川投流汇总数据
-      qianChuanSummaryData.value = res2.data || [];
-    }
+    // 兼容多种返回结构，提取行数据（成功与否都以能否取到数组为准）
+    rawData.value = extractRows(res1);
+    qianChuanSummaryData.value = extractRows(res2);
 
     // 计算并显示数据
     recalculateData();
-  } catch (error) {
+  } catch (error: any) {
     console.error("加载数据失败:", error);
+    // 后端业务异常（缺失参数 / 配置已删除等）message 直接透出
+    ElMessage.error(error?.message || "加载数据失败");
   } finally {
     loading.value = false;
   }
@@ -576,7 +592,7 @@ const getRowClassName = ({ row }: { row: any }) => {
         </el-form-item>
         <el-form-item label="费用配置">
           <ConfigSelector
-            v-model="configName"
+            v-model="configId"
             @detail-change="onConfigDetailChange"
           />
         </el-form-item>

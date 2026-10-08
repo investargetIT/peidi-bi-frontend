@@ -13,14 +13,21 @@ const lastMonth = dayjs().subtract(1, "month");
 const defaultStartDate = lastMonth.startOf("month").format("YYYY-MM-DD");
 const defaultEndDate = lastMonth.endOf("month").format("YYYY-MM-DD");
 
-// 查询条件（只有日期范围，自营名单已下沉到配置，只传 configName）
+// 查询条件（只有日期范围，自营名单已下沉到配置，只传 configId）
 const formData = reactive({
   startDate: defaultStartDate,
   endDate: defaultEndDate
 });
 
-// 配置名称（全局共享，存 localStorage）
-const configName = ref(localStorage.getItem("douyin-active-config") || "");
+// 配置 id（全局共享，存 localStorage；非数字视为未选）
+const configId = ref<number | string | null>(
+  (() => {
+    const raw = localStorage.getItem("douyin-active-config");
+    if (!raw) return null;
+    const num = Number(raw);
+    return Number.isNaN(num) ? null : num;
+  })()
+);
 
 // 表格数据
 const tableData = ref<any[]>([]);
@@ -76,6 +83,15 @@ const handleSearch = () => {
   loadData();
 };
 
+// 兼容多种返回结构，提取行数据（直接数组 / { data: [] } / { success, data: { records: [] } }）
+const extractRows = (res: any): any[] => {
+  if (!res) return [];
+  const body = res.data !== undefined ? res.data : res;
+  if (Array.isArray(body)) return body.slice();
+  if (body && Array.isArray(body.records)) return body.records.slice();
+  return [];
+};
+
 // 加载数据
 const loadData = async () => {
   if (!formData.startDate || !formData.endDate) {
@@ -86,8 +102,12 @@ const loadData = async () => {
     ElMessage.warning("开始日期不能晚于结束日期");
     return;
   }
-  if (!configName.value) {
-    ElMessage.warning("请先选择费用配置（configName）");
+  if (
+    configId.value === null ||
+    configId.value === undefined ||
+    configId.value === ""
+  ) {
+    ElMessage.warning("请先选择费用配置");
     return;
   }
   loading.value = true;
@@ -98,30 +118,28 @@ const loadData = async () => {
       // 全量查询：只取第1页并传足够大的每页条数
       pageNo: 1,
       pageSize: 9999999,
-      configName: configName.value
+      configId: configId.value
     };
     const res: any = await getInfluencerProfit(params);
-    if (res.success) {
-      // 全量查询，前端分页
-      const page = res.data || {};
-      // 按日期升序、达人ID升序排列
-      const data = ((page.records as any[]) || []).slice();
-      data.sort((a: any, b: any) => {
-        const dateCmp = (a.profitDate || "").localeCompare(b.profitDate || "");
-        if (dateCmp !== 0) return dateCmp;
-        return (a.influencerId || "").localeCompare(b.influencerId || "");
-      });
-      tableData.value = data;
-      total.value = data.length;
-      currentPage.value = 1;
-      totalProfit.value = data.reduce(
-        (sum: number, item: any) => sum + (item.taxIncludedAmount || 0),
-        0
-      );
-    }
-  } catch (error) {
+    // 兼容多种返回结构：直接数组 / { data: [] } / { data: { records: [] } }
+    const data = extractRows(res);
+    // 按日期升序、达人ID升序排列
+    data.sort((a: any, b: any) => {
+      const dateCmp = (a.profitDate || "").localeCompare(b.profitDate || "");
+      if (dateCmp !== 0) return dateCmp;
+      return (a.influencerId || "").localeCompare(b.influencerId || "");
+    });
+    tableData.value = data;
+    total.value = data.length;
+    currentPage.value = 1;
+    totalProfit.value = data.reduce(
+      (sum: number, item: any) => sum + (item.taxIncludedAmount || 0),
+      0
+    );
+  } catch (error: any) {
     console.error("加载数据失败:", error);
-    ElMessage.error("加载数据失败");
+    // 后端业务异常（缺失参数 / 配置已删除等）message 直接透出
+    ElMessage.error(error?.message || "加载数据失败");
   } finally {
     loading.value = false;
   }
@@ -226,7 +244,7 @@ const exportToExcel = async () => {
           />
         </el-form-item>
         <el-form-item label="费用配置">
-          <ConfigSelector v-model="configName" />
+          <ConfigSelector v-model="configId" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleSearch">

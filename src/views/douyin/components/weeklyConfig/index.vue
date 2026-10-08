@@ -61,6 +61,7 @@ const editConfig = (row: ConfigListItem) => {
     cfg && cfg.configName !== undefined
       ? cfg
       : { ...row.config, configName: row.configName };
+  formData.id = row.id ?? null;
   formData.configName = row.configName || "";
   formData.yearMonth =
     detail.yearMonth || (row.date && row.date.slice(0, 7)) || "";
@@ -99,6 +100,7 @@ const viewIds = (row: ConfigListItem) => {
 
 // 配置表单（默认值工厂，新增时重置用）
 const defaultForm = () => ({
+  id: null as number | null,
   configName: "",
   yearMonth: "",
   selfOperatedInfluencerIds: [
@@ -180,6 +182,10 @@ const saveConfig = async () => {
       qcDivisor1: formData.qcDivisor1,
       qcDivisor2: formData.qcDivisor2
     };
+    // 有 id = 更新该条；无 id = 新增
+    if (formData.id !== null && formData.id !== undefined) {
+      payload.id = formData.id;
+    }
     const res: any = await postDyWeeklyConfigSave(payload);
     if (res === true || (res && res.success !== false)) {
       ElMessage.success("配置保存成功");
@@ -188,9 +194,10 @@ const saveConfig = async () => {
     } else {
       ElMessage.error("保存失败");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("保存配置失败:", error);
-    ElMessage.error("保存配置失败");
+    // 后端业务异常（如「该月份已有同名配置」）message 直接透出
+    ElMessage.error(error?.message || "保存配置失败");
   } finally {
     saving.value = false;
   }
@@ -205,7 +212,7 @@ const saveConfig = async () => {
           <div class="flex items-center gap-[6px]">
             <span>已保存配置（按月份倒序）</span>
             <el-tooltip
-              content="配置供抖音周报/利润表/千川通过 configName 选用计算"
+              content="配置供抖音周报/利润表/千川通过配置 id 选用计算"
               placement="top"
             >
               <el-icon color="#909399"><QuestionFilled /></el-icon>

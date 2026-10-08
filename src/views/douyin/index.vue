@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from "vue";
 import DouyinReport from "./components/douyinReport/index.vue";
 import InfluencerProfit from "./components/influencerProfit/index.vue";
+import ProductProfit from "./components/productProfit/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
 import QianChuan from "./components/qianChuan/index.vue";
 import WeeklyConfig from "./components/weeklyConfig/index.vue";
@@ -21,6 +22,16 @@ const tabs = [
   "费用配置"
 ] as const;
 const activeTab = ref<string>(tabs[0]);
+
+// 利润表内部视图：达人 / 商品
+const PROFIT_VIEW_KEY = "douyin-profit-view";
+const profitView = ref<"influencer" | "product">(
+  (localStorage.getItem(PROFIT_VIEW_KEY) as "influencer" | "product") ||
+    "influencer"
+);
+watch(profitView, val => {
+  localStorage.setItem(PROFIT_VIEW_KEY, val);
+});
 
 // 初始化时从本地存储获取tab
 const initFromStorage = () => {
@@ -54,7 +65,18 @@ onMounted(() => {
         <DouyinReport v-if="activeTab === '抖音周报'" />
       </el-tab-pane>
       <el-tab-pane label="利润表" name="利润表">
-        <InfluencerProfit v-if="activeTab === '利润表'" />
+        <div v-if="activeTab === '利润表'">
+          <div class="profit-view-switch">
+            <el-radio-group v-model="profitView">
+              <el-radio-button label="influencer"
+                >利润表（达人）</el-radio-button
+              >
+              <el-radio-button label="product">利润表（商品）</el-radio-button>
+            </el-radio-group>
+          </div>
+          <InfluencerProfit v-if="profitView === 'influencer'" />
+          <ProductProfit v-else />
+        </div>
       </el-tab-pane>
       <el-tab-pane label="达人合同" name="达人合同">
         <ExpertContract v-if="activeTab === '达人合同'" />
@@ -108,3 +130,9 @@ onMounted(() => {
     </el-tabs>
   </div>
 </template>
+
+<style scoped>
+.profit-view-switch {
+  padding: 20px 20px 0;
+}
+</style>

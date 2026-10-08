@@ -85,6 +85,7 @@ export const postBiDouyinVideoTypeUpdateType = (data: {
 
 /** 查询销售汇总（按流量类型和业务类型分组） */
 export const getWdtOrderDetailSalesSummary = (params: {
+  configId?: number | string;
   endDate: string;
   selfOperatedInfluencerIds?: string[];
   startDate: string;
@@ -104,6 +105,7 @@ export const getWdtOrderDetailSalesSummary = (params: {
 
 /** 利润表（达人）—— 按 日期×达人ID 分组，对齐人工表『利润表（达人）』sheet */
 export interface InfluencerProfitRequest {
+  configId?: number | string;
   endDate: string;
   pageNo?: number;
   pageSize?: number;
@@ -180,6 +182,71 @@ export const getInfluencerProfit = (params: InfluencerProfitRequest) => {
   );
 };
 
+/** 利润表（商品）单行，按 日期×商品ID 分组 */
+export interface DyProductProfitVo {
+  /** 营业税金及附加 */
+  businessTaxSurcharge?: number;
+  /** 渠道净毛利 */
+  channelNetProfit?: number;
+  /** 毛利 */
+  grossProfit?: number;
+  /** 毛利率 */
+  grossMargin?: number;
+  /** 站内佣金 */
+  innerCommission?: number;
+  /** 物流成本 */
+  logisticsCost?: number;
+  /** 净毛利率（含税/未税为 0 时为 null） */
+  netMargin?: number | null;
+  /** 站外佣金 */
+  outerCommission?: number;
+  /** 平台费用 */
+  platformFee?: number;
+  /** 订单提交日期 */
+  profitDate?: string;
+  /** 抖音商品ID（无商品ID归"无商品ID"） */
+  productId?: string;
+  /** 商品名 */
+  productName?: string;
+  /** 千川推直播 */
+  qcLive?: number;
+  /** 千川推商品 */
+  qcProduct?: number;
+  /** 千川推商品（无ID） */
+  qcProductNoId?: number;
+  /** 未税收入 */
+  taxExcludedAmount?: number;
+  /** 含税收入 */
+  taxIncludedAmount?: number;
+  /** 财务总成本 */
+  totalFinancialCost?: number;
+  /** 仓储损耗包材 */
+  warehouseCost?: number;
+  [property: string]: any;
+}
+
+/**
+ * 利润表（商品）—— 返回全量数组（非分页对象），前端自行分页/排序；
+ * 排序 profitDate ASC, productId ASC；服务端按 (startDate, endDate, configId) 缓存 5 分钟。
+ */
+export const getProductProfit = (params: {
+  configId: number | string;
+  endDate: string;
+  startDate: string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/wdt/order-detail/product-profit"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 5
+    }
+  );
+};
+
 /** 分页查询抖音达人合同（按结算达人UID分组） */
 export const getDyExpertContractPage = (data: {
   contractEndTimeEnd?: string;
@@ -225,17 +292,16 @@ export const postDyExpertContractDelete = (id: number) => {
   );
 };
 
-/** 保存/覆盖抖音周报费用配置（同名同月覆盖） */
+/** 保存抖音周报费用配置（带 id=更新该条；无 id=新增，同月同名会拒绝） */
 export const postDyWeeklyConfigSave = (data: any) => {
   return http.request("post", commonUrlApi("/oms/dy-weekly-config/save"), {
     data
   });
 };
 
-/** 回显配置（按 月份+名称） */
+/** 回显配置（按主键 id） */
 export const getDyWeeklyConfig = (params: {
-  configName?: string;
-  yearMonth?: string;
+  id: number | string;
   [property: string]: any;
 }) => {
   return http.request("get", commonUrlApi("/oms/dy-weekly-config/get"), {
@@ -243,7 +309,7 @@ export const getDyWeeklyConfig = (params: {
   });
 };
 
-/** 回显配置（按名称取最新一套） */
+/** @deprecated 已改为按 id 回显，请使用 getDyWeeklyConfig({ id }) */
 export const getDyWeeklyConfigByName = (params: {
   configName?: string;
   [property: string]: any;
@@ -307,6 +373,7 @@ export interface DyQianChuanSummaryItem {
 
 /** 千川投流汇总查询 */
 export const postDyQianChuanSummary = (data: {
+  configId?: number | string;
   dateEnd?: string;
   dateStart?: string;
   divisor1?: number;

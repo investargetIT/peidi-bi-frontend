@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import { getDyWeeklyConfigByName, getDyWeeklyConfigList } from "@/api/douyin";
+import { getDyWeeklyConfig, getDyWeeklyConfigList } from "@/api/douyin";
 import { View } from "@element-plus/icons-vue";
 
 defineOptions({ name: "ConfigSelector" });
@@ -9,6 +9,7 @@ defineOptions({ name: "ConfigSelector" });
 const STORAGE_KEY = "douyin-active-config";
 
 interface ConfigDetail {
+  id?: number;
   configName?: string;
   yearMonth?: string;
   selfOperatedInfluencerIds?: string[];
@@ -24,17 +25,25 @@ interface ConfigDetail {
 }
 
 const props = defineProps<{
-  modelValue: string;
+  modelValue?: number | string | null;
 }>();
 const emit = defineEmits<{
-  (e: "update:modelValue", val: string): void;
-  (e: "change", val: string): void;
+  (e: "update:modelValue", val: number | string): void;
+  (e: "change", val: number | string): void;
   (e: "detail-change", detail: ConfigDetail | null): void;
 }>();
 
-// 配置名称输入值
-const inputValue = ref(
-  props.modelValue || localStorage.getItem(STORAGE_KEY) || ""
+// 从本地缓存读取已选配置 id（兼容旧版存的是 configName，非数字则忽略）
+const readStoredId = (): number | string | null => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  const num = Number(raw);
+  return Number.isNaN(num) ? null : num;
+};
+
+// 配置 id（全局共享，存 localStorage）
+const selectedId = ref<number | string | null>(
+  props.modelValue ?? readStoredId()
 );
 
 // 配置详情
@@ -67,36 +76,47 @@ const loadConfigList = async () => {
 watch(
   () => props.modelValue,
   val => {
-    if (val !== inputValue.value) {
-      inputValue.value = val;
-      if (val) loadDetail(val);
+    if (val !== selectedId.value) {
+      selectedId.value = val ?? null;
+      if (val !== undefined && val !== null && val !== "") loadDetail(val);
     }
   }
 );
 
 // 确认选择：派发更新、持久化并加载详情
-const handleConfirm = async (val?: string) => {
-  const name = (val ?? inputValue.value ?? "").trim();
-  if (!name) {
-    ElMessage.warning("请选择或输入配置名称");
+const handleConfirm = async (val?: number | string | null) => {
+  const id = val ?? selectedId.value;
+  if (id === undefined || id === null || id === "") {
+    // 清空选择（clearable）：静默清除，不弹出警告
+    handleClear();
     return;
   }
-  inputValue.value = name;
-  emit("update:modelValue", name);
-  emit("change", name);
-  localStorage.setItem(STORAGE_KEY, name);
-  await loadDetail(name);
+  selectedId.value = id;
+  emit("update:modelValue", id);
+  emit("change", id);
+  localStorage.setItem(STORAGE_KEY, String(id));
+  await loadDetail(id);
 };
 
-// 加载配置详情
-const loadDetail = async (name: string) => {
-  if (!name) {
+// 清除选择
+const handleClear = () => {
+  selectedId.value = null;
+  configDetail.value = null;
+  emit("update:modelValue", "");
+  emit("change", "");
+  emit("detail-change", null);
+  localStorage.removeItem(STORAGE_KEY);
+};
+
+// 加载配置详情（按 id）
+const loadDetail = async (id: number | string) => {
+  if (id === undefined || id === null || id === "") {
     configDetail.value = null;
     return;
   }
   loadingDetail.value = true;
   try {
-    const res: any = await getDyWeeklyConfigByName({ configName: name });
+    const res: any = await getDyWeeklyConfig({ id });
     // 兼容直接返回对象 / { data } / { success, data } 多种结构
     let detail = res;
     if (res && res.success && res.data !== undefined) detail = res.data;
@@ -104,6 +124,7 @@ const loadDetail = async (name: string) => {
     // 后端返回 { id, date, configName, config: {...} }，config 里的字段展开到顶层
     if (detail && typeof detail.config === "object" && detail.config !== null) {
       detail = {
+        id: detail.id,
         configName: detail.configName,
         date: detail.date,
         ...detail.config
@@ -125,11 +146,19 @@ const detailVisible = ref(false);
 
 // 查看配置详情：加载当前配置并弹出弹窗
 const handleViewDetail = async () => {
-  await handleConfirm();
+  if (
+    selectedId.value === undefined ||
+    selectedId.value === null ||
+    selectedId.value === ""
+  ) {
+    ElMessage.warning("请选择费用配置");
+    return;
+  }
+  await loadDetail(selectedId.value);
   detailVisible.value = true;
 };
 
-// 暴露给父组件：重新加载详情
+// 暴露给父组件：重新加载详情 / 获取当前详情
 defineExpose({
   loadDetail,
   getDetail: () => configDetail.value
@@ -138,10 +167,12 @@ defineExpose({
 // 挂载时加载已保存配置列表，若有本地缓存配置则自动回显详情
 onMounted(() => {
   loadConfigList();
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved && inputValue.value === saved) {
-    inputValue.value = saved;
-    loadDetail(saved);
+  if (
+    selectedId.value !== undefined &&
+    selectedId.value !== null &&
+    selectedId.value !== ""
+  ) {
+    loadDetail(selectedId.value);
   }
 });
 
@@ -163,24 +194,24 @@ const detailRows: { key: string; label: string }[] = [
   <div class="config-selector">
     <div class="flex items-center gap-[10px]">
       <el-select
-        v-model="inputValue"
+        v-model="selectedId"
         filterable
-        allow-create
+        clearable
         default-first-option
-        placeholder="选择或输入配置名称"
+        placeholder="选择费用配置"
         style="width: 320px"
-        @keydown.enter.prevent="handleConfirm()"
-        @change="handleConfirm()"
+        @change="handleConfirm"
+        @clear="handleClear"
       >
         <el-option
           v-for="opt in configOptions"
-          :key="`${opt.id ?? ''}-${opt.configName ?? ''}`"
+          :key="opt.id"
           :label="
             opt.configName
               ? `${opt.configName}${opt.date ? '（' + opt.date + '）' : ''}`
-              : opt.configName
+              : String(opt.id)
           "
-          :value="opt.configName"
+          :value="opt.id"
         />
       </el-select>
       <el-button
