@@ -46,26 +46,20 @@ const loadConfigList = async () => {
 const dialogVisible = ref(false);
 const formTitle = ref("新增配置");
 
-// 新增：重置为默认值并打开弹窗
-const openCreate = () => {
-  Object.assign(formData, defaultForm());
-  showAllIds.value = false;
-  formTitle.value = "新增配置";
-  dialogVisible.value = true;
+// 从列表项中取配置详情（兼容 config 展开结构）
+const resolveDetail = (row: ConfigListItem) => {
+  const cfg = row.config;
+  return cfg && cfg.configName !== undefined
+    ? cfg
+    : { ...row.config, configName: row.configName };
 };
 
-// 点击某条配置，填充到表单便于编辑并打开弹窗
-const editConfig = (row: ConfigListItem) => {
-  const cfg = row.config;
-  const detail =
-    cfg && cfg.configName !== undefined
-      ? cfg
-      : { ...row.config, configName: row.configName };
-  formData.id = row.id ?? null;
-  formData.configName = row.configName || "";
-  formData.yearMonth =
-    detail.yearMonth || (row.date && row.date.slice(0, 7)) || "";
-  formData.selfOperatedInfluencerIds = detail.selfOperatedInfluencerIds || [];
+// 用列表项的计算参数填充表单（自营达人ID + 各比例，不含 id/名称/月份）
+const fillParamsFromConfig = (row: ConfigListItem) => {
+  const detail = resolveDetail(row);
+  formData.selfOperatedInfluencerIds = detail.selfOperatedInfluencerIds
+    ? [...detail.selfOperatedInfluencerIds]
+    : [];
   if (detail.taxRate !== undefined) formData.taxRate = detail.taxRate;
   if (detail.logisticsRatio1 !== undefined)
     formData.logisticsRatio1 = detail.logisticsRatio1;
@@ -79,6 +73,27 @@ const editConfig = (row: ConfigListItem) => {
     formData.platformFeeRatio2 = detail.platformFeeRatio2;
   if (detail.qcDivisor1 !== undefined) formData.qcDivisor1 = detail.qcDivisor1;
   if (detail.qcDivisor2 !== undefined) formData.qcDivisor2 = detail.qcDivisor2;
+};
+
+// 新增：参数默认取列表第一条（最新配置，按月份倒序），名称/月份留空由用户填写
+const openCreate = () => {
+  Object.assign(formData, defaultForm());
+  const latest = configList.value[0];
+  if (latest) fillParamsFromConfig(latest);
+  showAllIds.value = false;
+  formTitle.value = "新增配置";
+  dialogVisible.value = true;
+};
+
+// 点击某条配置，填充到表单便于编辑并打开弹窗
+const editConfig = (row: ConfigListItem) => {
+  const detail = resolveDetail(row);
+  Object.assign(formData, defaultForm());
+  formData.id = row.id ?? null;
+  formData.configName = row.configName || "";
+  formData.yearMonth =
+    detail.yearMonth || (row.date && row.date.slice(0, 7)) || "";
+  fillParamsFromConfig(row);
   showAllIds.value = false;
   formTitle.value = "编辑配置";
   dialogVisible.value = true;
