@@ -247,6 +247,67 @@ export const getProductProfit = (params: {
   );
 };
 
+/** 利润表（店铺）单行，按 月×店铺名 分组（月报） */
+export interface DyShopProfitVo {
+  /** 营业税金及附加 */
+  businessTaxSurcharge?: number;
+  /** 渠道站内营销费用（已扣减短视频补贴） */
+  channelInternalMarketing?: number;
+  /** 渠道净利 */
+  channelNetProfit?: number;
+  /** 毛利 */
+  grossProfit?: number;
+  /** 毛利率（未税收入为 0 时为 null） */
+  grossMargin?: number | null;
+  /** 站内佣金 */
+  innerCommission?: number;
+  /** 物流成本 */
+  logisticsCost?: number;
+  /** 净利率（未税收入为 0 时为 null） */
+  netMargin?: number | null;
+  /** 渠道站外营销费用 */
+  outerCommission?: number;
+  /** 平台费用 */
+  platformFee?: number;
+  /** 月份 yyyy-MM */
+  profitMonth?: string;
+  /** 店铺名 */
+  shopName?: string;
+  /** 短视频补贴（仅爵宴专营店非 0，用于冲减站内营销费用） */
+  shortVideoSubsidy?: number;
+  /** 未税收入 */
+  taxExcludedAmount?: number;
+  /** 含税收入 */
+  taxIncludedAmount?: number;
+  /** 外部采购成本 */
+  totalFinancialCost?: number;
+  /** 仓储损耗包材 */
+  warehouseCost?: number;
+  [property: string]: any;
+}
+
+/**
+ * 利润表（店铺）—— 按 月×店铺名 分组，返回全量数组（非分页对象），前端自行分页/排序；
+ * 与利润表（达人）/（商品）同参数：startDate / endDate / configId。
+ */
+export const getShopProfit = (params: {
+  configId: number | string;
+  endDate: string;
+  startDate: string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/wdt/order-detail/shop-profit"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 5
+    }
+  );
+};
+
 /** 分页查询抖音达人合同（按结算达人UID分组） */
 export const getDyExpertContractPage = (data: {
   contractEndTimeEnd?: string;

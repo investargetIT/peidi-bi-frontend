@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import DouyinReport from "./components/douyinReport/index.vue";
 import InfluencerProfit from "./components/influencerProfit/index.vue";
 import ProductProfit from "./components/productProfit/index.vue";
+import ShopProfit from "./components/shopProfit/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
 import QianChuan from "./components/qianChuan/index.vue";
 import WeeklyConfig from "./components/weeklyConfig/index.vue";
@@ -23,11 +24,13 @@ const tabs = [
 ] as const;
 const activeTab = ref<string>(tabs[0]);
 
-// 利润表内部视图：达人 / 商品
+// 利润表内部视图：达人 / 商品 / 店铺
 const PROFIT_VIEW_KEY = "douyin-profit-view";
-const profitView = ref<"influencer" | "product">(
-  (localStorage.getItem(PROFIT_VIEW_KEY) as "influencer" | "product") ||
-    "influencer"
+const profitView = ref<"influencer" | "product" | "shop">(
+  (localStorage.getItem(PROFIT_VIEW_KEY) as
+    | "influencer"
+    | "product"
+    | "shop") || "influencer"
 );
 watch(profitView, val => {
   localStorage.setItem(PROFIT_VIEW_KEY, val);
@@ -72,10 +75,12 @@ onMounted(() => {
                 >利润表（达人）</el-radio-button
               >
               <el-radio-button label="product">利润表（商品）</el-radio-button>
+              <el-radio-button label="shop">利润表（店铺）</el-radio-button>
             </el-radio-group>
           </div>
           <InfluencerProfit v-if="profitView === 'influencer'" />
-          <ProductProfit v-else />
+          <ProductProfit v-else-if="profitView === 'product'" />
+          <ShopProfit v-else />
         </div>
       </el-tab-pane>
       <el-tab-pane label="达人合同" name="达人合同">
