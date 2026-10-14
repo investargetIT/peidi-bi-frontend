@@ -8,7 +8,8 @@ import {
   Search,
   RefreshLeft,
   CirclePlus,
-  Delete as DeleteIcon
+  Delete as DeleteIcon,
+  Download
 } from "@element-plus/icons-vue";
 import {
   getDyQianChuanPage,
@@ -16,6 +17,9 @@ import {
   postDyQianChuanUpdate,
   postDyQianChuanDelete
 } from "@/api/douyin";
+import dayjs from "dayjs";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 // 计算一年中的第几周
 const getWeekNumber = (dateStr: string): number => {
@@ -62,16 +66,38 @@ const setDefaultDateRange = () => {
   searchForm.dateEnd = lastDayStr;
 };
 
-// 表格数据
+// 表格数据（全量数据，前端分页）
 const tableData = ref<any[]>([]);
 const loading = ref(false);
 
+// 前端分页
+const currentPage = ref(1);
+const pageSize = ref(20);
+const total = ref(0);
+
+// 当前页展示数据（前端分页切片）
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return tableData.value.slice(start, start + pageSize.value);
+});
+
 // 计算当前页投放金额总和
 const totalDeliveryAmount = computed(() => {
-  return tableData.value.reduce((sum, row) => {
+  return pagedData.value.reduce((sum, row) => {
     return sum + (row.deliveryAmount || 0);
   }, 0);
 });
+
+// 页码变化（前端分页，无需重新加载数据）
+const handlePageChange = () => {
+  if (loading.value) return;
+};
+
+// 每页条数变化时回到第一页
+const handleSizeChange = () => {
+  if (loading.value) return;
+  currentPage.value = 1;
+};
 
 // 对话框相关
 const dialogVisible = ref(false);
@@ -189,6 +215,8 @@ const loadData = async () => {
         if (idCompare !== 0) return idCompare;
         return a.weekNumber - b.weekNumber;
       });
+      total.value = tableData.value.length;
+      currentPage.value = 1;
     }
   } catch (error) {
     console.error("加载数据失败:", error);
@@ -381,21 +409,19 @@ const handleDelete = async (row: any) => {
   }
 };
 
-// 计算行合并
+// 计算行合并（基于当前页数据）
 const spanMethod = ({ row, column, rowIndex }: any) => {
+  const rows = pagedData.value;
   if (column.property === "accountId") {
     // 找到当前账号ID的起始行和结束行
     let startRow = rowIndex;
     let endRow = rowIndex;
-    while (
-      startRow > 0 &&
-      tableData.value[startRow - 1].accountId === row.accountId
-    ) {
+    while (startRow > 0 && rows[startRow - 1].accountId === row.accountId) {
       startRow--;
     }
     while (
-      endRow < tableData.value.length - 1 &&
-      tableData.value[endRow + 1].accountId === row.accountId
+      endRow < rows.length - 1 &&
+      rows[endRow + 1].accountId === row.accountId
     ) {
       endRow++;
     }
@@ -419,15 +445,15 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
     let endRow = rowIndex;
     while (
       startRow > 0 &&
-      tableData.value[startRow - 1].accountId === row.accountId &&
-      tableData.value[startRow - 1].weekNumber === row.weekNumber
+      rows[startRow - 1].accountId === row.accountId &&
+      rows[startRow - 1].weekNumber === row.weekNumber
     ) {
       startRow--;
     }
     while (
-      endRow < tableData.value.length - 1 &&
-      tableData.value[endRow + 1].accountId === row.accountId &&
-      tableData.value[endRow + 1].weekNumber === row.weekNumber
+      endRow < rows.length - 1 &&
+      rows[endRow + 1].accountId === row.accountId &&
+      rows[endRow + 1].weekNumber === row.weekNumber
     ) {
       endRow++;
     }
@@ -450,6 +476,87 @@ const spanMethod = ({ row, column, rowIndex }: any) => {
     rowspan: 1,
     colspan: 1
   };
+};
+
+// 导出Excel（导出全量数据）
+const exportToExcel = async () => {
+  if (tableData.value.length === 0) return;
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("千川投流");
+
+  const headers = [
+    "账号ID",
+    "账号名称",
+    "周数",
+    "账号归属",
+    "业务类型",
+    "数据来源",
+    "投放日期",
+    "投放金额(元)",
+    "创建时间"
+  ];
+  const headerRow = worksheet.addRow(headers);
+  headerRow.eachCell(cell => {
+    cell.font = { bold: true, color: { argb: "FFFFFF" } };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "4472C4" }
+    };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+    cell.border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" }
+    };
+  });
+
+  tableData.value.forEach(row => {
+    const dataRow = worksheet.addRow([
+      row.accountId,
+      row.accountName,
+      row.weekNumber !== undefined && row.weekNumber !== null
+        ? "周" + row.weekNumber
+        : "",
+      row.accountOwnershipName,
+      row.businessTypeName,
+      row.fromTypeName,
+      row.date,
+      row.deliveryAmount !== undefined && row.deliveryAmount !== null
+        ? Number(row.deliveryAmount).toFixed(2)
+        : "",
+      row.createdAt
+    ]);
+    dataRow.eachCell(cell => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" }
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+  });
+
+  worksheet.columns = [
+    { width: 16 },
+    { width: 20 },
+    { width: 8 },
+    { width: 12 },
+    { width: 12 },
+    { width: 20 },
+    { width: 14 },
+    { width: 14 },
+    { width: 20 }
+  ];
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buffer]),
+    "千川投流_" + dayjs().format("YYYYMMDDHHmmss") + ".xlsx"
+  );
 };
 
 // 初始化
@@ -560,6 +667,15 @@ onMounted(() => {
           </span>
         </div>
         <div>
+          <el-button
+            type="primary"
+            :disabled="tableData.length === 0"
+            color="#217346"
+            @click="exportToExcel"
+          >
+            <el-icon><Download /></el-icon>
+            导出Excel
+          </el-button>
           <el-button type="primary" @click="handleBatchAdd">
             <el-icon><CirclePlus /></el-icon>
             批量新增
@@ -573,7 +689,7 @@ onMounted(() => {
 
       <el-table
         v-loading="loading"
-        :data="tableData"
+        :data="pagedData"
         :span-method="spanMethod"
         border
         style="width: 100%"
@@ -620,6 +736,21 @@ onMounted(() => {
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 前端分页 -->
+      <div class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[20, 50, 100, 200, 500]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :disabled="loading"
+          background
+          @current-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
     </el-card>
 
     <!-- 新增/编辑对话框 -->
