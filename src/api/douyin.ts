@@ -263,7 +263,7 @@ export interface DyShopProfitVo {
   innerCommission?: number;
   /** 物流成本 */
   logisticsCost?: number;
-  /** 净利率（未税收入为 0 时为 null） */
+  /** 净毛利率（未税收入为 0 时为 null） */
   netMargin?: number | null;
   /** 渠道站外营销费用 */
   outerCommission?: number;

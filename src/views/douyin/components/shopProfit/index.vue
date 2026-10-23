@@ -151,8 +151,8 @@ const exportToExcel = async () => {
     "月份",
     "店铺名",
     ...amountColumns.map(c => c.label),
-    "毛利率",
-    "净利率"
+    "净毛利率",
+    "毛利率"
   ];
   const headerRow = worksheet.addRow(headers);
   headerRow.eachCell(cell => {
@@ -179,11 +179,11 @@ const exportToExcel = async () => {
         const v = row[c.prop];
         return v !== undefined && v !== null ? Number(v).toFixed(2) : "";
       }),
-      row.grossMargin !== undefined && row.grossMargin !== null
-        ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
-        : "",
       row.netMargin !== undefined && row.netMargin !== null
         ? (Number(row.netMargin) * 100).toFixed(2) + "%"
+        : "",
+      row.grossMargin !== undefined && row.grossMargin !== null
+        ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
         : ""
     ]);
     dataRow.eachCell(cell => {
@@ -307,20 +307,20 @@ const exportToExcel = async () => {
             </template>
           </template>
         </el-table-column>
+        <el-table-column label="净毛利率" width="90">
+          <template #default="{ row }">
+            {{
+              row.netMargin !== undefined && row.netMargin !== null
+                ? (Number(row.netMargin) * 100).toFixed(2) + "%"
+                : ""
+            }}
+          </template>
+        </el-table-column>
         <el-table-column label="毛利率" width="90">
           <template #default="{ row }">
             {{
               row.grossMargin !== undefined && row.grossMargin !== null
                 ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
-                : ""
-            }}
-          </template>
-        </el-table-column>
-        <el-table-column label="净利率" width="90">
-          <template #default="{ row }">
-            {{
-              row.netMargin !== undefined && row.netMargin !== null
-                ? (Number(row.netMargin) * 100).toFixed(2) + "%"
                 : ""
             }}
           </template>
