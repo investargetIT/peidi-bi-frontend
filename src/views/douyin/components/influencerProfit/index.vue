@@ -55,6 +55,7 @@ const amountColumns = [
   { prop: "grossProfit", label: "毛利" },
   { prop: "qcLive", label: "千川推直播" },
   { prop: "qcProduct", label: "千川推商品" },
+  { prop: "qcProductNoId", label: "千川推商品(无ID)" },
   { prop: "businessTaxSurcharge", label: "营业税金及附加" },
   { prop: "logisticsCost", label: "物流成本" },
   { prop: "warehouseCost", label: "仓储损耗包材" },
