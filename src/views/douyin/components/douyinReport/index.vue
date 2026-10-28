@@ -12,16 +12,14 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import ConfigSelector from "../configSelector/index.vue";
 
-// 默认日期：最新一周（本周一 ~ 本周日）
+// 默认日期：上周（上周一 ~ 上周日）
 // dayjs 的 day()：0=周日、1=周一 ... 6=周六，daysFromMonday 为本日距本周一的天数
 const today = dayjs();
 const daysFromMonday = (today.day() + 6) % 7;
-const defaultStartDate = today
-  .subtract(daysFromMonday, "day")
-  .format("YYYY-MM-DD");
-const defaultEndDate = today
-  .add(6 - daysFromMonday, "day")
-  .format("YYYY-MM-DD");
+// 本周一
+const thisMonday = today.subtract(daysFromMonday, "day");
+const defaultStartDate = thisMonday.subtract(7, "day").format("YYYY-MM-DD");
+const defaultEndDate = thisMonday.subtract(1, "day").format("YYYY-MM-DD");
 
 // 表单数据（只剩日期范围，比例/自营名单/除数已下沉到配置，只传 configId）
 const formData = reactive({
