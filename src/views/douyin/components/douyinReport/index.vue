@@ -417,6 +417,7 @@ const exportToExcel = async () => {
     "未税收入",
     "财务总成本",
     "毛利",
+    "净毛利率",
     "毛利率",
     "物流成本",
     "仓储损耗包材",
@@ -424,8 +425,7 @@ const exportToExcel = async () => {
     "千川投流",
     "千川投流占比",
     "佣金",
-    "渠道净毛利",
-    "净毛利率"
+    "渠道净毛利"
   ];
   const headerRow = worksheet.addRow(headers);
 
@@ -462,6 +462,7 @@ const exportToExcel = async () => {
         ? Number(row.totalFinancialCost).toFixed(2)
         : "",
       row.grossProfit !== undefined ? Number(row.grossProfit).toFixed(2) : "",
+      row.netGrossProfitRate,
       row.grossProfitRate,
       row.logisticsCost !== undefined
         ? Number(row.logisticsCost).toFixed(2)
@@ -479,8 +480,7 @@ const exportToExcel = async () => {
       row.brokerage !== undefined ? Number(row.brokerage).toFixed(2) : "",
       row.channelNetGrossProfit !== undefined
         ? Number(row.channelNetGrossProfit).toFixed(2)
-        : "",
-      row.netGrossProfitRate
+        : ""
     ]);
 
     // 设置单元格样式
@@ -516,6 +516,7 @@ const exportToExcel = async () => {
     { width: 11 },
     { width: 11 },
     { width: 11 },
+    { width: 11 },
     { width: 9 },
     { width: 11 },
     { width: 12 },
@@ -523,8 +524,7 @@ const exportToExcel = async () => {
     { width: 11 },
     { width: 12 },
     { width: 11 },
-    { width: 13 },
-    { width: 11 }
+    { width: 13 }
   ];
 
   // 导出文件
@@ -671,6 +671,11 @@ const getRowClassName = ({ row }: { row: any }) => {
             {{ row.grossProfit?.toFixed(2) }}
           </template>
         </el-table-column>
+        <el-table-column label="净毛利率" width="110">
+          <template #default="{ row }">
+            {{ row.netGrossProfitRate }}
+          </template>
+        </el-table-column>
         <el-table-column label="毛利率" width="90">
           <template #default="{ row }">
             {{ row.grossProfitRate }}
@@ -717,11 +722,6 @@ const getRowClassName = ({ row }: { row: any }) => {
             >
               {{ row.channelNetGrossProfit?.toFixed(2) }}
             </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="净毛利率" width="110">
-          <template #default="{ row }">
-            {{ row.netGrossProfitRate }}
           </template>
         </el-table-column>
       </el-table>

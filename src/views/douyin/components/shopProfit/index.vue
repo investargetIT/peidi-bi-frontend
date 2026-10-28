@@ -48,11 +48,14 @@ const pagedData = computed(() => {
 const totalProfit = ref(0);
 
 // 金额字段定义（渲染顺序，参照接口文档「利润表（店铺）」字段）
-const amountColumns = [
+type AmountColumn = { prop: string; label: string; rate?: boolean };
+const amountColumns: AmountColumn[] = [
   { prop: "taxIncludedAmount", label: "含税收入" },
   { prop: "taxExcludedAmount", label: "未税收入" },
   { prop: "totalFinancialCost", label: "外部采购成本" },
   { prop: "grossProfit", label: "毛利" },
+  { prop: "netMargin", label: "净毛利率", rate: true },
+  { prop: "grossMargin", label: "毛利率", rate: true },
   { prop: "businessTaxSurcharge", label: "营业税金及附加" },
   { prop: "logisticsCost", label: "物流成本" },
   { prop: "warehouseCost", label: "仓储损耗包材" },
@@ -147,13 +150,7 @@ const exportToExcel = async () => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("利润表(店铺)");
 
-  const headers = [
-    "月份",
-    "店铺名",
-    ...amountColumns.map(c => c.label),
-    "净毛利率",
-    "毛利率"
-  ];
+  const headers = ["月份", "店铺名", ...amountColumns.map(c => c.label)];
   const headerRow = worksheet.addRow(headers);
   headerRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: "FFFFFF" } };
@@ -177,14 +174,11 @@ const exportToExcel = async () => {
       row.shopName,
       ...amountColumns.map(c => {
         const v = row[c.prop];
-        return v !== undefined && v !== null ? Number(v).toFixed(2) : "";
-      }),
-      row.netMargin !== undefined && row.netMargin !== null
-        ? (Number(row.netMargin) * 100).toFixed(2) + "%"
-        : "",
-      row.grossMargin !== undefined && row.grossMargin !== null
-        ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
-        : ""
+        if (v === undefined || v === null) return "";
+        return c.rate
+          ? (Number(v) * 100).toFixed(2) + "%"
+          : Number(v).toFixed(2);
+      })
     ]);
     dataRow.eachCell(cell => {
       cell.border = {
@@ -200,9 +194,7 @@ const exportToExcel = async () => {
   worksheet.columns = [
     { width: 12 },
     { width: 20 },
-    ...amountColumns.map(() => ({ width: 13 })),
-    { width: 10 },
-    { width: 10 }
+    ...amountColumns.map(c => ({ width: c.rate ? 10 : 13 }))
   ];
 
   const buffer = await workbook.xlsx.writeBuffer();
@@ -293,7 +285,7 @@ const exportToExcel = async () => {
           :key="col.prop"
           :prop="col.prop"
           :label="col.label"
-          width="130"
+          :width="col.rate ? 90 : 130"
         >
           <template #default="{ row }">
             <span
@@ -302,27 +294,16 @@ const exportToExcel = async () => {
             >
               {{ row[col.prop]?.toFixed(2) }}
             </span>
+            <template v-else-if="col.rate">
+              {{
+                row[col.prop] !== undefined && row[col.prop] !== null
+                  ? (Number(row[col.prop]) * 100).toFixed(2) + "%"
+                  : ""
+              }}
+            </template>
             <template v-else>
               {{ row[col.prop] !== undefined ? row[col.prop].toFixed(2) : "" }}
             </template>
-          </template>
-        </el-table-column>
-        <el-table-column label="净毛利率" width="90">
-          <template #default="{ row }">
-            {{
-              row.netMargin !== undefined && row.netMargin !== null
-                ? (Number(row.netMargin) * 100).toFixed(2) + "%"
-                : ""
-            }}
-          </template>
-        </el-table-column>
-        <el-table-column label="毛利率" width="90">
-          <template #default="{ row }">
-            {{
-              row.grossMargin !== undefined && row.grossMargin !== null
-                ? (Number(row.grossMargin) * 100).toFixed(2) + "%"
-                : ""
-            }}
           </template>
         </el-table-column>
       </el-table>
