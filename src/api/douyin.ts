@@ -126,6 +126,8 @@ export interface DyInfluencerProfitVo {
   grossProfit?: number;
   /** 达人ID（无达人ID归"无ID"） */
   influencerId?: string;
+  /** 达人名称 */
+  influencerName?: string;
   /** 站内佣金 */
   innerCommission?: number;
   /** 物流成本 = 含税*0.0474/1.06 */

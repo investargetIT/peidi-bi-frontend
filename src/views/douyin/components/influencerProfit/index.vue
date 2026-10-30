@@ -155,7 +155,12 @@ const exportToExcel = async () => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("利润表(达人)");
 
-  const headers = ["利润日期", "达人ID", ...amountColumns.map(c => c.label)];
+  const headers = [
+    "利润日期",
+    "达人ID",
+    "达人名称",
+    ...amountColumns.map(c => c.label)
+  ];
   const headerRow = worksheet.addRow(headers);
   headerRow.eachCell(cell => {
     cell.font = { bold: true, color: { argb: "FFFFFF" } };
@@ -177,6 +182,7 @@ const exportToExcel = async () => {
     const dataRow = worksheet.addRow([
       row.profitDate,
       row.influencerId,
+      row.influencerName ?? "",
       ...amountColumns.map(c => {
         const v = row[c.prop];
         if (v === undefined || v === null) return "";
@@ -199,6 +205,7 @@ const exportToExcel = async () => {
   worksheet.columns = [
     { width: 14 },
     { width: 20 },
+    { width: 24 },
     ...amountColumns.map(c => ({ width: c.rate ? 10 : 13 }))
   ];
 
@@ -279,6 +286,13 @@ const exportToExcel = async () => {
       >
         <el-table-column prop="profitDate" label="日期" width="120" fixed />
         <el-table-column prop="influencerId" label="达人ID" width="160" fixed />
+        <el-table-column
+          prop="influencerName"
+          label="达人名称"
+          min-width="200"
+          fixed
+          show-overflow-tooltip
+        />
         <el-table-column
           v-for="col in amountColumns"
           :key="col.prop"
