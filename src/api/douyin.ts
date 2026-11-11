@@ -1,10 +1,15 @@
 // import { formatToken, getToken } from "@/utils/auth";
 import { http } from "@/utils/http";
 import { stringify } from "qs";
+import { withApiBase } from "@/utils/apiBase";
 
-export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.36:8085"}${url}`;
-  `${"https://api.peidigroup.cn"}${url}`;
+/**
+ * 接口基础地址统一由 `src/utils/apiBase.ts` 管理，支持运行时切换：
+ * - prod   生产：https://api.peidigroup.cn
+ * - local1 本地1：http://12.18.1.36:8085
+ * - local2 本地2：http://10.162.250.167:9000
+ */
+export const commonUrlApi = (url: string) => withApiBase(url);
 
 /** 获取抖音业绩数据 */
 export const getBiDouyinSales = (params: {
