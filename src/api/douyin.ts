@@ -1,15 +1,11 @@
 // import { formatToken, getToken } from "@/utils/auth";
 import { http } from "@/utils/http";
 import { stringify } from "qs";
-import { withApiBase } from "@/utils/apiBase";
 
-/**
- * 接口基础地址统一由 `src/utils/apiBase.ts` 管理，支持运行时切换：
- * - prod   生产：https://api.peidigroup.cn
- * - local1 本地1：http://12.18.1.36:8085
- * - local2 本地2：http://10.162.250.167:9000
- */
-export const commonUrlApi = (url: string) => withApiBase(url);
+export const commonUrlApi = (url: string) =>
+  // `${"http://12.18.1.36:8085"}${url}`; // 本地1
+  // `${"http://10.162.250.167:9000"}${url}`; // 本地2
+  `${"https://api.peidigroup.cn"}${url}`; // 线上
 
 /** 获取抖音业绩数据 */
 export const getBiDouyinSales = (params: {
@@ -315,6 +311,85 @@ export const getShopProfit = (params: {
   );
 };
 
+/** 达人合同结算规则类型：固定费率 / 阶梯档位 / 人工比值 */
+export type DyContractRuleType = "FIXED" | "TIERED" | "MANUAL";
+
+/** 达人合同结算规则状态 */
+export type DyContractRuleStatus =
+  | "COMPLETED"
+  | "INHERITED"
+  | "PROVISIONAL"
+  | "MANUAL";
+
+/** 阶梯档位：min 为销售额阈值（含），rate 为费率小数（0.05 表示 5%） */
+export interface DyContractRateRule {
+  min: number;
+  rate: number;
+}
+
+/** 新增/更新达人合同请求体 */
+export interface DyExpertContractSaveReq {
+  /** 更新时必填，新增时不能传 */
+  id?: number;
+  /** 结算达人 UID（与旺店通达人 ID 一致） */
+  settlementDarrenId: string;
+  expertNickname?: string;
+  douyinId?: string;
+  signingUnit?: string;
+  /** 新增必填，yyyy-MM-dd */
+  contractStartTime?: string;
+  /** 新增必填，yyyy-MM-dd */
+  contractEndTime?: string;
+  /** 开票税率，百分数：6 表示 6%，范围 0~100 */
+  taxRate?: number;
+  /** 规则类型 */
+  ruleType: DyContractRuleType;
+  /** FIXED、TIERED 必填，1~5 档 */
+  rateRule?: DyContractRateRule[];
+  /** MANUAL 必填，人工最终比值，0~1 */
+  ratio?: number;
+  /** 仅当不传合同起止时间时，按该月生成单行 */
+  executionDate?: string;
+  sortOrder?: number;
+  /** 仅更新接口有效；true 时规则应用到合同覆盖的所有月份 */
+  applyToAllMonths?: boolean;
+  [property: string]: any;
+}
+
+/** 结算预览单行 */
+export interface DyExpertContractSettlePreviewItem {
+  id?: number;
+  settlementDarrenId?: string;
+  expertNickname?: string;
+  executionDate?: string;
+  ruleType?: DyContractRuleType;
+  ruleStatus?: DyContractRuleStatus | null;
+  /** 该月销售额（取档基数） */
+  salesAmount?: number;
+  /** 落档费率，MANUAL 为空 */
+  rate?: number | null;
+  /** 结算后的比值 */
+  ratio?: number;
+  /** 当前库中比值 */
+  currentRatio?: number;
+  /** 该月订单是否覆盖到月末 */
+  dataReady?: boolean;
+  /** 是否会被结算 */
+  willSettle?: boolean;
+  skipReason?: string | null;
+  [property: string]: any;
+}
+
+/** 执行结算返回 */
+export interface DyExpertContractSettleResult {
+  month: string;
+  dataReady: boolean;
+  settledCount: number;
+  skippedCount: number;
+  skipped?: string[];
+  [property: string]: any;
+}
+
 /** 分页查询抖音达人合同（按结算达人UID分组） */
 export const getDyExpertContractPage = (data: {
   contractEndTimeEnd?: string;
@@ -334,8 +409,8 @@ export const getDyExpertContractPage = (data: {
   });
 };
 
-/** 批量新增抖音达人合同 */
-export const postDyExpertContractBatch = (data: any[]) => {
+/** 批量新增抖音达人合同（按合同周期自动展开每月一行） */
+export const postDyExpertContractBatch = (data: DyExpertContractSaveReq[]) => {
   return http.request(
     "post",
     commonUrlApi("/oms/dy/dy-expert-contract/batch"),
@@ -345,18 +420,43 @@ export const postDyExpertContractBatch = (data: any[]) => {
   );
 };
 
-/** 批量更新抖音达人合同 */
-export const postDyExpertContractUpdate = (data: any[]) => {
+/** 批量更新抖音达人合同（默认仅更新当前行，applyToAllMonths=true 时应用到整份合同） */
+export const postDyExpertContractUpdate = (data: DyExpertContractSaveReq[]) => {
   return http.request("post", commonUrlApi("/oms/dy/dy-expert-contract"), {
     data
   });
 };
 
-/** 删除抖音达人合同（逻辑删除） */
+/** 删除抖音达人合同（逻辑删除，单行） */
 export const postDyExpertContractDelete = (id: number) => {
   return http.request(
     "post",
     commonUrlApi(`/oms/dy/dy-expert-contract/delete/${id}`)
+  );
+};
+
+/** 结算预览（只读） */
+export const getDyExpertContractSettlePreview = (params: {
+  month: string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/dy/dy-expert-contract/settle/preview"),
+    { params }
+  );
+};
+
+/** 执行结算（人工触发） */
+export const postDyExpertContractSettle = (data: {
+  month: string;
+  force?: boolean;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "post",
+    commonUrlApi("/oms/dy/dy-expert-contract/settle"),
+    { data }
   );
 };
 
