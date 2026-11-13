@@ -7,7 +7,11 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { message } from "@/utils/message";
 import { decryptMessage, encryptMessage } from "./utils/cryptojs";
-import { storageLocal } from "@pureadmin/utils";
+import {
+  getRememberedCreds,
+  saveRememberedCreds,
+  clearRememberedCreds
+} from "@/utils/auth";
 import * as dd from "dingtalk-jsapi";
 import { SYSTEM_CONFIG } from "@/constants";
 import { getUserInfo, register, registerMobile } from "@/api/user";
@@ -18,11 +22,13 @@ const { t } = useI18n();
 const unLoginUrl = localStorage.getItem("peidi-unLoginUrl");
 
 // 账号密码登录，所有登录方式都调用这个函数
-const fetchLogin = (username: string, password: string) => {
+// remember：门户"记住我"勾选态，决定 token 是持久化还是仅本次会话有效
+const fetchLogin = (username: string, password: string, remember = true) => {
   useUserStoreHook()
     .loginByUsername({
       username: username,
-      password: password
+      password: password,
+      remember
     })
     .then(res => {
       if (res.success) {
@@ -69,36 +75,41 @@ const getLoginInfoInWeb = () => {
 
 // 网页登录逻辑总函数
 const loginInWeb = () => {
-  // 先判断是否有记住密码功能存下的账号密码，有的话就先取出来
-  const userInfo: { username: string; password: string } | null =
-    storageLocal().getItem("peidi-userInfo") || { username: "", password: "" };
-
-  // 获取参数
+  // 获取门户回跳参数：key1 账号、key2 密码、key3 是否勾选"记住我"
   const queryKey = getLoginInfoInWeb();
-  // 判断是否需要记住密码
+  // 老门户未携带 key3 时按"记住我"处理，保持原有持久化行为
+  const isRemember = queryKey.key3
+    ? decryptMessage(queryKey.key3) === "true"
+    : true;
+
+  let username = queryKey.key1 ? decryptMessage(queryKey.key1) : "";
+  let password = queryKey.key2 ? decryptMessage(queryKey.key2) : "";
+
+  // 维护"记住我"凭据：勾选则落盘，取消则清除
   if (queryKey.key3) {
-    const isRemember = decryptMessage(queryKey.key3);
-    console.log("isRemember", isRemember);
-    if (isRemember === "true") {
-      storageLocal().setItem("peidi-userInfo", {
-        username: decryptMessage(queryKey.key1 || ""),
-        password: decryptMessage(queryKey.key2 || "")
-      });
-    } else {
-      storageLocal().removeItem("peidi-userInfo");
+    if (isRemember && username && password) {
+      saveRememberedCreds({ username, password });
+    } else if (!isRemember) {
+      clearRememberedCreds();
+    }
+  } else if (username) {
+    // 门户没带 key3：若与记住的账号不是同一个，清掉旧凭据，避免静默登录成上一个用户
+    const remembered = getRememberedCreds();
+    if (remembered && remembered.username !== username) {
+      clearRememberedCreds();
     }
   }
-  // 是否存在账号密码
-  if (queryKey.key1 && queryKey.key2) {
-    const username = decryptMessage(queryKey.key1);
-    const password = decryptMessage(queryKey.key2);
-    // 如果存在则覆盖保存的账号密码
-    userInfo.username = username;
-    userInfo.password = password;
+
+  // URL 里没有账号密码时，回退到"记住我"凭据
+  if (!username || !password) {
+    const remembered = getRememberedCreds();
+    username = username || remembered?.username || "";
+    password = password || remembered?.password || "";
   }
-  if (userInfo.username && userInfo.password) {
+
+  if (username && password) {
     // 调用账号密码登录函数
-    fetchLogin(userInfo.username, userInfo.password);
+    fetchLogin(username, password, isRemember);
   } else {
     // 没有账号密码 提示用户输入
     window.location.href = `https://login.peidigroup.cn/#/login?source=${encryptMessage(window.location.href)}`;
@@ -275,14 +286,12 @@ onMounted(() => {
     }
   }
 
-  & {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 
   .pridi-loader {
     width: 200px;

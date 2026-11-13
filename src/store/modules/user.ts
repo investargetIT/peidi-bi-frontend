@@ -14,7 +14,17 @@ import {
   refreshTokenApi
 } from "@/api/user";
 import { useMultiTagsStoreHook } from "./multiTags";
-import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
+import {
+  type DataInfo,
+  setToken,
+  removeToken,
+  userKey,
+  getRememberedCreds,
+  clearRememberedCreds
+} from "@/utils/auth";
+
+/** "记住我"静默重登单飞，避免并发请求同时触发多个登录 */
+let reloginInFlight: Promise<boolean> | null = null;
 
 export const useUserStore = defineStore("pure-user", {
   state: (): userType => ({
@@ -63,18 +73,43 @@ export const useUserStore = defineStore("pure-user", {
     SET_LOGINDAY(value: number) {
       this.loginDay = Number(value);
     },
-    /** 登入 */
-    async loginByUsername(data) {
+    /** 登入；remember=false 时 token 只在本次浏览器会话内有效 */
+    async loginByUsername({ username, password, remember = true }) {
       return new Promise<UserResult>((resolve, reject) => {
-        getLogin(data)
+        getLogin({ username, password })
           .then(data => {
-            if (data?.success) setToken(data.data);
+            if (data?.success) {
+              setToken(data.data, remember ? "persist" : "session");
+            }
             resolve(data);
           })
           .catch(error => {
             reject(error);
           });
       });
+    },
+    /**
+     * 用"记住我"凭据静默重登（token 过期时调用）。
+     * 凭据失效（改密 / 账号被禁用等）：清掉凭据并返回 false，由调用方回退登录门户，
+     * 避免拿着废凭据反复重试形成"登录 → 被踢 → 再登录"的循环。
+     */
+    async reloginWithRemembered(): Promise<boolean> {
+      const creds = getRememberedCreds();
+      if (!creds) return false;
+      if (reloginInFlight) return reloginInFlight;
+
+      reloginInFlight = this.loginByUsername({ ...creds, remember: true })
+        .then(res => !!res?.success)
+        .catch(() => false)
+        .then(ok => {
+          if (!ok) clearRememberedCreds();
+          return ok;
+        })
+        .finally(() => {
+          reloginInFlight = null;
+        });
+
+      return reloginInFlight;
     },
     /** 前端登出（不调用接口） */
     logOut() {

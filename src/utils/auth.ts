@@ -23,6 +23,54 @@ export interface DataInfo<T> {
 
 export const userKey = "user-info";
 export const TokenKey = "authorized-token";
+
+/** "记住我"凭据存储 key（登录门户勾选"记住我"时由回跳参数落盘） */
+export const REMEMBER_CREDS_KEY = "peidi-userInfo";
+
+/** 登录态作用域：persist 关浏览器仍登录（记住我）；session 关浏览器即失效 */
+export type LoginScope = "persist" | "session";
+
+export type RememberedCreds = { username: string; password: string };
+
+/** 读取"记住我"凭据；结构非法时视为没有 */
+export function getRememberedCreds(): RememberedCreds | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(REMEMBER_CREDS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<RememberedCreds> | null;
+    if (
+      typeof parsed?.username === "string" &&
+      typeof parsed?.password === "string" &&
+      parsed.username &&
+      parsed.password
+    ) {
+      return { username: parsed.username, password: parsed.password };
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/** 保存"记住我"凭据 */
+export function saveRememberedCreds(creds: RememberedCreds): void {
+  try {
+    localStorage.setItem(REMEMBER_CREDS_KEY, JSON.stringify(creds));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 清除"记住我"凭据（退出登录、凭据失效时调用） */
+export function clearRememberedCreds(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(REMEMBER_CREDS_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 /**
  * 通过`multiple-tabs`是否在`cookie`中，判断用户是否已经登录系统，
  * 从而支持多标签页打开已经登录的系统后无需再登录。
@@ -45,33 +93,26 @@ export function getToken(): DataInfo<number> {
  * 将`accessToken`、`expires`、`refreshToken`这三条信息放在key值为authorized-token的cookie里（过期自动销毁）
  * 将`avatar`、`username`、`nickname`、`roles`、`permissions`、`refreshToken`、`expires`这七条信息放在key值为`user-info`的localStorage里（利用`multipleTabsKey`当浏览器完全关闭后自动销毁）
  */
-export function setToken(data: DataInfo<Date>) {
+export function setToken(data: DataInfo<Date>, scope: LoginScope = "persist") {
   let expires = 0;
   // const { accessToken, refreshToken } = data;
   const accessToken = data;
-  const { isRemembered, loginDay } = useUserStoreHook();
-  let currentDate = new Date();
-  // 一天后登陆失效
-  currentDate.setDate(currentDate.getDate() + 1);
+  const { loginDay } = useUserStoreHook();
+  const currentDate = new Date();
+  // 记住我：与 loginDay 保持一致；不记住：cookie 本身随会话销毁，这里的 expires 仅作兜底
+  currentDate.setDate(
+    currentDate.getDate() + (scope === "persist" ? loginDay : 1)
+  );
   expires = currentDate.getTime();
   // expires = new Date(data.expires).getTime(); // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
   const cookieString = JSON.stringify({ accessToken, expires });
 
-  expires > 0
-    ? Cookies.set(TokenKey, cookieString, {
-        expires: (expires - Date.now()) / 86400000
-      })
-    : Cookies.set(TokenKey, cookieString);
+  // persist 写持久 Cookie；session 不设 expires，关闭浏览器自动销毁
+  const cookieOptions = scope === "persist" ? { expires: loginDay } : {};
 
-  Cookies.set(
-    multipleTabsKey,
-    "true",
-    isRemembered
-      ? {
-          expires: loginDay
-        }
-      : {}
-  );
+  Cookies.set(TokenKey, cookieString, cookieOptions);
+
+  Cookies.set(multipleTabsKey, "true", cookieOptions);
 
   function setUserKey({ avatar, username, nickname, roles, permissions }) {
     useUserStoreHook().SET_AVATAR(avatar);
