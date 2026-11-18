@@ -54,7 +54,6 @@ const amountColumns: AmountColumn[] = [
   { prop: "taxExcludedAmount", label: "未税收入" },
   { prop: "totalFinancialCost", label: "财务总成本" },
   { prop: "grossProfit", label: "毛利" },
-  { prop: "netMargin", label: "净毛利率", rate: true },
   { prop: "grossMargin", label: "毛利率", rate: true },
   { prop: "qcLive", label: "千川推直播" },
   { prop: "qcProduct", label: "千川推商品" },
@@ -64,7 +63,8 @@ const amountColumns: AmountColumn[] = [
   { prop: "platformFee", label: "平台费用" },
   { prop: "innerCommission", label: "站内佣金" },
   { prop: "outerCommission", label: "站外佣金" },
-  { prop: "channelNetProfit", label: "渠道净毛利" }
+  { prop: "channelNetProfit", label: "渠道净毛利" },
+  { prop: "netMargin", label: "净毛利率", rate: true }
 ];
 
 // 页码变化（前端分页，无需重新加载数据）
