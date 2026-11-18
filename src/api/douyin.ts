@@ -3,8 +3,8 @@ import { http } from "@/utils/http";
 import { stringify } from "qs";
 
 export const commonUrlApi = (url: string) =>
-  // `${"http://12.18.1.36:8085"}${url}`; // 本地1
-  // `${"http://10.162.250.167:9000"}${url}`; // 本地2
+  // 本地1：`${"http://12.18.1.36:8085"}${url}`
+  // 本地2：`${"http://10.162.250.167:9000"}${url}`
   `${"https://api.peidigroup.cn"}${url}`; // 线上
 
 /** 获取抖音业绩数据 */

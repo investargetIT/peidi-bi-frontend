@@ -54,7 +54,6 @@ const amountColumns: AmountColumn[] = [
   { prop: "taxExcludedAmount", label: "未税收入" },
   { prop: "totalFinancialCost", label: "外部采购成本" },
   { prop: "grossProfit", label: "毛利" },
-  { prop: "netMargin", label: "净毛利率", rate: true },
   { prop: "grossMargin", label: "毛利率", rate: true },
   { prop: "businessTaxSurcharge", label: "营业税金及附加" },
   { prop: "logisticsCost", label: "物流成本" },
@@ -64,7 +63,8 @@ const amountColumns: AmountColumn[] = [
   { prop: "channelInternalMarketing", label: "渠道站内营销费用" },
   { prop: "outerCommission", label: "渠道站外营销费用" },
   { prop: "shortVideoSubsidy", label: "短视频补贴" },
-  { prop: "channelNetProfit", label: "渠道净利" }
+  { prop: "channelNetProfit", label: "渠道净利" },
+  { prop: "netMargin", label: "净利率", rate: true }
 ];
 
 // 页码变化（前端分页，无需重新加载数据）
