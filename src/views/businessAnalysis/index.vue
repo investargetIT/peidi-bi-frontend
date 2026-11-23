@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import IncomePro from "@/views/incomePro/index.vue";
 import OperationAnalysis from "@/views/operationAnalysis/index.vue";
+import IncomeDaily from "@/views/incomeDaily/index.vue";
+import SettingsCard from "./components/settingsCard/index.vue";
 import { storageLocal } from "@pureadmin/utils";
 import NavBar from "./components/navBar/index.vue";
+import AIChat from "./components/aiChat/index.vue";
 
-const activeName = ref("incomePro");
+const STORAGE_KEY = "businessAnalysis_activeTab";
+const activeName = ref<string>(
+  (storageLocal().getItem(STORAGE_KEY) as string) || "incomeDaily"
+);
 
 //#region 陀螺仪逻辑
 const USER_ID = (storageLocal().getItem("dataSource") as any)?.id;
@@ -14,6 +20,23 @@ const TLY = ref({
   y: 0,
   z: 0
 });
+
+// AI智能助手 权限
+const AI_CHAT_USER_IDS = [
+  // 沈皓钰
+  "1926449443739600965",
+  // 张思宇
+  "1850741012504838145",
+  // Summer
+  "1846392647319093250",
+  // 杨世豪
+  "1926449443739601629",
+  // 刘汪洋
+  "1926449443739601753"
+];
+const HAS_AI_CHAT_PERMISSION = computed(() =>
+  AI_CHAT_USER_IDS.includes(USER_ID)
+);
 
 const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
   // console.log("Alpha (Z 轴):", event.alpha);
@@ -25,6 +48,14 @@ const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
 };
 //#endregion
 
+// 开发测试
+const IS_DEBUG = computed(() =>
+  [
+    ...AI_CHAT_USER_IDS,
+    "1874011001523318785" // 王琳
+  ].includes(USER_ID)
+);
+
 onMounted(() => {
   // if (window.DeviceOrientationEvent) {
   //   window.addEventListener("deviceorientation", handleDeviceOrientation, true);
@@ -35,6 +66,11 @@ onMounted(() => {
 
 onUnmounted(() => {
   // window.removeEventListener("deviceorientation", handleDeviceOrientation);
+});
+
+// 监听选项卡变化并保存到本地存储
+watch(activeName, newVal => {
+  storageLocal().setItem(STORAGE_KEY, newVal);
 });
 </script>
 
@@ -55,15 +91,30 @@ onUnmounted(() => {
       type="border-card"
       class="peidi-el-tabs-modern-tabs"
     >
-      <el-tab-pane label="业绩每周监控" name="incomePro" lazy>
-        <IncomePro v-if="activeName === 'incomePro'" />
+      <el-tab-pane label="业绩每日监控" name="incomeDaily" lazy>
+        <IncomeDaily v-if="activeName === 'incomeDaily'" />
       </el-tab-pane>
+      <!-- <el-tab-pane label="业绩每周监控" name="incomePro" lazy>
+        <IncomePro v-if="activeName === 'incomePro'" :IS_EVERY_DAY="false" />
+      </el-tab-pane> -->
       <el-tab-pane label="经营分析" name="operationAnalysis" lazy>
         <OperationAnalysis v-if="activeName === 'operationAnalysis'" />
       </el-tab-pane>
+      <el-tab-pane v-if="IS_DEBUG" label="配置" name="settings" lazy>
+        <SettingsCard v-if="activeName === 'settings'" />
+      </el-tab-pane>
+      <!-- <el-tab-pane
+        label="业绩每周监控（日采集内测）"
+        name="incomePro_day"
+        lazy
+        v-if="IS_DEBUG"
+      >
+        <IncomePro v-if="activeName === 'incomePro_day'" :IS_EVERY_DAY="true" />
+      </el-tab-pane> -->
     </el-tabs>
 
     <NavBar />
+    <AIChat v-if="activeName === 'incomeDaily' && HAS_AI_CHAT_PERMISSION" />
   </div>
 </template>
 

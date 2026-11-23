@@ -3,7 +3,10 @@
 const SHY_ID = "1926449443739600965";
 
 // 管理员 id
-const ADMIN_USER_IDS = [];
+const ADMIN_USER_IDS = [
+  // 金洪旭
+  "1926449443739598852"
+];
 
 // 开发人员 id
 const DEV_USER_IDS = [
@@ -15,9 +18,10 @@ const DEV_USER_IDS = [
   "1850741012504838145",
   // Summer
   "1846392647319093250",
-  // 余建飞
-  "1926449443739601619",
-  ...ADMIN_USER_IDS
+  // 杨世豪
+  "1926449443739601629",
+  // 刘汪洋
+  "1926449443739601753"
 ];
 
 /**
@@ -28,14 +32,18 @@ export const permissionSettings = {
   // 抖音数据需求 模块权限
   douyin: [
     ...DEV_USER_IDS,
-    // 梁钰
-    "1926449443739598911",
-    // 段英姿
-    "1926449443739598866"
+    ...ADMIN_USER_IDS,
+    // // 梁钰
+    // "1926449443739598911",
+    // // 段英姿
+    // "1926449443739598866"
+    // 方云
+    "1848656573381541890"
   ],
   // 宠物档案 模块权限
   petProfiles: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 张梦雅
     "1872157829894832129",
     // 公艳菲
@@ -48,6 +56,7 @@ export const permissionSettings = {
   // 产品控价 模块权限
   priceControl: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 潘明旺
     "1904055363841863682",
     // 蔡笑笑
@@ -56,6 +65,7 @@ export const permissionSettings = {
   // 产品评价数据系统 模块权限
   productReview: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 陶莹
     "1887398864008818690",
     // 乐丽霞
@@ -69,19 +79,31 @@ export const permissionSettings = {
     // 陶启苗
     "1926449443739598874",
     // 周欣
-    "1926449443739598880"
+    "1926449443739598880",
+    // 熊玉葵
+    "1874713377599172609",
+    // 倪炜
+    "1875010583157846018",
+    // 张梦婷
+    "1874747546450571266",
+    // 肖钰琦
+    "1920029966225420289",
+    // 张悦
+    "1919685162362777602"
   ],
   // 站内推广效能看板 模块权限
   sitePromotion: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS
     // 范振吉
-    "1874711258007646210",
+    // "1874711258007646210",
     // 邓苏
-    "1879443024278761474"
+    // "1879443024278761474"
   ],
   // 旧bi模块权限
   metabase: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 陈董
     "1926449443739598857",
     // Lucy 廖丽萍
@@ -130,15 +152,16 @@ export const permissionSettings = {
   //   // Nikki
   //   "1926449443739601215"
   // ],
-  incomePro: [SHY_ID],
+  // incomePro: [SHY_ID],
   littleRedBook: [
     ...DEV_USER_IDS,
+    ...ADMIN_USER_IDS,
     // 范振吉
     "1874711258007646210",
     // 缪欣瑶
     "1922923618996105217"
-  ],
-  operationAnalysis: [SHY_ID]
+  ]
+  // operationAnalysis: [SHY_ID]
 };
 
 /**

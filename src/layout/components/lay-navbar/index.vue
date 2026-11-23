@@ -18,6 +18,7 @@ import RiFormatClear from "~icons/ri/format-clear";
 import { isDevEnv } from "@/utils/debug";
 import { emitter } from "@/utils/mitt";
 import { formatToken, getToken } from "@/utils/auth";
+import { useUserStoreHook } from "@/store/modules/user";
 import { ref } from "vue";
 
 const { onReset } = useDataThemeChange();
@@ -38,7 +39,13 @@ const {
 
 const { t, locale, translationCh, translationEn } = useTranslationLang();
 
-emitter.on("logout", () => {
+emitter.on("logout", async () => {
+  // token 失效：优先用"记住我"凭据静默重登，成功则刷新页面继续使用；
+  // 没有凭据或凭据已失效时才真正退出（回登录页/门户）。
+  if (await useUserStoreHook().reloginWithRemembered()) {
+    window.location.reload();
+    return;
+  }
   logout();
 });
 

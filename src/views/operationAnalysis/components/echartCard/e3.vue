@@ -2,11 +2,19 @@
 import { computed, ref } from "vue";
 import ChartCard from "@/components/PdChart/index.vue";
 import * as echarts from "echarts";
-import { DATA_TIME } from "../../utils/config";
+// import { DATA_TIME } from "../../utils/config";
 
 const props = defineProps({
+  excelData: {
+    type: Object,
+    required: true
+  },
   sizeConfig: {
     type: Object,
+    required: true
+  },
+  dataTime: {
+    type: String,
     required: true
   }
 });
@@ -26,7 +34,10 @@ const productStructure1 = computed(() => ({
         left: "center",
         top: "center",
         style: {
-          text: "7245",
+          text: props.excelData?.E3?.pd_pie.reduce(
+            (acc, cur) => acc + cur.value,
+            0
+          ),
           textAlign: "center",
           fill: "#333",
           fontSize: props.sizeConfig.fontSize * 1.5,
@@ -78,12 +89,16 @@ const productStructure1 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        data: [
-          { value: 6433, name: "爵宴", itemStyle: { color: "#12239E" } },
-          { value: 308, name: "SMB/⻮能", itemStyle: { color: "#118DFF" } },
-          { value: 503, name: "好适嘉", itemStyle: { color: "#E66C37" } },
-          { value: 1, name: "Vivaland", itemStyle: { color: "#E044A7" } }
-        ]
+        data:
+          //   [
+          //   { value: 6433, name: "爵宴", itemStyle: { color: "#12239E" } },
+          //   { value: 308, name: "SMB/⻮能", itemStyle: { color: "#118DFF" } },
+          //   { value: 503, name: "好适嘉", itemStyle: { color: "#E66C37" } },
+          //   { value: 1, name: "Vivaland", itemStyle: { color: "#E044A7" } }
+          // ]
+          (props.excelData?.E3?.pd_pie || []).filter(
+            (item: any) => item.name !== "Vivaland"
+          )
       }
     ]
   },
@@ -132,7 +147,13 @@ const productStructure2 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["爵宴", "SMB/⻮能", "好适嘉", "Vivaland"],
+      data: (() => {
+        const xData = props.excelData?.E3?.pd_bar?.xAxisData || [];
+        const vivalandIndex = xData.indexOf("Vivaland");
+        return vivalandIndex !== -1
+          ? xData.filter((_, i) => i !== vivalandIndex)
+          : xData;
+      })(),
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -146,48 +167,76 @@ const productStructure2 = computed(() => ({
       type: "value",
       show: false
     },
-    series: [
-      {
-        name: "进度",
-        type: "bar",
-        data: [16, 15, 10, 0],
-        itemStyle: {
-          color: "#118DFF"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "同比",
-        type: "bar",
-        data: [16, -20, 20, 0],
-        itemStyle: {
-          color: "#12239E"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      }
-    ]
+    series:
+      //  [
+      //   {
+      //     name: "进度",
+      //     type: "bar",
+      //     data: [16, 15, 10, 0],
+      //     itemStyle: {
+      //       color: "#118DFF"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   },
+      //   {
+      //     name: "同比",
+      //     type: "bar",
+      //     data: [16, -20, 20, 0],
+      //     itemStyle: {
+      //       color: "#12239E"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   }
+      // ]
+      (props.excelData?.E3?.pd_bar?.series || []).map(item => {
+        const xData = props.excelData?.E3?.pd_bar?.xAxisData || [];
+        const vivalandIndex = xData.indexOf("Vivaland");
+        return {
+          name: item.name,
+          type: "bar",
+          data:
+            vivalandIndex !== -1
+              ? item.data.filter((_, i) => i !== vivalandIndex)
+              : item.data,
+          itemStyle: {
+            color: item.color
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: props.sizeConfig.fontSizeL2,
+            fontWeight: props.sizeConfig.fontWeight,
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        };
+      })
   },
   style: {
     width: "100%",
@@ -210,7 +259,11 @@ const productStructure3 = computed(() => ({
         left: "center",
         top: "center",
         style: {
-          text: "6434",
+          text:
+            props.excelData?.E3?.meatyway_pie?.reduce(
+              (acc, cur) => acc + cur.value,
+              0
+            ) || "0",
           textAlign: "center",
           fill: "#333",
           fontSize: props.sizeConfig.fontSize * 1.5,
@@ -262,17 +315,19 @@ const productStructure3 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        data: [
-          {
-            value: 4883,
-            name: "爵宴⻛⼲零⻝",
-            itemStyle: { color: "#198E44" }
-          },
-          { value: 578, name: "爵宴湿粮", itemStyle: { color: "#C1F087" } },
-          { value: 348, name: "爵宴⻛⼲粮", itemStyle: { color: "#BDD643" } },
-          { value: 121, name: "爵宴烘焙粮", itemStyle: { color: "#3EF882" } },
-          { value: 504, name: "爵宴冻⼲", itemStyle: { color: "#21C149" } }
-        ]
+        data:
+          //   [
+          //   {
+          //     value: 4883,
+          //     name: "爵宴⻛⼲零⻝",
+          //     itemStyle: { color: "#198E44" }
+          //   },
+          //   { value: 578, name: "爵宴湿粮", itemStyle: { color: "#C1F087" } },
+          //   { value: 348, name: "爵宴⻛⼲粮", itemStyle: { color: "#BDD643" } },
+          //   { value: 121, name: "爵宴烘焙粮", itemStyle: { color: "#3EF882" } },
+          //   { value: 504, name: "爵宴冻⼲", itemStyle: { color: "#21C149" } }
+          // ]
+          props.excelData?.E3?.meatyway_pie || []
       }
     ]
   },
@@ -321,13 +376,7 @@ const productStructure4 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: [
-        "爵宴⻛⼲零⻝",
-        "爵宴湿粮",
-        "爵宴⻛⼲粮",
-        "爵宴烘焙粮",
-        "爵宴冻⼲"
-      ],
+      data: props.excelData?.E3?.meatyway_bar?.xAxisData || [],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -341,68 +390,91 @@ const productStructure4 = computed(() => ({
       type: "value",
       show: false
     },
-    series: [
-      {
-        name: "进度",
-        type: "bar",
-        data: [20, 19, 7, 3, 17],
-        itemStyle: {
-          color: "#C1F087"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "同比",
-        type: "bar",
-        data: [13, 22, -13, 0, 51],
-        itemStyle: {
-          color: "#198E44"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "毛利率",
-        type: "bar",
-        data: [28, 38, 37, 26, 42],
-        itemStyle: {
-          color: "#BDD643"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      }
-    ]
+    series:
+      //   [
+      //   {
+      //     name: "进度",
+      //     type: "bar",
+      //     data: [20, 19, 7, 3, 17],
+      //     itemStyle: {
+      //       color: "#C1F087"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   },
+      //   {
+      //     name: "同比",
+      //     type: "bar",
+      //     data: [13, 22, -13, 0, 51],
+      //     itemStyle: {
+      //       color: "#198E44"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   },
+      //   {
+      //     name: "毛利率",
+      //     type: "bar",
+      //     data: [28, 38, 37, 26, 42],
+      //     itemStyle: {
+      //       color: "#BDD643"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   }
+      // ]
+      (props.excelData?.E3?.meatyway_bar?.series || []).map(item => {
+        return {
+          name: item.name,
+          type: "bar",
+          data: item.data,
+          itemStyle: {
+            color: item.color
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: props.sizeConfig.fontSizeL2,
+            fontWeight: props.sizeConfig.fontWeight,
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        };
+      })
   },
   style: {
     width: "100%",
@@ -425,7 +497,11 @@ const productStructure5 = computed(() => ({
         left: "center",
         top: "center",
         style: {
-          text: "503",
+          text:
+            props.excelData?.E3?.healthy_pie?.reduce(
+              (acc, cur) => acc + cur.value,
+              0
+            ) || "0",
           textAlign: "center",
           fill: "#333",
           fontSize: props.sizeConfig.fontSize * 1.5,
@@ -477,16 +553,17 @@ const productStructure5 = computed(() => ({
         blur: {
           alpha: 0.3
         },
-        data: [
-          { value: 215, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
-          { value: 120, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
-          { value: 89, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
-          {
-            value: 79,
-            name: "好适嘉其他 + 零食",
-            itemStyle: { color: "#9071CE" }
-          }
-        ]
+        //   [
+        //   { value: 215, name: "好适嘉湿粮", itemStyle: { color: "#EC8FCA" } },
+        //   { value: 120, name: "好适嘉⼲粮", itemStyle: { color: "#E8D166" } },
+        //   { value: 89, name: "好适嘉冻⼲", itemStyle: { color: "#D64550" } },
+        //   {
+        //     value: 79,
+        //     name: "好适嘉其他 + 零食",
+        //     itemStyle: { color: "#9071CE" }
+        //   }
+        // ]
+        data: props.excelData?.E3?.healthy_pie
       }
     ]
   },
@@ -535,7 +612,7 @@ const productStructure6 = computed(() => ({
     },
     xAxis: {
       type: "category",
-      data: ["好适嘉湿粮", "好适嘉⼲粮", "好适嘉冻⼲", "好适嘉其他 + 零食"],
+      data: props.excelData?.E3?.healthy_bar?.xAxisData || [],
       axisLabel: {
         fontSize: props.sizeConfig.fontSize,
         fontWeight: props.sizeConfig.fontWeight,
@@ -549,68 +626,91 @@ const productStructure6 = computed(() => ({
       type: "value",
       show: false
     },
-    series: [
-      {
-        name: "进度",
-        type: "bar",
-        data: [12, 10, 9, 8],
-        itemStyle: {
-          color: "#E68F96"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "同比",
-        type: "bar",
-        data: [-8, 74, 191, -10],
-        itemStyle: {
-          color: "#EC8FCA"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      },
-      {
-        name: "毛利率",
-        type: "bar",
-        data: [29, 58, 40, 40],
-        itemStyle: {
-          color: "#C163CA"
-        },
-        label: {
-          show: true,
-          position: "top",
-          fontSize: props.sizeConfig.fontSizeL2,
-          fontWeight: props.sizeConfig.fontWeight,
-          color: "#666",
-          fontFamily: "sans-serif",
-          formatter: params => `${params.value}%`
-        },
-        emphasis: {
-          focus: "series"
-        }
-      }
-    ]
+    series:
+      //   [
+      //   {
+      //     name: "进度",
+      //     type: "bar",
+      //     data: [12, 10, 9, 8],
+      //     itemStyle: {
+      //       color: "#E68F96"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   },
+      //   {
+      //     name: "同比",
+      //     type: "bar",
+      //     data: [-8, 74, 191, -10],
+      //     itemStyle: {
+      //       color: "#EC8FCA"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   },
+      //   {
+      //     name: "毛利率",
+      //     type: "bar",
+      //     data: [29, 58, 40, 40],
+      //     itemStyle: {
+      //       color: "#C163CA"
+      //     },
+      //     label: {
+      //       show: true,
+      //       position: "top",
+      //       fontSize: props.sizeConfig.fontSizeL2,
+      //       fontWeight: props.sizeConfig.fontWeight,
+      //       color: "#666",
+      //       fontFamily: "sans-serif",
+      //       formatter: params => `${params.value}%`
+      //     },
+      //     emphasis: {
+      //       focus: "series"
+      //     }
+      //   }
+      // ]
+      (props.excelData?.E3?.healthy_bar?.series || []).map(item => {
+        return {
+          name: item.name,
+          type: "bar",
+          data: item.data,
+          itemStyle: {
+            color: item.color
+          },
+          label: {
+            show: true,
+            position: "top",
+            fontSize: props.sizeConfig.fontSizeL2,
+            fontWeight: props.sizeConfig.fontWeight,
+            color: "#666",
+            fontFamily: "sans-serif",
+            formatter: params => `${params.value}%`
+          },
+          emphasis: {
+            focus: "series"
+          }
+        };
+      })
   },
   style: {
     width: "100%",
@@ -798,7 +898,7 @@ const handleBarChart3Ready = (chart: echarts.ECharts) => {
     <div class="text-[#0a0a0a] text-base md:text-xl">
       产品结构
       <span class="text-[#666] text-xs md:text-sm">
-        (数据期间: {{ DATA_TIME }})
+        (数据期间: {{ dataTime }})
       </span>
     </div>
     <el-row :gutter="10">
