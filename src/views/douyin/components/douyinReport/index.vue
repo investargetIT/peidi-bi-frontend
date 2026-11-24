@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import {
   getWdtOrderDetailSalesSummary,
   postDyQianChuanSummary,
@@ -76,6 +76,8 @@ const tableData = ref<any[]>([]);
 const summaryData = ref<any>(null);
 // loading状态
 const loading = ref(false);
+// 未匹配到财务成本的商品（后端 missingCost，补录临时成本后刷新即消失）
+const missingCostList = ref<any[]>([]);
 
 // 根据流量来源和业务类型获取千川投流金额（接口按周返回，跨周求和）
 const getQianChuanAmount = (
@@ -327,13 +329,20 @@ const buildTableData = (data: any[]) => {
   tableData.value = fullTableData;
 };
 
-// 兼容多种返回结构，提取行数据（直接数组 / { data: [] } / { success, data: { records: [] } }）
+// 兼容多种返回结构，提取行数据（直接数组 / { data: [] } / { success, data: { records: [] } } / { data: { summary: [] } }）
 const extractRows = (res: any): any[] => {
   if (!res) return [];
   const body = res.data !== undefined ? res.data : res;
   if (Array.isArray(body)) return body;
+  if (body && Array.isArray(body.summary)) return body.summary;
   if (body && Array.isArray(body.records)) return body.records;
   return [];
+};
+
+// 提取「未匹配财务成本」的商品清单（旧返回结构无该字段，视为无缺失）
+const extractMissingCost = (res: any): any[] => {
+  const body = res?.data !== undefined ? res.data : res;
+  return Array.isArray(body?.missingCost) ? body.missingCost : [];
 };
 
 // 加载数据（请求API，传 configId）
@@ -363,19 +372,34 @@ const loadData = async () => {
       configId: configId.value
     };
 
-    // 同时请求两个接口
-    const [res1, res2] = (await Promise.all([
+    // 两个接口互不牵连：千川投流取数失败也不能把周报主体拖垮，缺失成本只预警、不阻断出表
+    const [summaryRes, qcRes] = await Promise.allSettled([
       getWdtOrderDetailSalesSummary(params),
       postDyQianChuanSummary({
         dateStart: formData.startDate,
         dateEnd: formData.endDate,
         configId: configId.value
       })
-    ])) as [any, any];
+    ]);
+
+    // 周报主体（含缺失成本清单）失败才终止，保留上次结果并透出后端 message
+    if (summaryRes.status === "rejected") {
+      throw summaryRes.reason;
+    }
 
     // 兼容多种返回结构，提取行数据（成功与否都以能否取到数组为准）
-    rawData.value = extractRows(res1);
-    qianChuanSummaryData.value = extractRows(res2);
+    rawData.value = extractRows(summaryRes.value);
+    // 未匹配到财务成本的商品：只做预警，成本按 0 计，表格照常出
+    missingCostList.value = extractMissingCost(summaryRes.value);
+
+    // 千川投流失败时相关列按 0 显示，不影响周报表格本身
+    if (qcRes.status === "fulfilled") {
+      qianChuanSummaryData.value = extractRows(qcRes.value);
+    } else {
+      qianChuanSummaryData.value = [];
+      console.error("千川投流数据加载失败:", qcRes.reason);
+      ElMessage.warning("千川投流数据获取失败，千川投流相关列按 0 显示");
+    }
 
     // 计算并显示数据
     recalculateData();
@@ -540,6 +564,29 @@ const getRowClassName = ({ row }: { row: any }) => {
   }
   return "";
 };
+
+// 缺失成本商品的含税金额合计，用于提示影响规模
+const missingCostTotalAmount = computed(() =>
+  missingCostList.value.reduce(
+    (sum, item) => sum + Number(item.taxIncludedAmount || 0),
+    0
+  )
+);
+
+// 复制缺失商品的商家编码，方便去成本核算页批量补录临时成本
+const copyMissingCodes = async () => {
+  const codes = missingCostList.value
+    .map(item => item.merchantCode)
+    .filter(Boolean)
+    .join("\n");
+  if (!codes) return;
+  try {
+    await navigator.clipboard.writeText(codes);
+    ElMessage.success(`已复制 ${missingCostList.value.length} 个商家编码`);
+  } catch {
+    ElMessage.error("复制失败，请手动选中复制");
+  }
+};
 </script>
 
 <template>
@@ -607,6 +654,57 @@ const getRowClassName = ({ row }: { row: any }) => {
           </el-button>
         </el-form-item>
       </el-form>
+    </el-card>
+
+    <!-- 缺失成本预警：未匹配到财务成本的商品，成本按 0 计，毛利虚高 -->
+    <el-card v-if="missingCostList.length > 0" class="warn-card" shadow="never">
+      <div class="cost-warning">
+        <h4>
+          成本缺失预警：以下 {{ missingCostList.length }} 个商品未匹配到财务成本
+        </h4>
+        <p class="cost-warning-desc">
+          这些商品在成本表中没有单价，报表按
+          <strong>成本 0</strong> 计算，会导致毛利虚高；
+          请到「成本核算」页补录临时成本后重新生成周报（补录后刷新即时生效）。
+          涉及含税金额合计
+          <strong>{{ missingCostTotalAmount.toFixed(2) }}</strong> 元。
+        </p>
+        <el-table
+          :data="missingCostList"
+          size="small"
+          border
+          max-height="240"
+          class="cost-warning-table"
+        >
+          <el-table-column
+            prop="merchantCode"
+            label="商家编码"
+            width="180"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="productName"
+            label="品名"
+            min-width="260"
+            show-overflow-tooltip
+          />
+          <el-table-column label="含税金额" width="140" align="right">
+            <template #default="{ row }">
+              {{ Number(row.taxIncludedAmount || 0).toFixed(2) }}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="cost-warning-footer">
+          <el-button
+            size="small"
+            type="warning"
+            plain
+            @click="copyMissingCodes"
+          >
+            复制商家编码
+          </el-button>
+        </div>
+      </div>
     </el-card>
 
     <!-- 数据表格 -->
@@ -777,6 +875,55 @@ const getRowClassName = ({ row }: { row: any }) => {
 
 .search-card {
   margin-bottom: 20px;
+}
+
+/* 缺失成本预警 */
+.warn-card {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fffbe6 0%, #fff7e6 100%);
+  border: 1px solid #ffe58f;
+  border-radius: 8px;
+}
+
+.warn-card :deep(.el-card__body) {
+  padding: 16px;
+  background-color: transparent;
+}
+
+.cost-warning {
+  font-size: 13px;
+  color: #ad6800;
+}
+
+.cost-warning h4 {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d46b08;
+}
+
+.cost-warning h4::before {
+  font-size: 16px;
+  content: "⚠️";
+}
+
+.cost-warning-desc {
+  margin: 0 0 12px;
+  line-height: 1.8;
+  color: #ad6800;
+}
+
+.cost-warning-table {
+  background-color: #fff;
+}
+
+.cost-warning-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 /* 固定日期选择器宽度（参考 petProfiles 搜索栏） */
