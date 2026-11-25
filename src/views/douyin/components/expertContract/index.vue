@@ -136,10 +136,13 @@ const RULE_STATUS_MAP: Record<
   string,
   { label: string; type: "success" | "info" | "warning" | "primary" }
 > = {
+  // 规则已改、待结算：比例未生效，报表沿用上月比例，需手动「结算」
+  PENDING: { label: "待结算", type: "warning" },
   COMPLETED: { label: "已结算", type: "success" },
   INHERITED: { label: "继承上月", type: "info" },
-  PROVISIONAL: { label: "首月测算", type: "warning" },
-  MANUAL: { label: "人工", type: "primary" }
+  PROVISIONAL: { label: "首月测算", type: "info" },
+  MANUAL: { label: "人工", type: "primary" },
+  EXPIRED: { label: "已过期", type: "info" }
 };
 
 const getRuleTypeLabel = (type?: string | null) =>
@@ -151,6 +154,30 @@ const getRuleStatus = (status?: string | null) =>
   status && RULE_STATUS_MAP[status]
     ? RULE_STATUS_MAP[status]
     : ({ label: "未生效", type: "info" } as const);
+
+/** 待结算：规则已改、比例未生效，需手动「结算」后才写回比值 */
+const isPendingStatus = (status?: string | null) => status === "PENDING";
+
+/** 某达人合同行里「待结算」的归属月份列表（executionDate 形如 2026-11-01） */
+const pendingMonthsOfRow = (row: any): string[] =>
+  (Array.isArray(row?.contractList) ? row.contractList : [])
+    .filter((item: any) => isPendingStatus(item?.ruleStatus))
+    .map((item: any) => String(item?.executionDate || "").slice(0, 7))
+    .filter(Boolean);
+
+/** 当前结算月份下待结算的达人数量（顶部提醒用） */
+const pendingDarrenCount = computed(
+  () =>
+    tableData.value.filter(row =>
+      pendingMonthsOfRow(row).includes(settleMonth.value)
+    ).length
+);
+
+/** 规则保存后的提示语：人工比值立即生效，其余需结算 */
+const savedTip = (ruleType?: DyContractRuleType) =>
+  ruleType === "MANUAL"
+    ? "已保存，人工比值立即生效"
+    : "规则已保存，状态为「待结算」。请到合同列表点「结算」后生效；结算前报表沿用上月比例。";
 
 const formatRatio = (val: any) => {
   if (val === undefined || val === null || val === "") return "-";
@@ -559,6 +586,10 @@ const handleSave = async () => {
       return;
     }
     ElMessage.success("新增成功，已按合同周期生成每月记录");
+    // 非人工比值的规则落库后为「待结算」，比例尚未生效，需提示去结算
+    if (payloadItem.ruleType !== "MANUAL") {
+      ElMessage.warning(savedTip(payloadItem.ruleType));
+    }
     dialogVisible.value = false;
     loadData();
   } catch (error: any) {
@@ -608,9 +639,12 @@ const handleSaveMonthRule = async () => {
       ruleType: payloadItem.ruleType,
       rateRule: payloadItem.rateRule,
       ratio: payloadItem.ratio,
-      settlementRule: formatRulePreview(payloadItem)
+      settlementRule: formatRulePreview(payloadItem),
+      // 改规则不再直接生效：非人工比值统一置为「待结算」，人工比值保存即生效
+      ruleStatus: payloadItem.ruleType === "MANUAL" ? "MANUAL" : "PENDING"
     };
     if (applyToAllMonths.value) {
+      // 应用到整份合同：合同周期内的各月规则都改写（与后端一致）
       contractHistoryList.value.forEach(item =>
         Object.assign(item, ruleSnapshot)
       );
@@ -619,9 +653,15 @@ const handleSaveMonthRule = async () => {
     }
 
     monthRuleDialogVisible.value = false;
-    ElMessage.success(
-      applyToAllMonths.value ? "已更新整份合同" : "已更新当前月份规则"
-    );
+    if (payloadItem.ruleType === "MANUAL") {
+      ElMessage.success(
+        applyToAllMonths.value
+          ? "已更新整份合同，人工比值已生效"
+          : savedTip("MANUAL")
+      );
+    } else {
+      ElMessage.warning(savedTip(payloadItem.ruleType));
+    }
     loadData();
   } catch (error: any) {
     console.error("保存月份规则失败:", error);
@@ -660,6 +700,19 @@ const handleDelete = async (row: any) => {
       ElMessage.error(getErrorMessage(error, "删除失败"));
     }
   }
+};
+
+// 行内「结算」入口：把结算月份对齐到该行待结算的月份后再走预览确认
+const handleRowSettle = (row: any) => {
+  const months = pendingMonthsOfRow(row);
+  if (!months.length) {
+    ElMessage.info(
+      `该达人没有待结算的月份，当前结算月份：${settleMonth.value}`
+    );
+  } else if (!months.includes(settleMonth.value)) {
+    settleMonth.value = months[months.length - 1];
+  }
+  handleSettlePreview();
 };
 
 // 结算预览
@@ -857,6 +910,16 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- 待结算提醒：合同规则已改但未结算，报表仍沿用上月比例 -->
+      <el-alert
+        v-if="pendingDarrenCount > 0"
+        type="warning"
+        :closable="false"
+        show-icon
+        class="mb-[10px]"
+        :title="`当前页有 ${pendingDarrenCount} 个达人在 ${settleMonth} 待结算：规则已保存但比例未生效，报表仍沿用上月比例，请点「结算」后生效。`"
+      />
+
       <el-table
         v-loading="loading"
         :data="tableData"
@@ -950,7 +1013,7 @@ onMounted(() => {
             {{ formatRatio(latestField(row, "ratio")) }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="110">
+        <el-table-column label="状态" width="160">
           <template #default="{ row }">
             <el-tag
               :type="getRuleStatus(latestField(row, 'ruleStatus')).type"
@@ -958,11 +1021,31 @@ onMounted(() => {
             >
               {{ getRuleStatus(latestField(row, "ruleStatus")).label }}
             </el-tag>
+            <!-- 当前结算月份仍有未结算的月份行，提示需结算才生效 -->
+            <el-tag
+              v-if="pendingMonthsOfRow(row).includes(settleMonth)"
+              type="warning"
+              effect="plain"
+              size="small"
+              class="ml-[6px]"
+            >
+              本月待结算
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="contractCount" label="合同数量" width="100" />
-        <el-table-column label="操作" width="100" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
+            <el-tooltip content="结算该月生效" placement="top">
+              <el-button
+                type="warning"
+                link
+                size="small"
+                @click="handleRowSettle(row)"
+              >
+                <el-icon><Money /></el-icon>
+              </el-button>
+            </el-tooltip>
             <el-tooltip content="编辑" placement="top">
               <el-button
                 type="primary"
@@ -1206,6 +1289,14 @@ onMounted(() => {
             title="保存后后端会按合同起止时间自动展开为每月一行，无需手动逐月添加。"
             class="mt-4"
           />
+          <el-alert
+            v-if="ruleForm.ruleType !== 'MANUAL'"
+            type="warning"
+            :closable="false"
+            show-icon
+            title="新增后各月为「待结算」状态，比例未生效；需在合同列表点「结算」后生效，结算前报表沿用上月比例。"
+            class="mt-2"
+          />
         </template>
 
         <div v-else class="contract-history">
@@ -1224,7 +1315,7 @@ onMounted(() => {
                 {{ getRuleTypeLabel(row.ruleType) }}
               </template>
             </el-table-column>
-            <el-table-column label="状态" width="110">
+            <el-table-column label="状态" width="130">
               <template #default="{ row }">
                 <el-tag :type="getRuleStatus(row.ruleStatus).type" size="small">
                   {{ getRuleStatus(row.ruleStatus).label }}
@@ -1395,6 +1486,23 @@ onMounted(() => {
           </el-checkbox>
           <span class="rate-tip">默认只更新当前月份</span>
         </el-form-item>
+
+        <el-alert
+          v-if="ruleForm.ruleType !== 'MANUAL'"
+          type="warning"
+          :closable="false"
+          show-icon
+          title="保存后状态为「待结算」，比例不会立即生效；需到合同列表点「结算」后生效，结算前报表沿用上月比例。"
+          class="mb-4"
+        />
+        <el-alert
+          v-else
+          type="info"
+          :closable="false"
+          show-icon
+          title="人工比值保存即生效，无需结算。"
+          class="mb-4"
+        />
       </el-form>
 
       <template #footer>
@@ -1446,6 +1554,13 @@ onMounted(() => {
           show-overflow-tooltip
         />
         <el-table-column prop="executionDate" label="归属月份" width="110" />
+        <el-table-column label="当前状态" width="110" align="center">
+          <template #default="{ row }">
+            <el-tag :type="getRuleStatus(row.ruleStatus).type" size="small">
+              {{ getRuleStatus(row.ruleStatus).label }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="规则类型" width="100">
           <template #default="{ row }">
             {{ getRuleTypeLabel(row.ruleType) }}
