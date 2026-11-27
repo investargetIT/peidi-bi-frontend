@@ -84,6 +84,38 @@ export const postBiDouyinVideoTypeUpdateType = (data: {
   );
 };
 
+/** 周报汇总行（原 sales-summary 数组元素，字段未变） */
+export interface DySalesSummaryRow {
+  brokerage?: number;
+  businessType?: string;
+  taxIncludedAmount?: number;
+  totalA1?: number;
+  totalContractAmount?: number;
+  totalFinancialCost?: number;
+  trafficFormat?: number;
+  trafficFormatName?: string;
+  [property: string]: any;
+}
+
+/** 未匹配到财务成本的商品（成本按 0 计） */
+export interface DyMissingCostItem {
+  /** 商家编码（商品档案货号；无档案时回落为旺店通货品ID） */
+  merchantCode: string;
+  /** 品名 */
+  productName: string;
+  /** 含税金额合计（赠品行恒为 0） */
+  taxIncludedAmount: number;
+}
+
+/** 周报接口返回（⚠️ 2026-11 起 data 由数组改为对象） */
+export interface DySalesSummaryResult {
+  /** 原接口数组，字段不变 */
+  summary: DySalesSummaryRow[];
+  /** 完全匹配不到财务成本的商品；无缺失时为 []，不缓存 */
+  missingCost: DyMissingCostItem[];
+  [property: string]: any;
+}
+
 /** 查询销售汇总（按流量类型和业务类型分组） */
 export const getWdtOrderDetailSalesSummary = (params: {
   configId?: number | string;
@@ -92,7 +124,7 @@ export const getWdtOrderDetailSalesSummary = (params: {
   startDate: string;
   [key: string]: any;
 }) => {
-  return http.request(
+  return http.request<DySalesSummaryResult>(
     "get",
     commonUrlApi("/oms/wdt/order-detail/sales-summary"),
     {
@@ -251,6 +283,47 @@ export const getProductProfit = (params: {
 };
 
 /** 利润表（店铺）单行，按 月×店铺名 分组（月报） */
+/** 抖音考核单行（对齐人工表 sheet「抖音考核」的列序） */
+export interface DyAssessmentVo {
+  /** 月份 yyyy-MM */
+  month?: string;
+  /** 店铺名 */
+  shopName?: string;
+  /** 考核口径业务类型：自营 / 达播 */
+  businessType?: string;
+  /** 流量来源编码 1-短视频 2-商品卡 3-直播 4-其他 */
+  trafficFormat?: number;
+  /** 流量来源名称 */
+  trafficFormatName?: string;
+  /** 含税收入 */
+  taxIncludedAmount?: number;
+  /** 未税收入 */
+  taxExcludedAmount?: number;
+  /** 财务总成本 */
+  totalFinancialCost?: number;
+  /** 毛利 */
+  grossProfit?: number;
+  /** 毛利率 */
+  grossMargin?: number;
+  /** 物流成本 */
+  logisticsCost?: number;
+  /** 仓储损耗包材 */
+  warehouseCost?: number;
+  /** 平台费用 */
+  platformFee?: number;
+  /** 佣金 */
+  commission?: number;
+  /** 千川投流 */
+  qianChuanCost?: number;
+  /** 千川投流占比 */
+  qianChuanRatio?: number;
+  /** 渠道净毛利 */
+  channelNetProfit?: number;
+  /** 净毛利率 */
+  netMargin?: number;
+  [property: string]: any;
+}
+
 export interface DyShopProfitVo {
   /** 营业税金及附加 */
   businessTaxSurcharge?: number;
@@ -311,15 +384,48 @@ export const getShopProfit = (params: {
   );
 };
 
+/**
+ * 抖音考核 —— 按 月 返回 店铺×自营达播(考核口径)×流量来源 的考核数据（全量数组，前端自行分页/排序）。
+ * 与周报/利润表同源取数，差异：①自营/达播按考核口径重新区分 ②千川投流按对应项目销售额分摊。
+ * 返回每月每店固定 8 行（4 流量来源 × 自营/达播，含全 0 行）。
+ */
+export const getDyAssessment = (params: {
+  /** 月份 yyyy-MM */
+  yearMonth: string;
+  configId: number | string;
+  [property: string]: any;
+}) => {
+  return http.request(
+    "get",
+    commonUrlApi("/oms/wdt/order-detail/assessment"),
+    {
+      params
+    },
+    {
+      timeout: 1000 * 60 * 5
+    }
+  );
+};
+
 /** 达人合同结算规则类型：固定费率 / 阶梯档位 / 人工比值 */
 export type DyContractRuleType = "FIXED" | "TIERED" | "MANUAL";
 
-/** 达人合同结算规则状态 */
+/**
+ * 达人合同结算规则状态
+ * - PENDING：规则已改、待结算，比例未生效（报表沿用上月比例）
+ * - COMPLETED：已结算锁定
+ * - INHERITED：未完结月，继承上月比例
+ * - PROVISIONAL：新签达人首月，30 天测算
+ * - MANUAL：人工直接填比值（保存即生效）
+ * - EXPIRED：合同期外，该月不生效
+ */
 export type DyContractRuleStatus =
+  | "PENDING"
   | "COMPLETED"
   | "INHERITED"
   | "PROVISIONAL"
-  | "MANUAL";
+  | "MANUAL"
+  | "EXPIRED";
 
 /** 阶梯档位：min 为销售额阈值（含），rate 为费率小数（0.05 表示 5%） */
 export interface DyContractRateRule {

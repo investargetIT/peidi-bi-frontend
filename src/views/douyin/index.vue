@@ -4,6 +4,7 @@ import DouyinReport from "./components/douyinReport/index.vue";
 import InfluencerProfit from "./components/influencerProfit/index.vue";
 import ProductProfit from "./components/productProfit/index.vue";
 import ShopProfit from "./components/shopProfit/index.vue";
+import Assessment from "./components/assessment/index.vue";
 import ExpertContract from "./components/expertContract/index.vue";
 import QianChuan from "./components/qianChuan/index.vue";
 import WeeklyConfig from "./components/weeklyConfig/index.vue";
@@ -18,6 +19,7 @@ const STORAGE_KEY = "douyin-active-tab";
 const tabs = [
   "抖音周报",
   "利润表",
+  "抖音考核",
   "达人合同",
   "千川投流",
   "费用配置"
@@ -82,6 +84,9 @@ onMounted(() => {
           <ProductProfit v-else-if="profitView === 'product'" />
           <ShopProfit v-else />
         </div>
+      </el-tab-pane>
+      <el-tab-pane label="抖音考核" name="抖音考核">
+        <Assessment v-if="activeTab === '抖音考核'" />
       </el-tab-pane>
       <el-tab-pane label="达人合同" name="达人合同">
         <ExpertContract v-if="activeTab === '达人合同'" />
